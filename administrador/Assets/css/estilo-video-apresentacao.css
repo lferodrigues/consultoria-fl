@@ -117,7 +117,7 @@ ul {
 /* Para as imagens dentro das .image-content */
 .image-content img {
     width: 100%;
-    height: 300px; /* Definir uma altura fixa para as imagens */
+    height: 370px; /* Definir uma altura fixa para as imagens */
     object-fit: cover; /* Garante que as imagens cubram completamente a área sem distorção */
     border-radius: 12px;
 }
@@ -209,12 +209,12 @@ ul {
 
     /* Imagens em telas pequenas */
     .image-content img {
-        height: 200px; /* Ajuste para telas menores */
+        height: 280px; /* Ajuste para telas menores */
     }
 
  .video-wrapper {
         width: 90%; /* Ajuste da largura para mobile */
-        max-width: 320px; /* Limite máximo da largura no mobile */
+        max-width: 360px; /* Limite máximo da largura no mobile */
         aspect-ratio: 4 / 3; /* Define a proporção de 4:3 */
         height: auto; /* Altura ajustada automaticamente com base na largura */
     }
@@ -302,4 +302,10 @@ footer {
 
 .social-icons .website:hover {
     color: #00A86B; /* Verde para o ícone do site */
+}
+.course-image {
+    width: 377px; /* Largura fixa com base na imagem fornecida */
+    height: 377px; /* Altura fixa para manter as proporções */
+    object-fit: cover; /* Garante que a imagem se encaixe sem distorção */
+    border-radius: 12px; /* Bordas arredondadas para melhor estética */
 }
