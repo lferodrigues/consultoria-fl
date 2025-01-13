@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/img/icone.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="Assets/css/estilo-temp.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="Assets/img/logo.ico" type="image/x-icon" />
+    
+    <title>Fagner Lage |Consultoria Trimestral</title>
+</head>
+<body>
+    <a href="https://personalfagnerlage.com.br"><img class="pre-nav-image" src="./Assets/img/banner05.png" alt="Logo"></a>
+
+    <h3>Para saber mais da Consultoria Semestral, preencha os campos abaixo:</h3>
+    <form onsubmit="event.preventDefault(); enviarWhatsApp_consultoria();">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="sobrenome">Sobrenome:</label>
+        <input type="text" id="sobrenome" name="sobrenome" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <button type="submit">Enviar</button>
+    </form>
+    
+    <script src="/Assets/js/scripts.js"></script>
+</body>
+
+</html>
