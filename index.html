@@ -3,168 +3,323 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Meta Description -->
+    <title>Consultoria online com o personal Fagner Lage</title>
     <meta name="description"
-        content="Plataforma de consultoria para exercicios fisícos. Aprenda online com materiais práticos e mentoria personalizada. Inscreva-se já!">
-    <!-- Palavras-chave -->
-    <meta name="keywords"
-        content="Plataforma de consultoria para exercicios fisícos. Aprenda online com materiais práticos e mentoria personalizada. Inscreva-se já!">
-    <!-- Autor -->
-    <meta name="Fagner Lage" content="Consultoria personalizada para treinos.">
-    <!-- Open Graph (Para Redes Sociais) -->
-    <meta property="og:title" content="Fagner Lage  | Consultoria personalizada para treinos.">
+        content="Consultoria online de treino com o personal Fagner Lage. Treino personalizado, acompanhamento contínuo e suporte direto para você sair do platô.">
+    <meta name="author" content="Fagner Lage">
+    <meta property="og:title" content="Fagner Lage | Consultoria online de treino">
     <meta property="og:description"
-        content="Plataforma de consultoria para exercicios fisícos. Aprenda online com materiais práticos e mentoria personalizada. Inscreva-se já">
-    <title>Consultoria personalizada com o personal Fagner Lage</title>
-    <link rel="stylesheet" href="./administrador/Assets/css/estilo-video-apresentacao.css">
-    <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon" />
-    <link rel="shortcut icon" href="Assets/img/logo.ico" type="image/x-icon" />
+        content="Treino personalizado, acompanhamento contínuo e suporte direto para você sair do platô.">
+    <meta property="og:image" content="./Assets/img/banner05.png">
+    <meta name="theme-color" content="#07080b">
+
+    <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./Assets/css/landing.css">
 </head>
-<script>
-    var images = [
-        "./administrador/Assets/img/1.jpeg",
-        "./administrador/Assets/img/2.jpeg",
-        "./administrador/Assets/img/3.jpeg",
-        "./administrador/Assets/img/4.jpeg",
-        "./administrador/Assets/img/5.jpeg"
-
-    ];
-    var currentIndex = 0;
-
-    function changeImage() {
-        var img = document.getElementById("slideshow");
-
-        // Inicia o fade-out
-        img.style.opacity = 0;
-
-        setTimeout(function () {
-            // Após o fade-out, troca a imagem
-            currentIndex = (currentIndex + 1) % images.length;
-            img.src = images[currentIndex];
-
-            // Inicia o fade-in
-            img.style.opacity = 1;
-        }, 1000); // Tempo do fade-out (1s)
-    }
-
-    // Troca a imagem a cada 5 segundos
-    setInterval(changeImage, 5000);
-</script>
 
 <body>
-    <main>
-        <!-- Seção de Destaque -->
-        <header class="hero">
-            <h1>Consultoria online com o personal Fagner Lage</h1>
-            <p>Transforme o seu corpo de uma forma dinâmica e sem complicações!</p>
-        </header>
 
-        <!-- Seção de Motivos para investir em uma consultoria online de treinamento com Vídeo -->
-        <section class="content-section">
-            <div class="text-content">
-                <h2>Por que investir em uma consultoria online de treinamento?</h2>
-                <p>Investir em uma consultoria de treinamento físico online oferece flexibilidade para treinar onde e
-                    quando quiser,
-                    adaptando os exercícios à sua rotina diária. Além disso, você recebe planos personalizados
-                    elaborados por profissionais qualificados,
-                    garantindo que os treinos atendam às suas necessidades específicas e objetivos de saúde.</p>
-                <p>Com o suporte contínuo desses especialistas, é possível manter a motivação e disciplina necessárias
-                    para alcançar resultados eficazes, tudo isso sem as
-                    limitações de horários fixos ou a necessidade de deslocamentos até uma academia.</p>
-                <p>Imagine alcançar seus objetivos de saúde e bem-estar com a orientação de profissionais
-                    especializados, que já transformaram a vida de inúmeros
-                    clientes satisfeitos. Ao optar por nossa consultoria de treinamento físico online, você se junta a
-                    uma comunidade de sucesso, onde cada plano é cuidadosamente elaborado para atender às suas
-                    necessidades específicas.</p>
-            </div>
-            <div class="video-wrapper">
-                <iframe src="https://www.youtube.com/embed/Ls7xSzsZ_Js?si=X2oyVxZg1FY87t8V" title="Video Example"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
+    <!-- Navegação -->
+    <nav class="nav">
+        <div class="container">
+            <a href="./index.html" aria-label="Início"><img src="./Assets/img/banner05.png" alt="Fagner Lage Personal Trainer"></a>
+            <ul>
+                <li><a href="#metodo">Método</a></li>
+                <li><a href="#beneficios">O que você recebe</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#planos">Planos</a></li>
+            </ul>
+            <a href="#planos" class="btn btn-primary">Quero começar</a>
+        </div>
+    </nav>
 
-        </section>
-
-        <!-- Sobre o Instrutor -->
-        <section class="content-section">
-            <div class="image-content">
-                <img src="./administrador/Assets/img/1.jpeg" id="slideshow" alt="Foto do Instrutor">
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <div class="reveal">
+                <span class="eyebrow">Consultoria online de treino</span>
+                <h1>Pare de perder tempo com <span class="accent">treinos genéricos</span>. Eles cansam, estagnam e não transformam.</h1>
+                <p class="lead">Um método pensado para a sua rotina, o seu nível e o seu objetivo, com o acompanhamento
+                    do personal Fagner Lage onde você estiver.</p>
+                <div class="hero-actions">
+                    <a href="#planos" class="btn btn-primary">Quero minha consultoria <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="#porque" class="btn btn-ghost"><i class="fa-solid fa-play"></i> Ver vídeo</a>
+                </div>
+                <div class="hero-proof">
+                    <div><strong>100%</strong>online</div>
+                    <div><strong>Sob medida</strong>para seu objetivo</div>
+                    <div><strong>Suporte</strong>contínuo</div>
+                </div>
             </div>
-            <div class="text-content">
-                <h2>Sobre o Personal:</h2>
-                <p>Olá meu nome é Fagner lage,sou personal trainer.
-                    Estou no mercado a um tempinho,com passagens como treinador funcional e ex atleta de corrida.
-                <p>Natural de São João Nepomuceno agora dedico meu tempo com meus alunos e alunas da minha academia e o
-                    principal...
-                    Dedico meu tempo para ajudar pessoas a transformarem seus corpos de forma simples e consistente.</p>
-                <p> Sendo assim estou aqui para fazer com que pessoas que queiram treinar de verdade ou pessoas que não
-                    tem disponibilidade para ter um personal presencial
-                    a alcançarem o corpo dos sonho treinando com acompanhamento online onde estiverem.</p>
-                <div class="social-icons">
-                    <a href="https://www.instagram.com/fagnerlage_personal?igsh=amFud2pxaHVrNHBl" target="_blank"
-                        class="icon instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    </a>
-                    <a href="https://t.me/+bbMuPfvOADdiYjQx" target="_blank" class="icon twitter">
-                        <i class="fab fa-telegram"></i>
-                    </a>
-                    <a href="https://youtube.com/@fagnerlage4008?si=iE8lZNJxbGlUKe41" target="_blank"
-                        class="icon youtube">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                    <a href="https://www.facebook.com/fagner.lage.79" target="_blank" class="icon facebook">
-                        <i class="fab fa-facebook"></i>
-                    </a>
+            <div class="hero-photo reveal">
+                <img src="./administrador/Assets/img/4.jpeg" alt="Personal Fagner Lage na academia">
+                <div class="logo-badge"><img src="./Assets/img/logo.png" alt=""></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Método -->
+    <section class="section method" id="metodo">
+        <div class="container">
+            <div class="phones reveal" aria-hidden="true">
+                <div class="phone back">
+                    <div class="screen">
+                        <h4>Treino B — Superiores</h4>
+                        <small>Semana 3 · Bloco de força</small>
+                        <div class="ex"><div><b>Supino reto</b><em>4 × 8 · 90s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="ex"><div><b>Remada curvada</b><em>4 × 10 · 75s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="ex"><div><b>Desenvolvimento</b><em>3 × 10 · 60s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="ex"><div><b>Puxada frente</b><em>3 × 12 · 60s</em></div><i class="fa-regular fa-circle"></i></div>
+                    </div>
+                </div>
+                <div class="phone front">
+                    <div class="screen">
+                        <h4>Treino A — Inferiores</h4>
+                        <small>Semana 3 · Bloco de força</small>
+                        <div class="days"><span>S</span><span class="on">T</span><span>Q</span><span>Q</span><span>S</span></div>
+                        <div class="ex"><div><b>Agachamento livre</b><em>4 × 8 · 90s</em></div><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="ex"><div><b>Leg press 45°</b><em>3 × 12 · 60s</em></div><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="ex"><div><b>Stiff</b><em>3 × 10 · 60s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="ex"><div><b>Cadeira extensora</b><em>3 × 15 · 45s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="ex"><div><b>Panturrilha em pé</b><em>4 × 15 · 45s</em></div><i class="fa-regular fa-circle"></i></div>
+                        <div class="bar"><span></span></div>
+                    </div>
                 </div>
             </div>
 
-        </section>
+            <div class="reveal">
+                <span class="eyebrow">O método</span>
+                <h2>O método que vai te <span class="accent">tirar do platô</span></h2>
+                <p class="sub">3 pilares, um só objetivo: a sua evolução.</p>
 
-        <!-- Sobre o Curso -->
-        <section class="content-section">
-            <div class="text-content">
-                <h2>Vantagens de adquirir uma Consultoria Online:</h2>
-                <ul>
-                    <li><b>Personalização dos Treinos:</b> Planos adaptados ao seu objetivo, nível de condicionamento e
-                        rotina.</li>
-                    <li><b>Flexibilidade:</b> Treine no horário e local que preferir, sem comprometer sua agenda.</li>
-                    <li><b>Custo-Benefício:</b> Valores mais acessíveis em comparação ao atendimento presencial.</li>
-                    <li><b>Acompanhamento Contínuo:</b> Suporte remoto para dúvidas, ajustes e motivação constante.</li>
-                    <li><b>Eficiência nos Resultados:</b> Estratégias otimizadas para alcançar seus objetivos de forma
-                        segura e eficaz.</li>
-                    <li><b>Prevenção de Lesões:</b> Orientações profissionais para realizar os exercícios corretamente.
-                    </li>
-                    <li><b>Autonomia Progressiva:</b> Aprendizado que permite maior independência na prática de
-                        exercícios.</li>
+                <div class="pillar">
+                    <div class="num">1</div>
+                    <div>
+                        <h3>Técnica</h3>
+                        <p>Execução correta em cada exercício para ativar o músculo certo, render mais e prevenir lesões.</p>
+                    </div>
+                </div>
+                <div class="pillar">
+                    <div class="num">2</div>
+                    <div>
+                        <h3>Intensidade</h3>
+                        <p>Volume e carga ajustados ao seu nível, com progressão planejada para o corpo continuar respondendo.</p>
+                    </div>
+                </div>
+                <div class="pillar">
+                    <div class="num">3</div>
+                    <div>
+                        <h3>Constância</h3>
+                        <p>Um plano que cabe na sua rotina e acompanhamento próximo para manter a motivação e a disciplina.</p>
+                    </div>
+                </div>
+
+                <a href="#planos" class="btn btn-primary">Quero esse método</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefícios -->
+    <section class="section" id="beneficios">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow">O que você recebe</span>
+                <h2>Veja o que você vai receber na <span class="accent">consultoria</span></h2>
+                <p>Tudo o que você precisa para treinar com segurança e ver resultado, sem horários fixos nem deslocamento.</p>
+            </div>
+
+            <div class="grid-4">
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-dumbbell"></i></div>
+                    <h3>Treino personalizado</h3>
+                    <p>Plano adaptado ao seu objetivo, nível de condicionamento e rotina.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-comments"></i></div>
+                    <h3>Suporte direto</h3>
+                    <p>Tire dúvidas e receba orientação sempre que precisar.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-sliders"></i></div>
+                    <h3>Ajustes contínuos</h3>
+                    <p>O treino evolui junto com você, conforme os resultados aparecem.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-shield-heart"></i></div>
+                    <h3>Prevenção de lesões</h3>
+                    <p>Orientação profissional para executar cada movimento corretamente.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-clock"></i></div>
+                    <h3>Flexibilidade total</h3>
+                    <p>Treine no horário e no local que preferir, sem comprometer a agenda.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Estratégia eficiente</h3>
+                    <p>Treinos otimizados para chegar ao seu objetivo com segurança.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-brands fa-telegram"></i></div>
+                    <h3>Comunidade</h3>
+                    <p>Acesso ao grupo no Telegram com conteúdos e motivação.</p>
+                </article>
+                <article class="feature reveal">
+                    <div class="ico"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3>Autonomia progressiva</h3>
+                    <p>Você aprende o porquê de cada treino e ganha independência.</p>
+                </article>
+            </div>
+
+            <div class="center"><a href="#planos" class="btn btn-primary">Quero fazer parte</a></div>
+        </div>
+    </section>
+
+    <!-- Vídeo -->
+    <section class="section why" id="porque">
+        <div class="container">
+            <div class="video reveal">
+                <iframe src="https://www.youtube.com/embed/Ls7xSzsZ_Js?si=X2oyVxZg1FY87t8V" title="Apresentação da consultoria"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+            </div>
+            <div class="reveal">
+                <span class="eyebrow">Por que online?</span>
+                <h2>Entenda por que a consultoria online foi feita <span class="accent">para você</span></h2>
+                <p>Você recebe um plano elaborado por um profissional qualificado, pensado para as suas necessidades e
+                    objetivos, com a liberdade de treinar onde e quando quiser.</p>
+                <ul class="checks">
+                    <li>Não tem disponibilidade para um personal presencial</li>
+                    <li>Já treina, mas parou de evoluir</li>
+                    <li>Quer resultado sem abrir mão da praticidade</li>
+                    <li>Busca um valor mais acessível que o atendimento presencial</li>
                 </ul>
-                <p>Ideal para quem busca praticidade sem abrir mão de qualidade e resultados.</p>
             </div>
-            <div class="image-content">
-                <img src="./administrador/Assets/img/banner04.png" alt="Imagem do Curso" class="course-image">
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Seção de Chamada para Ação -->
-        <section class="cta-section" id="matricula">
-            <h2>Garanta sua vaga agora mesmo!</h2>
-            <p>Invista no seu físico e transforme a sua vida. As vagas são limitadas!</p>
-            <a href="./links.html" class="cta-button">Matricule-se já!</a>
-        </section>
-    </main>
+    <!-- Sobre -->
+    <section class="section about" id="sobre">
+        <div class="container">
+            <div class="about-photo reveal">
+                <img src="./administrador/Assets/img/1.jpeg" id="slideshow" alt="Personal Fagner Lage">
+            </div>
+            <div class="reveal">
+                <span class="eyebrow">Quem vai te acompanhar</span>
+                <h2>Prazer, sou o <span class="accent">Fagner Lage</span></h2>
+                <p>Sou personal trainer, com passagens como treinador funcional e ex-atleta de corrida. Natural de São João
+                    Nepomuceno, hoje dedico meu tempo aos alunos e alunas da minha academia e, principalmente, a ajudar
+                    pessoas a transformarem o corpo de forma simples e consistente.</p>
+                <p>Estou aqui para quem quer treinar de verdade, ou para quem não tem disponibilidade para um personal
+                    presencial, alcançar o corpo dos sonhos com acompanhamento online, onde estiver.</p>
+                <div class="social">
+                    <a href="https://www.instagram.com/fagnerlage_personal?igsh=amFud2pxaHVrNHBl" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://t.me/+bbMuPfvOADdiYjQx" target="_blank" rel="noopener" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="https://youtube.com/@fagnerlage4008?si=iE8lZNJxbGlUKe41" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.facebook.com/fagner.lage.79" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planos -->
+    <section class="section plans" id="planos">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow">Planos</span>
+                <h2>Escolha o plano que <span class="accent">combina com você</span></h2>
+                <p>Quanto mais tempo de acompanhamento, mais consistente é a sua evolução.</p>
+            </div>
+            <div class="grid-3">
+                <div class="plan reveal">
+                    <h3>Trimestral</h3>
+                    <span class="dur">3 meses de acompanhamento</span>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i>Treino personalizado</li>
+                        <li><i class="fa-solid fa-check"></i>Suporte para dúvidas</li>
+                        <li><i class="fa-solid fa-check"></i>Ajustes durante o ciclo</li>
+                    </ul>
+                    <a href="./consuloria_trimestral.html" class="btn btn-ghost">Quero o trimestral</a>
+                </div>
+                <div class="plan featured reveal">
+                    <span class="tag">Mais escolhido</span>
+                    <h3>Semestral</h3>
+                    <span class="dur">6 meses de acompanhamento</span>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i>Treino personalizado</li>
+                        <li><i class="fa-solid fa-check"></i>Suporte para dúvidas</li>
+                        <li><i class="fa-solid fa-check"></i>Ajustes e progressão contínua</li>
+                        <li><i class="fa-solid fa-check"></i>Tempo para consolidar resultados</li>
+                    </ul>
+                    <a href="./consuloria_semestral.html" class="btn btn-primary">Quero o semestral</a>
+                </div>
+                <div class="plan reveal">
+                    <h3>Anual</h3>
+                    <span class="dur">12 meses de acompanhamento</span>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i>Treino personalizado</li>
+                        <li><i class="fa-solid fa-check"></i>Suporte para dúvidas</li>
+                        <li><i class="fa-solid fa-check"></i>Periodização de longo prazo</li>
+                        <li><i class="fa-solid fa-check"></i>Transformação completa</li>
+                    </ul>
+                    <a href="./consuloria_anual.html" class="btn btn-ghost">Quero o anual</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA final -->
+    <section class="section final">
+        <div class="container reveal">
+            <h2>Garanta sua vaga e comece a <span class="accent">treinar de verdade</span></h2>
+            <p>Invista no seu físico e transforme a sua vida. As vagas são limitadas.</p>
+            <a href="#planos" class="btn btn-primary">Matricule-se já <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </section>
+
     <footer>
-        <div class="footer-content">
-            <a href="https://feliperodrigues.net">
-                <img src="./Assets/img/banner04.png" alt="Logo do Felipe">
-            </a>
-            <p>© <span id="currentYear">2024</span> Todos os direitos reservados</p>
+        <div class="container">
+            <img src="./Assets/img/banner05.png" alt="Fagner Lage Personal Trainer">
+            <p>© <span id="currentYear">2026</span> Fagner Lage · Todos os direitos reservados</p>
+            <a href="https://feliperodrigues.net" target="_blank" rel="noopener">Desenvolvido por Felipe Rodrigues</a>
         </div>
     </footer>
+
+    <script>
+        // Ano atual no rodapé
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Slideshow da seção "Sobre"
+        (function () {
+            var images = [1, 2, 3, 4, 5].map(function (n) { return './administrador/Assets/img/' + n + '.jpeg'; });
+            var i = 0, img = document.getElementById('slideshow');
+            images.forEach(function (src) { new Image().src = src; });
+            setInterval(function () {
+                img.style.opacity = 0;
+                setTimeout(function () {
+                    i = (i + 1) % images.length;
+                    img.src = images[i];
+                    img.style.opacity = 1;
+                }, 1000);
+            }, 5000);
+        })();
+
+        // Animação de entrada ao rolar
+        (function () {
+            var els = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+            }, { threshold: .12 });
+            els.forEach(function (e) { io.observe(e); });
+        })();
+    </script>
     <script src="./Assets/js/sec.js"></script>
 </body>
 
