@@ -24,6 +24,13 @@
         "alunoId"
       ]
     },
+    "exercicios": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "categoria"
+      ]
+    },
     "biblioteca": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'"

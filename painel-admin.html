@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=5">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=6">
 </head>
 
 <body>
@@ -60,6 +60,7 @@
                         <ul class="submenu">
                             <li><a href="#/treinos" data-sub="treinos">Treinos cadastrados</a></li>
                             <li><a href="#/treinos/novo" data-sub="treinos/novo">Cadastrar treino</a></li>
+                            <li><a href="#/exercicios" data-sub="exercicios">Biblioteca de exercícios</a></li>
                         </ul>
                     </li>
                     <li class="menu-item has-sub" data-rota="biblioteca">
@@ -183,6 +184,36 @@
                     </section>
                     <div class="cards" id="tr-lista"></div>
                     <div class="empty card-empty" id="tr-vazio" hidden><i class="fa-solid fa-dumbbell"></i><p id="tr-vazio-txt"></p></div>
+                </section>
+
+                <!-- ============ BIBLIOTECA DE EXERCÍCIOS ============ -->
+                <section class="view" id="view-exercicios" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Treinos</span>
+                            <h1>Biblioteca de exercícios</h1>
+                            <p class="page-sub">Cadastre os exercícios por grupo e use na hora de montar os treinos.</p>
+                        </div>
+                        <div class="head-actions">
+                            <button type="button" class="btn btn-ghost" id="ex-importar"><i class="fa-solid fa-wand-magic-sparkles"></i> Importar sugeridos</button>
+                            <a href="#/exercicios/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo exercício</a>
+                        </div>
+                    </div>
+                    <div class="cat-grid" id="ex-cats"></div>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="ex-busca" placeholder="Buscar exercício ou equipamento">
+                        </div>
+                    </section>
+                    <h2 class="cat-titulo" id="ex-titulo">Todos os exercícios</h2>
+                    <section class="table-card">
+                        <table class="table">
+                            <thead><tr><th>Exercício</th><th>Grupo</th><th>Equipamento</th><th>Vídeo</th><th class="th-actions">Ações</th></tr></thead>
+                            <tbody id="ex-tbody"></tbody>
+                        </table>
+                        <div class="empty" id="ex-vazio" hidden><i class="fa-solid fa-dumbbell"></i><p id="ex-vazio-txt"></p></div>
+                    </section>
                 </section>
 
                 <!-- ============ BIBLIOTECA ============ -->
@@ -350,7 +381,10 @@
 
                 <div class="ex-head">
                     <h3>Exercícios</h3>
-                    <button type="button" class="btn btn-ghost btn-sm" id="ex-add"><i class="fa-solid fa-plus"></i> Adicionar exercício</button>
+                    <div class="ex-head-btns">
+                        <button type="button" class="btn btn-primary btn-sm" id="ex-da-biblioteca"><i class="fa-solid fa-book-open"></i> Da biblioteca</button>
+                        <button type="button" class="btn btn-ghost btn-sm" id="ex-add"><i class="fa-solid fa-plus"></i> Em branco</button>
+                    </div>
                 </div>
                 <div class="ex-list" id="ex-list"></div>
 
@@ -478,6 +512,53 @@
         </div>
     </div>
 
+    <!-- ================= MODAL: EXERCÍCIO ================= -->
+    <div class="modal" id="modal-exercicio" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="exf-titulo">
+            <div class="modal-head">
+                <h2 id="exf-titulo">Novo exercício</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="exercicio-form" novalidate>
+                <div class="grid-2">
+                    <label class="full">Nome do exercício *<input type="text" id="x-nome" required autocomplete="off" maxlength="80" placeholder="Ex.: Supino reto com barra"></label>
+                    <label>Grupo *<select id="x-categoria"></select></label>
+                    <label>Equipamento<input type="text" id="x-equip" autocomplete="off" maxlength="60" placeholder="Ex.: Barra e banco"></label>
+                    <label class="full">Link do vídeo<input type="url" id="x-video" autocomplete="off" placeholder="https://youtube.com/..."></label>
+                    <label class="full">Como executar<textarea id="x-descricao" rows="3" placeholder="Posição, movimento, respiração e cuidados"></textarea></label>
+                </div>
+                <p class="form-msg" id="exf-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="exf-salvar">Salvar exercício</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ESCOLHER EXERCÍCIOS (no cadastro de treino) ================= -->
+    <div class="modal" id="modal-escolher" hidden>
+        <div class="modal-box large" role="dialog" aria-modal="true" aria-labelledby="esc-titulo">
+            <div class="modal-head">
+                <h2 id="esc-titulo">Adicionar da biblioteca</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="chips" id="esc-cats"></div>
+            <div class="search esc-busca">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="esc-busca" placeholder="Buscar exercício">
+            </div>
+            <div class="pick-list esc-lista" id="esc-lista"></div>
+            <div class="modal-actions esc-acoes">
+                <span class="esc-n" id="esc-n">Nenhum selecionado</span>
+                <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                <button type="button" class="btn btn-primary" id="esc-ok" disabled>Adicionar ao treino</button>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="dl-exercicios"></datalist>
+
     <!-- ================= MODAL: CONFIRMAR ================= -->
     <div class="modal" id="modal-confirm" hidden>
         <div class="modal-box small" role="alertdialog" aria-modal="true" aria-labelledby="cf-titulo">
@@ -492,7 +573,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=6"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=7"></script>
 </body>
 
 </html>

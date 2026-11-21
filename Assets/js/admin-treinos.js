@@ -3,15 +3,35 @@
 import { ref, push, update, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado, nomeAluno, opcoesAlunos } from "./admin-core.js?v=1";
+import { CATEGORIAS, categoriaPorId } from "./exercicios-dados.js?v=1";
+
+const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9 ]/g, "").trim();
+let escolhidos = new Set();
+let catEscolha = "";
 
 let editandoId = null;
 
 export function iniciar() {
-    aoMudar(() => { preencherFiltro(); desenhar(); });
+    aoMudar(() => { preencherFiltro(); desenhar(); preencherSugestoes(); if (!$("modal-escolher").hidden) desenharEscolha(); });
     $("tr-busca").addEventListener("input", desenhar);
     $("tr-filtro").addEventListener("change", desenhar);
     $("ex-add").addEventListener("click", () => { adicionarExercicio(); focarUltimo(); });
     $("ex-list").addEventListener("click", acaoExercicio);
+    $("ex-list").addEventListener("change", completarDaBiblioteca);
+    $("ex-da-biblioteca").addEventListener("click", abrirEscolha);
+    $("esc-cats").addEventListener("click", (ev) => {
+        const b = ev.target.closest("button[data-cat]");
+        if (!b) return;
+        catEscolha = b.dataset.cat;
+        desenharEscolha();
+    });
+    $("esc-busca").addEventListener("input", desenharEscolha);
+    $("esc-lista").addEventListener("change", (ev) => {
+        if (ev.target.type !== "checkbox") return;
+        if (ev.target.checked) escolhidos.add(ev.target.value); else escolhidos.delete(ev.target.value);
+        contarEscolha();
+    });
+    $("esc-ok").addEventListener("click", adicionarEscolhidos);
     $("treino-form").addEventListener("submit", salvar);
     $("tr-lista").addEventListener("click", (ev) => {
         const btn = ev.target.closest("button[data-acao]");
@@ -89,6 +109,78 @@ function desenhar() {
         : "Nenhum treino encontrado com esse filtro.";
 }
 
+/* ---------- Biblioteca de exercícios no cadastro ---------- */
+
+// Sugestões ao digitar o nome do exercício
+function preencherSugestoes() {
+    $("dl-exercicios").innerHTML = [...estado.exercicios]
+        .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"))
+        .map((e) => `<option value="${esc(e.nome)}">${esc(categoriaPorId(e.categoria).nome)}</option>`).join("");
+}
+
+function exercicioPorNome(nome) {
+    const n = norm(nome);
+    return n ? estado.exercicios.find((e) => norm(e.nome) === n) : null;
+}
+
+// Ao escolher um nome da biblioteca, traz o vídeo (ou a execução) se o campo estiver vazio
+function completarDaBiblioteca(ev) {
+    if (ev.target.dataset.c !== "nome") return;
+    const x = exercicioPorNome(ev.target.value);
+    const extra = ev.target.closest(".ex-row").querySelector('[data-c="extra"]');
+    if (x && !extra.value.trim()) extra.value = x.video || x.descricao || "";
+}
+
+function abrirEscolha() {
+    escolhidos = new Set();
+    catEscolha = "";
+    $("esc-busca").value = "";
+    desenharEscolha();
+    abrirModal("modal-escolher", "esc-busca");
+}
+
+function desenharEscolha() {
+    const n = {};
+    estado.exercicios.forEach((e) => { n[e.categoria] = (n[e.categoria] || 0) + 1; });
+    $("esc-cats").innerHTML =
+        `<button type="button" class="chip${catEscolha === "" ? " ativo" : ""}" data-cat="">Todos <small>${estado.exercicios.length}</small></button>` +
+        CATEGORIAS.map((c) => `<button type="button" class="chip${catEscolha === c.id ? " ativo" : ""}" data-cat="${c.id}"><i class="fa-solid ${c.icone}"></i> ${c.nome} <small>${n[c.id] || 0}</small></button>`).join("");
+
+    const termo = norm($("esc-busca").value);
+    const lista = estado.exercicios
+        .filter((e) => (!catEscolha || e.categoria === catEscolha) && (!termo || norm(e.nome + " " + e.equipamento).includes(termo)))
+        .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+    $("esc-lista").innerHTML = lista.length
+        ? lista.map((e) => `<label><input type="checkbox" value="${e.id}" ${escolhidos.has(e.id) ? "checked" : ""}> ${esc(e.nome)} <small>${esc(categoriaPorId(e.categoria).nome)}${e.equipamento ? " · " + esc(e.equipamento) : ""}</small></label>`).join("")
+        : `<p class="ex-empty">${estado.exercicios.length ? "Nenhum exercício neste grupo." : "A biblioteca está vazia. Cadastre exercícios em Treinos → Biblioteca de exercícios."}</p>`;
+    contarEscolha();
+}
+
+function contarEscolha() {
+    const k = escolhidos.size;
+    $("esc-n").textContent = k ? k + (k === 1 ? " exercício selecionado" : " exercícios selecionados") : "Nenhum selecionado";
+    $("esc-ok").disabled = k === 0;
+}
+
+function adicionarEscolhidos() {
+    // Mantém a ordem da biblioteca na lista exibida
+    const selecionados = estado.exercicios.filter((e) => escolhidos.has(e.id))
+        .sort((a, b) => CATEGORIAS.findIndex((c) => c.id === a.categoria) - CATEGORIAS.findIndex((c) => c.id === b.categoria) || (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+    // Primeiro preenche as linhas que estão vazias, depois cria novas
+    const vazias = [...$("ex-list").querySelectorAll(".ex-row")].filter((l) => !l.querySelector('[data-c="nome"]').value.trim());
+    selecionados.forEach((x) => {
+        const linha = vazias.shift();
+        if (linha) {
+            linha.querySelector('[data-c="nome"]').value = x.nome;
+            linha.querySelector('[data-c="extra"]').value = x.video || x.descricao || "";
+        } else {
+            adicionarExercicio({ nome: x.nome, video: x.video, obs: x.video ? "" : x.descricao });
+        }
+    });
+    fecharModal("modal-escolher");
+    aviso(selecionados.length + (selecionados.length === 1 ? " exercício adicionado ao treino." : " exercícios adicionados ao treino."), "ok");
+}
+
 /* ---------- Formulário ---------- */
 
 function linhaExercicio(e = {}) {
@@ -96,7 +188,7 @@ function linhaExercicio(e = {}) {
     div.className = "ex-row";
     div.innerHTML = `
         <span class="ex-n"></span>
-        <label class="ex-nome">Exercício<input type="text" data-c="nome" placeholder="Ex.: Supino reto" autocomplete="off"></label>
+        <label class="ex-nome">Exercício<input type="text" data-c="nome" list="dl-exercicios" placeholder="Digite ou escolha da biblioteca" autocomplete="off"></label>
         <label>Séries<input type="text" data-c="series" inputmode="numeric" placeholder="4" autocomplete="off"></label>
         <label>Repetições<input type="text" data-c="reps" placeholder="10-12" autocomplete="off"></label>
         <label>Carga<input type="text" data-c="carga" placeholder="20 kg" autocomplete="off"></label>

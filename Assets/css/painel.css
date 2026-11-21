@@ -220,6 +220,39 @@ body.side-fechada .hamb { visibility: visible; }
 .plan-preview ul li i { color: var(--red-2); margin-right: 8px; }
 .plan-preview .btn { justify-content: center; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; }
 
+/* Biblioteca de exercícios */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.cat {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px; border-radius: 14px; cursor: pointer;
+    background: var(--card); border: 1px solid var(--line); color: #e5e7eb; transition: border-color .2s, background .2s, transform .2s;
+}
+.cat i { font-size: 1.3rem; color: var(--red-2); }
+.cat span { font-weight: 700; font-size: .88rem; }
+.cat small { color: var(--muted); font-size: .74rem; }
+.cat:hover { border-color: rgba(255, 59, 69, .5); transform: translateY(-2px); }
+.cat.ativo { background: linear-gradient(180deg, rgba(227, 32, 43, .25), rgba(227, 32, 43, .08)); border-color: var(--red-2); }
+.cat.ativo small { color: #fff; }
+.cat-titulo { font-size: 1.15rem; font-weight: 800; margin: 4px 0 12px; }
+.link-video { color: var(--red-2); font-weight: 600; white-space: nowrap; }
+.link-video:hover { text-decoration: underline; }
+
+.ex-head-btns { display: flex; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+    background: var(--input); border: 1px solid var(--line); font-size: .8rem; font-weight: 600; color: #d1d5db;
+}
+.chip i { color: var(--red-2); }
+.chip small { color: var(--muted); }
+.chip:hover { border-color: rgba(255, 59, 69, .5); }
+.chip.ativo { background: rgba(227, 32, 43, .18); border-color: var(--red-2); color: #fff; }
+.chip.ativo small { color: #fff; }
+.esc-busca { margin-bottom: 10px; }
+.esc-lista { max-height: 46vh; }
+.esc-lista .ex-empty { margin: 10px; }
+.esc-acoes { align-items: center; }
+.esc-n { margin-right: auto; color: var(--muted); font-size: .85rem; }
+
 /* Valores do financeiro */
 .valor { font-weight: 700; white-space: nowrap; }
 .valor.receita { color: var(--ok); }
@@ -302,5 +335,9 @@ body.side-fechada .hamb { visibility: visible; }
     .toolbar select { width: 100%; }
     .shortcuts { grid-template-columns: 1fr; }
     .app-foot { padding: 14px 16px; }
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
+    .ex-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .esc-acoes { flex-wrap: wrap; }
+    .esc-n { width: 100%; }
     .drop-menu.wide { min-width: 260px; right: -60px; }
 }

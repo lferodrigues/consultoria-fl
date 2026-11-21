@@ -1,7 +1,7 @@
 // Painel de Controle (SPA) — acesso, dados em tempo real, rotas e menu
 //
 // Rotas (tudo na mesma página, sem recarregar):
-//   #/inicio  #/alunos  #/treinos  #/biblioteca  #/financeiro  #/planos
+//   #/inicio  #/alunos  #/treinos  #/exercicios[/grupo]  #/biblioteca  #/financeiro  #/planos
 //   #/<tela>/novo abre o cadastro daquela tela
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -14,11 +14,14 @@ import * as Treinos from "./admin-treinos.js?v=1";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
 import * as Planos from "./admin-planos.js?v=1";
+import * as Exercicios from "./admin-exercicios.js?v=1";
 
-const TELAS = ["inicio", "alunos", "treinos", "biblioteca", "financeiro", "planos"];
-const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos" };
-const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos };
-const NOS = ["alunos", "treinos", "biblioteca", "financeiro", "planos"];
+const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos"];
+// Telas que ficam dentro de um grupo do menu
+const GRUPO = { exercicios: "treinos" };
+const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios };
+const NOS = ["alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos"];
 
 let saindo = false;
 let iniciado = false;
@@ -80,11 +83,13 @@ function rotear() {
 
     // Menu: item ativo, grupo aberto e subitem marcado
     document.querySelectorAll(".menu-item").forEach((li) => {
-        const ativo = li.dataset.rota === tela;
+        const ativo = li.dataset.rota === (GRUPO[tela] || tela);
         li.classList.toggle("ativo", ativo);
         if (ativo && li.classList.contains("has-sub")) abrirGrupo(li, true);
     });
     const sub = tela + (acao === "novo" ? "/novo" : "");
+    // Biblioteca de exercícios: #/exercicios/<grupo>; "novo" mantém o grupo aberto
+    if (tela === "exercicios" && acao !== "novo") Exercicios.selecionarCategoria(acao || "");
     document.querySelectorAll(".submenu a").forEach((a) => a.classList.toggle("ativo", a.dataset.sub === sub));
 
     if (window.innerWidth <= 1024) document.body.classList.remove("side-aberta");
@@ -95,7 +100,8 @@ function rotear() {
             // ao fechar o cadastro, o menu volta para a lista
             document.querySelectorAll(".submenu a").forEach((a) => a.classList.toggle("ativo", a.dataset.sub === tela));
         });
-        history.replaceState(null, "", "#/" + tela);
+        const cat = tela === "exercicios" ? Exercicios.categoriaAtual() : "";
+        history.replaceState(null, "", "#/" + tela + (cat ? "/" + cat : ""));
     }
 }
 
