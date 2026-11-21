@@ -158,6 +158,13 @@ body.side-fechada .hamb { visibility: visible; }
 .shortcuts a i { color: var(--red-2); }
 .shortcuts a:hover { border-color: rgba(255, 59, 69, .5); background: rgba(227, 32, 43, .08); }
 
+/* Logo na tela Início */
+#view-inicio .page-head { align-items: center; }
+.inicio-logo {
+    width: 150px; height: auto; border-radius: 20px; flex-shrink: 0;
+    box-shadow: 0 0 0 1px rgba(255, 59, 69, .25), 0 18px 50px -12px rgba(227, 32, 43, .55);
+}
+
 /* Cartões (treinos e e-books) */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; margin-bottom: 50px; }
 .item-card {
@@ -261,5 +268,7 @@ body.side-fechada .hamb { visibility: visible; }
     .toolbar select { width: 100%; }
     .shortcuts { grid-template-columns: 1fr; }
     .app-foot { padding: 14px 16px; }
+    #view-inicio .page-head { flex-direction: row; align-items: center; }
+    .inicio-logo { width: 84px; border-radius: 14px; }
     .drop-menu.wide { min-width: 260px; right: -60px; }
 }
