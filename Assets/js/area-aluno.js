@@ -189,6 +189,7 @@ function abrirVideo(i) {
     if (!e) return;
     exAberto = i;
     $("mv-titulo").textContent = e.nome;
+    $("mv-sub").textContent = (diaAtual().nome || "Treino") + " · " + (i + 1) + " de " + exerciciosDe(diaAtual()).length;
     const id = idYoutube(e.video);
     if (id) {
         $("mv-video").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1" title="Vídeo: ${esc(e.nome)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
