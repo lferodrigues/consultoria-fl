@@ -40,7 +40,10 @@ onAuthStateChanged(auth, async (user) => {
         cadastro = snap.val();
         const hoje = hojeISO();
         if (!cadastro) {
-            return mostrarAcessoNegado({ texto: "O e-mail " + (user.email || "") + " não está cadastrado. Escolha um plano para começar.", botao: "Ver planos", link: PAGINAS.planos });
+            // Mandou a ficha de inscrição e o personal ainda não aprovou: tela de espera
+            const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
+            if (ins && ins.exists()) return mostrarEspera(user, ins.val(), null);
+            return mostrarAcessoNegado({ texto: "O e-mail " + (user.email || "") + " não está cadastrado. Escolha um plano e preencha a ficha de inscrição.", botao: "Ver planos", link: PAGINAS.planos });
         }
         if (cadastro.ativo === false) {
             return mostrarAcessoNegado({ texto: "Seu acesso está desativado. Fale com o personal para liberar.", botao: "Voltar ao login" });
@@ -49,7 +52,13 @@ onAuthStateChanged(auth, async (user) => {
             return mostrarAcessoNegado({ texto: "Seu plano venceu. Fale com o personal para renovar.", botao: "Ver planos", link: PAGINAS.planos });
         }
         const nome = cadastro.nome || user.displayName || user.email;
-        aluno = { id: cadastro.aluno, nome, email: user.email };
+        aluno = { id: cadastro.aluno, nome, email: user.email, uid: user.uid };
+        // A área só é liberada depois que o personal cadastra a primeira ficha de treino
+        const temFicha = await get(ref(db, "fichas/" + cadastro.aluno));
+        if (!temFicha.exists()) {
+            const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
+            return mostrarEspera(user, ins && ins.exists() ? ins.val() : { nome }, cadastro.aluno);
+        }
         iniciarApp();
     } catch (e) {
         console.error(e);
@@ -67,6 +76,15 @@ function iniciarApp() {
     $("al-iniciais").textContent = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
     $("nav-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ".");
 
+    get(ref(db, "inscricoes/" + aluno.uid + "/foto")).then((s) => {
+        const f = s.val();
+        if (typeof f === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(f)) {
+            $("al-iniciais").textContent = "";
+            $("al-iniciais").style.backgroundImage = "url(" + f + ")";
+            $("al-iniciais").classList.add("com-foto");
+        }
+    }).catch(() => {});
+
     desenharFaturas();
     escutarFicha();
     escutarArquivos();
@@ -76,6 +94,30 @@ function iniciarApp() {
     rotear();
     $("gate").hidden = true;
 }
+
+/* =================== Espera pela primeira ficha =================== */
+
+function mostrarEspera(user, ins, alunoId) {
+    const nome = (ins?.nome || user.displayName || "").split(" ")[0];
+    $("esp-nome").textContent = nome ? ", " + nome : "";
+    const quando = ins?.criadoEm ? new Date(ins.criadoEm).toLocaleDateString("pt-BR") : "";
+    $("esp-passo1").innerHTML = '<i class="fa-solid fa-check"></i><span>Ficha de inscrição enviada' + (quando ? " <small>" + quando + "</small>" : "") + "</span>";
+    $("esp-passo2").className = alunoId ? "feito" : "agora";
+    $("esp-passo2").querySelector("i").className = alunoId ? "fa-solid fa-check" : "fa-solid fa-hourglass-half";
+    $("esp-passo3").className = alunoId ? "agora" : "";
+    $("esp-texto").textContent = alunoId
+        ? "O Fagner já aprovou a sua inscrição e está montando o seu primeiro treino. Assim que ele salvar, esta tela libera sozinha e você recebe um WhatsApp."
+        : "O Fagner está analisando as suas respostas para montar o seu primeiro treino. Quando ficar pronto, você recebe um WhatsApp e a área do aluno é liberada.";
+    $("esp-whats").href = wa("Olá, Fagner! Aqui é " + (ins?.nome || user.email) + ". Enviei a minha ficha de inscrição e estou aguardando o primeiro treino.");
+    $("app").hidden = true;
+    $("al-espera").hidden = false;
+    $("gate").hidden = true;
+
+    // Libera sozinha: quando o personal aprova (emails) ou salva a primeira ficha (fichas)
+    const caminho = alunoId ? "fichas/" + alunoId : "emails/" + chaveEmail(user.email);
+    onValue(ref(db, caminho), (snap) => { if (snap.exists()) location.reload(); }, (e) => console.warn(e));
+}
+$("esp-sair").addEventListener("click", () => sair());
 
 async function sair() {
     saindo = true;
@@ -516,6 +558,8 @@ function desenharFaturas() {
     $("aluno-venc").textContent = dataBR(cadastro.vencimento);
     const dias = diasParaVencer();
     $("aluno-dias").textContent = dias === null ? "" : dias === 0 ? "vence hoje" : "faltam " + dias + (dias === 1 ? " dia" : " dias");
+    $("aluno-fatura-wrap").hidden = !cadastro.diaFatura;
+    $("aluno-fatura").textContent = cadastro.diaFatura ? "Todo dia " + cadastro.diaFatura + (cadastro.valor ? " · " + moeda(cadastro.valor) : "") : "";
     const s = situacao(cadastro, hoje);
     $("aluno-status").textContent = s.texto;
     $("aluno-status").className = "badge " + s.classe;
@@ -528,7 +572,7 @@ async function carregarPix() {
         // Valor do plano: procura o plano do aluno pelo nome na página de planos
         const nomePlano = String(cadastro.plano || "").toLowerCase();
         const plano = Object.values(snapPlanos.val() || {}).find((p) => String(p.nome || "").toLowerCase() === nomePlano);
-        precoPlano = plano?.preco || 0;
+        precoPlano = cadastro.valor || plano?.preco || 0;
     } catch (e) {
         console.warn("Pix indisponível:", e);
         pix = null;

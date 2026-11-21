@@ -1,7 +1,7 @@
 // Painel de Controle (SPA) — acesso, dados em tempo real, rotas e menu
 //
 // Rotas (tudo na mesma página, sem recarregar):
-//   #/inicio  #/alunos  #/treinos  #/exercicios[/grupo]  #/biblioteca  #/financeiro  #/planos
+//   #/inicio  #/inscricoes[/uid]  #/alunos  #/treinos  #/exercicios[/grupo]  #/biblioteca  #/financeiro  #/planos
 //   #/<tela>/novo abre o cadastro daquela tela
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -10,21 +10,22 @@ import { situacao, dataBR, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
 import * as Alunos from "./admin-alunos.js?v=1";
-import * as Treinos from "./admin-fichas.js?v=1";
+import * as Treinos from "./admin-fichas.js?v=2";
 import { diaPorId, ESFORCO } from "./fichas-util.js?v=1";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
-import * as Planos from "./admin-planos.js?v=1";
+import * as Planos from "./admin-planos.js?v=2";
 import * as Exercicios from "./admin-exercicios.js?v=1";
 import * as Pix from "./admin-pix.js?v=1";
 import * as Depoimentos from "./admin-depoimentos.js?v=1";
+import * as Inscricoes from "./admin-inscricoes.js?v=1";
 
-const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
+const TELAS = ["inicio", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu
 const GRUPO = { exercicios: "treinos" };
-const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", depoimentos: "Depoimentos" };
-const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos };
-const NOS = ["alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
+const TITULOS = { inicio: "Início", inscricoes: "Inscrições", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", depoimentos: "Depoimentos" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos, inscricoes: Inscricoes };
+const NOS = ["inscricoes", "alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 
 let saindo = false;
 let iniciado = false;
@@ -112,6 +113,15 @@ function rotear() {
     }
 
     if (tela === "depoimentos") Depoimentos.marcarVistos();
+
+    // #/inscricoes/<uid> abre a ficha de inscrição (link que chega no WhatsApp do Fagner)
+    if (tela === "inscricoes") { if (acao) Inscricoes.abrir(acao); else Inscricoes.mostrarLista(); }
+
+    // #/treinos/primeira/<alunoId>: cadastro da primeira ficha, já com o aluno escolhido
+    if (tela === "treinos" && acao === "primeira" && extra) {
+        Treinos.primeiraFicha(extra);
+        history.replaceState(null, "", "#/treinos");
+    }
 
     if (tela === "treinos" && acao === "aluno" && extra) {
         Treinos.focarAluno(extra);
@@ -229,7 +239,8 @@ function desenharAvisos() {
     const vencimentos = alunosComAviso();
     const feedbacks = estado.feedbacks.filter((f) => !f.lido).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
     const deps = Depoimentos.novos();
-    const total = vencimentos.length + feedbacks.length + deps.length;
+    const insc = Inscricoes.novas().sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+    const total = vencimentos.length + feedbacks.length + deps.length + insc.length;
     $("bell-n").textContent = total > 99 ? "99+" : total;
     $("bell-n").classList.toggle("zero", total === 0);
 
@@ -246,7 +257,12 @@ function desenharAvisos() {
         <a href="#/alunos" class="aviso-item"><i class="fa-solid ${s.chave === "vencidos" ? "fa-circle-exclamation" : "fa-clock"}" style="color:${s.chave === "vencidos" ? "var(--red-2)" : "var(--warn)"}"></i>
         <span>${esc(a.nome)}<small>${s.texto} · ${dataBR(a.vencimento)}</small></span></a>`).join("");
 
+    const htmlInsc = insc.slice(0, 5).map((i) => `
+        <a href="#/inscricoes/${esc(i.id)}" class="aviso-item"><i class="fa-solid fa-file-signature" style="color:var(--warn)"></i>
+        <span>${esc(i.nome)}<small>Nova inscrição · ${esc(i.planoNome || "")} · ${quando(i.criadoEm)}</small></span></a>`).join("");
+
     $("bell-menu").innerHTML =
+        (insc.length ? '<span class="drop-title">Novas inscrições</span>' + htmlInsc + '<span class="drop-sep"></span>' : "") +
         `<div class="drop-head"><span class="drop-title">Feedbacks dos alunos</span>${feedbacks.length ? '<button type="button" class="drop-link" id="fb-todos-lidos">Marcar como lidos</button>' : ""}</div>` +
         (htmlFeedbacks || '<span class="drop-vazio">Nenhum feedback novo.</span>') +
         (deps.length ? '<span class="drop-title sep">Depoimentos</span>' +

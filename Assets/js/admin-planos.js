@@ -3,7 +3,7 @@
 import { ref, push, update, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
 import { paraCentavos, centavosParaTexto } from "./alunos-util.js?v=2";
-import { cardPlano, ordenarPlanos, beneficiosDe, linkSeguro, PLANOS_PADRAO } from "./planos-card.js?v=1";
+import { cardPlano, ordenarPlanos, beneficiosDe, linkSeguro, PLANOS_PADRAO } from "./planos-card.js?v=2";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 
 let editandoId = null;
@@ -68,7 +68,6 @@ function abrir(p, aoFechar) {
     $("p-descricao").value = p?.descricao || "";
     $("p-beneficios").value = p ? beneficiosDe(p).join("\n") : "Treino personalizado\nSuporte para dúvidas\nAcesso à área do aluno";
     $("p-botao").value = p?.botao || "";
-    $("p-link").value = p?.link || "";
     $("p-icone").value = p?.icone || "fa-bolt";
     $("p-tag").value = p?.tag || "";
     $("p-destaque").checked = !!p?.destaque;
@@ -82,14 +81,12 @@ async function salvar(ev) {
     msg.textContent = "";
     const nome = $("p-nome").value.trim();
     const beneficios = $("p-beneficios").value.split("\n").map((b) => b.trim()).filter(Boolean).slice(0, 15);
-    const link = $("p-link").value.trim();
     const precoTxt = $("p-preco").value.trim();
     const preco = precoTxt ? paraCentavos(precoTxt) : 0;
 
     if (!nome) return (msg.textContent = "Dê um nome ao plano.");
     if (!beneficios.length) return (msg.textContent = "Escreva pelo menos um benefício.");
-    if (!link) return (msg.textContent = "Coloque o link do botão (página de matrícula, WhatsApp ou pagamento).");
-    if (linkSeguro(link) === "#planos" && link !== "#planos") return (msg.textContent = "Link inválido. Use um endereço que comece com https:// ou ./");
+    if (!preco) return (msg.textContent = "Coloque o preço: ele é o valor que aparece na ficha de inscrição do aluno.");
     if (precoTxt && (!Number.isFinite(preco) || preco < 0)) return (msg.textContent = "Preço inválido. Ex.: 599,00");
 
     const botao = $("pl-salvar");
@@ -106,7 +103,7 @@ async function salvar(ev) {
             descricao: $("p-descricao").value.trim(),
             beneficios,
             botao: $("p-botao").value.trim() || "Quero o " + nome.toLowerCase(),
-            link,
+            link: null,
             icone: $("p-icone").value,
             tag: $("p-tag").value.trim(),
             destaque: $("p-destaque").checked,

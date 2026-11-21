@@ -1,6 +1,7 @@
 // Monta o card de um plano — usado no site (index e planos.html) e na prévia do painel.
 // Sem Firebase aqui: só HTML.
-//   plano -> { nome, duracao, preco (centavos), periodo, descricao, beneficios: [..], botao, link, icone, tag, destaque, visivel, ordem }
+//   plano -> { nome, duracao, preco (centavos), periodo, descricao, beneficios: [..], botao, icone, tag, destaque, visivel, ordem }
+//   O botão de cada plano abre a ficha de inscrição (cadastro.html?plano=<id>).
 
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -27,7 +28,9 @@ function precoHTML(p) {
 export function cardPlano(p, variante = "pagina") {
     const destaque = !!p.destaque;
     const icone = /^fa-[a-z0-9-]+$/.test(p.icone || "") ? p.icone : "fa-bolt";
-    const externo = /^https?:\/\//i.test(p.link || "");
+    // Planos do banco levam para a ficha de inscrição com o plano já escolhido
+    const destino = p.id ? "./cadastro.html?plano=" + encodeURIComponent(p.id) : linkSeguro(p.link);
+    const externo = /^https?:\/\//i.test(destino);
     return `
     <div class="plan${destaque ? " featured" : ""} reveal in">
         ${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}
@@ -37,7 +40,7 @@ export function cardPlano(p, variante = "pagina") {
         ${precoHTML(p)}
         ${variante === "pagina" && p.descricao ? `<p class="plan-for">${esc(p.descricao)}</p>` : ""}
         <ul>${beneficiosDe(p).map((b) => `<li><i class="fa-solid fa-check"></i>${esc(b)}</li>`).join("")}</ul>
-        <a href="${esc(linkSeguro(p.link))}" class="btn ${destaque ? "btn-primary" : "btn-ghost"}"${externo ? ' target="_blank" rel="noopener"' : ""}>${esc(p.botao || "Quero este plano")}</a>
+        <a href="${esc(destino)}" class="btn ${destaque ? "btn-primary" : "btn-ghost"}"${externo ? ' target="_blank" rel="noopener"' : ""}>${esc(p.botao || "Quero este plano")}</a>
     </div>`;
 }
 

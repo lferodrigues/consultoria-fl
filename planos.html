@@ -67,7 +67,7 @@
                         <li><i class="fa-solid fa-check"></i>Ajustes durante o ciclo</li>
                         <li><i class="fa-solid fa-check"></i>Acesso à área do aluno</li>
                     </ul>
-                    <a href="./consuloria_trimestral.html" class="btn btn-ghost">Quero o trimestral</a>
+                    <a href="./cadastro.html" class="btn btn-ghost">Quero o trimestral</a>
                 </div>
                 <div class="plan featured reveal">
                     <span class="tag">Mais escolhido</span>
@@ -82,7 +82,7 @@
                         <li><i class="fa-solid fa-check"></i>Tempo para consolidar resultados</li>
                         <li><i class="fa-solid fa-check"></i>Acesso à área do aluno</li>
                     </ul>
-                    <a href="./consuloria_semestral.html" class="btn btn-primary">Quero o semestral</a>
+                    <a href="./cadastro.html" class="btn btn-primary">Quero o semestral</a>
                 </div>
                 <div class="plan reveal">
                     <span class="plan-icon"><i class="fa-solid fa-trophy"></i></span>
@@ -96,7 +96,7 @@
                         <li><i class="fa-solid fa-check"></i>Transformação completa</li>
                         <li><i class="fa-solid fa-check"></i>Acesso à área do aluno</li>
                     </ul>
-                    <a href="./consuloria_anual.html" class="btn btn-ghost">Quero o anual</a>
+                    <a href="./cadastro.html" class="btn btn-ghost">Quero o anual</a>
                 </div>
             </div>
         </div>
@@ -156,7 +156,7 @@
             var email = params.get('email');
             if (email) {
                 var t = document.getElementById('notice-text');
-                t.textContent = 'O e-mail ' + email + ' ainda não tem acesso. Escolha um plano abaixo para começar a consultoria e liberar a área do aluno.';
+                t.textContent = 'O e-mail ' + email + ' ainda não tem acesso. Escolha um plano abaixo e preencha a ficha de inscrição para começar a consultoria.';
             }
             document.getElementById('notice').hidden = false;
         })();
@@ -171,7 +171,7 @@
             els.forEach(function (e) { io.observe(e); });
         })();
     </script>
-    <script type="module" src="./Assets/js/planos-site.js?v=1"></script>
+    <script type="module" src="./Assets/js/planos-site.js?v=2"></script>
 </body>
 
 </html>

@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=10">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=11">
 </head>
 
 <body>
@@ -47,6 +47,9 @@
                 <ul id="menu">
                     <li class="menu-item" data-rota="inicio">
                         <a href="#/inicio" class="menu-link"><i class="fa-solid fa-house"></i><span>Início</span></a>
+                    </li>
+                    <li class="menu-item" data-rota="inscricoes">
+                        <a href="#/inscricoes" class="menu-link"><i class="fa-solid fa-file-signature"></i><span>Inscrições</span><span class="menu-badge" id="menu-ins-n" hidden>0</span></a>
                     </li>
                     <li class="menu-item has-sub" data-rota="alunos">
                         <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-users"></i><span>Alunos</span><i class="fa-solid fa-chevron-down chev"></i></button>
@@ -304,6 +307,40 @@
                     <div class="empty card-empty" id="dp-vazio" hidden><i class="fa-solid fa-comment-dots"></i><p id="dp-vazio-txt"></p></div>
                 </section>
 
+                <!-- ============ INSCRIÇÕES ============ -->
+                <section class="view" id="view-inscricoes" hidden>
+                    <div id="in-lista-wrap">
+                        <div class="page-head">
+                            <div>
+                                <span class="eyebrow">Novos alunos</span>
+                                <h1>Inscrições</h1>
+                                <p class="page-sub">Fichas preenchidas no site. Aprove, monte a primeira ficha e o aluno é avisado no WhatsApp.</p>
+                            </div>
+                            <a href="./cadastro.html" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha do site</a>
+                        </div>
+                        <section class="stats stats-3">
+                            <button type="button" class="stat warn" data-in-filtro="pendente"><span class="stat-n" id="in-pend">0</span><span class="stat-l">Aguardando análise</span></button>
+                            <button type="button" class="stat bad" data-in-filtro="aprovada"><span class="stat-n" id="in-aprov">0</span><span class="stat-l">Aguardando 1ª ficha</span></button>
+                            <button type="button" class="stat ok" data-in-filtro="ativo"><span class="stat-n" id="in-ativos">0</span><span class="stat-l">Alunos ativos</span></button>
+                        </section>
+                        <section class="toolbar">
+                            <div class="search">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="search" id="in-busca" placeholder="Buscar por nome, e-mail, cidade ou plano">
+                            </div>
+                            <select id="in-filtro" aria-label="Filtrar inscrições">
+                                <option value="">Todas</option>
+                                <option value="pendente">Aguardando análise</option>
+                                <option value="aprovada">Aguardando 1ª ficha</option>
+                                <option value="ativo">Alunos ativos</option>
+                            </select>
+                        </section>
+                        <div class="cards" id="in-lista"></div>
+                        <div class="empty card-empty" id="in-vazio" hidden><i class="fa-solid fa-file-signature"></i><p id="in-vazio-txt"></p></div>
+                    </div>
+                    <div id="in-detalhe" hidden></div>
+                </section>
+
                 <!-- ============ FINANCEIRO ============ -->
                 <section class="view" id="view-financeiro" hidden>
                     <div class="page-head">
@@ -395,6 +432,36 @@
         </div>
     </div>
 
+    <!-- ================= MODAL: APROVAR INSCRIÇÃO ================= -->
+    <div class="modal" id="modal-aprovar" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="ap-titulo">
+            <div class="modal-head">
+                <h2 id="ap-titulo">Aprovar <span id="ap-nome"></span></h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="aprovar-form" novalidate>
+                <p class="form-nota"><i class="fa-solid fa-circle-info"></i> O aluno é cadastrado com o e-mail da inscrição e a área do aluno é liberada assim que você salvar a primeira ficha.</p>
+                <div class="grid-2" style="margin-top:14px">
+                    <label class="full">Plano escolhido no site<strong id="ap-plano-nome" class="ap-plano-nome"></strong></label>
+                    <label>Tipo de plano
+                        <select id="ap-plano">
+                            <option value="trimestral">Trimestral (3 meses)</option>
+                            <option value="semestral">Semestral (6 meses)</option>
+                            <option value="anual">Anual (12 meses)</option>
+                        </select>
+                    </label>
+                    <label>Início<input type="date" id="ap-inicio" required></label>
+                    <label>Vencimento do plano<input type="date" id="ap-venc" required><small>Calculado pelo plano. Pode ajustar.</small></label>
+                </div>
+                <p class="form-msg" id="ap-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="ap-salvar">Aprovar e montar ficha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ================= MODAL: FICHA DE TREINO ================= -->
     <div class="modal" id="modal-ficha" hidden>
         <div class="modal-box large" role="dialog" aria-modal="true" aria-labelledby="fc-titulo">
@@ -410,6 +477,7 @@
                         <small id="fc-aluno-info"></small>
                     </label>
                 </div>
+                <div class="fc-insc" id="fc-insc" hidden></div>
 
                 <div id="fc-resto" hidden>
                     <div class="grid-2 fc-dados">
@@ -535,12 +603,12 @@
                 <div class="grid-2">
                     <label>Nome do plano *<input type="text" id="p-nome" placeholder="Ex.: Semestral" required autocomplete="off" maxlength="40"></label>
                     <label>Duração<input type="text" id="p-duracao" placeholder="Ex.: 6 meses de acompanhamento" autocomplete="off" maxlength="60"></label>
-                    <label>Preço (opcional)<input type="text" id="p-preco" inputmode="decimal" placeholder="Ex.: 599,00" autocomplete="off"><small>Deixe em branco para não mostrar preço.</small></label>
+                    <label>Preço *<input type="text" id="p-preco" inputmode="decimal" placeholder="Ex.: 599,00" autocomplete="off"><small>É o valor que vai para a ficha de inscrição.</small></label>
                     <label>Texto abaixo do preço<input type="text" id="p-periodo" placeholder="Ex.: à vista ou em até 6x" autocomplete="off" maxlength="40"></label>
                     <label class="full">Frase do plano<input type="text" id="p-descricao" placeholder="Ex.: Tempo certo para sair do platô e ver resultado de verdade." autocomplete="off" maxlength="140"></label>
                     <label class="full">Benefícios (um por linha) *<textarea id="p-beneficios" rows="5" placeholder="Treino personalizado&#10;Suporte para dúvidas&#10;Acesso à área do aluno"></textarea></label>
                     <label>Texto do botão<input type="text" id="p-botao" placeholder="Ex.: Quero o semestral" autocomplete="off" maxlength="40"></label>
-                    <label>Link do botão *<input type="text" id="p-link" placeholder="./consuloria_semestral.html ou https://..." autocomplete="off"><small>Página de matrícula, WhatsApp ou link de pagamento.</small></label>
+                    <p class="form-nota full"><i class="fa-solid fa-circle-info"></i> O botão do plano abre a ficha de inscrição com este plano e este valor já escolhidos.</p>
                     <label>Ícone
                         <select id="p-icone">
                             <option value="fa-bolt">Raio</option><option value="fa-fire">Fogo</option><option value="fa-trophy">Troféu</option>
@@ -653,7 +721,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=10"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=11"></script>
 </body>
 
 </html>

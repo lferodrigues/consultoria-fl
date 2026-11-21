@@ -2,7 +2,7 @@
 // Se o banco não tiver nenhum plano visível, a página mantém os cards fixos do HTML.
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
-import { cardPlano, ordenarPlanos } from "./planos-card.js?v=1";
+import { cardPlano, ordenarPlanos } from "./planos-card.js?v=2";
 
 document.querySelectorAll("[data-planos]").forEach((grade) => {
     const variante = grade.dataset.planos; // "index" ou "pagina"

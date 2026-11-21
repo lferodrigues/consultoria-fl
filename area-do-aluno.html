@@ -13,12 +13,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/aluno.css?v=10">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=11">
 </head>
 
 <body>
     <!-- Verificação de acesso (some quando o aluno é confirmado) -->
     <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
+
+    <!-- Inscrição enviada, aguardando a primeira ficha -->
+    <section class="al-espera" id="al-espera" hidden>
+        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <div class="esp-card">
+            <img class="esp-foto" src="./administrador/Assets/img/4.jpeg" alt="Personal Fagner Lage">
+            <h1>Quase lá<span id="esp-nome"></span>!</h1>
+            <p id="esp-texto"></p>
+            <ol class="esp-passos">
+                <li class="feito" id="esp-passo1"><i class="fa-solid fa-check"></i><span>Ficha de inscrição enviada</span></li>
+                <li id="esp-passo2"><i class="fa-solid fa-hourglass-half"></i><span>O Fagner analisa as suas respostas</span></li>
+                <li id="esp-passo3"><i class="fa-solid fa-dumbbell"></i><span>Primeira ficha de treino cadastrada — área do aluno liberada</span></li>
+            </ol>
+            <a class="btn btn-primary esp-btn" id="esp-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar com o Fagner</a>
+            <button type="button" class="btn btn-ghost esp-btn" id="esp-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </section>
 
     <div class="app-aluno" id="app">
 
@@ -183,6 +200,7 @@
                 <div class="plano-linhas">
                     <div><small>Vencimento</small><b id="aluno-venc">—</b><em id="aluno-dias"></em></div>
                     <div><small>Situação</small><span class="badge ok" id="aluno-status">Ativo</span></div>
+                    <div id="aluno-fatura-wrap" hidden><small>Fatura</small><b id="aluno-fatura"></b></div>
                 </div>
             </div>
             <div class="al-bloco pix-bloco" id="pix-bloco" hidden>
@@ -275,7 +293,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/area-aluno.js?v=7"></script>
+    <script type="module" src="./Assets/js/area-aluno.js?v=8"></script>
 </body>
 
 </html>

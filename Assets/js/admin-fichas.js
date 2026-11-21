@@ -7,6 +7,8 @@ import { situacao, dataBR } from "./alunos-util.js?v=2";
 import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO } from "./fichas-util.js?v=1";
 import { CATEGORIAS, categoriaPorId } from "./exercicios-dados.js?v=1";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
+import { daAluno, foneWhats } from "./admin-inscricoes.js?v=1";
+import { PAGINAS } from "./firebase-app.js?v=2";
 
 const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9 ]/g, "").trim();
 const LETRAS = "ABCDEFG";
@@ -51,6 +53,37 @@ export function iniciar() {
 }
 
 export function novo(aoFechar) { abrir(null, aoFechar); }
+
+// Primeira ficha de um aluno que veio da inscrição: aluno escolhido, objetivo e dias da ficha de inscrição
+const OBJETIVOS = ["Hipertrofia", "Emagrecimento", "Força", "Condicionamento", "Mobilidade", "Reabilitação"];
+export function primeiraFicha(alunoId) {
+    const aluno = estado.alunos.find((a) => a.id === alunoId);
+    if (!aluno) { aviso("Aluno não encontrado. Confira em Alunos.", "error"); return; }
+    const ins = daAluno(alunoId, aluno.uid);
+    const objetivo = OBJETIVOS.find((o) => norm(ins?.objetivo || "").startsWith(norm(o))) || (ins ? (/saude/.test(norm(ins.objetivo)) ? "Condicionamento" : "Outro") : undefined);
+    abrir({ alunoId, objetivo }, null);
+    const n = Number(ins?.diasTreino);
+    if (n >= 1 && n <= 7) definirQuantidade(n, true);
+}
+
+// Resumo da inscrição (objetivo, rotina e saúde) dentro do cadastro da ficha
+function resumoInscricao(a) {
+    const ins = a ? daAluno(a.id, a.uid) : null;
+    const box = $("fc-insc");
+    box.hidden = !ins;
+    if (!ins) return;
+    const item = (r, nome) => r?.tem ? `<li class="alerta"><b>${nome}:</b> ${esc(r.qual)}</li>` : "";
+    const saude = item(ins.lesao, "Lesão") + item(ins.saude, "Saúde") + item(ins.medicamento, "Medicamento");
+    box.innerHTML = `
+        <strong><i class="fa-solid fa-file-signature"></i> Da ficha de inscrição</strong>
+        <ul>
+            <li><b>Objetivo:</b> ${esc(ins.objetivo || "—")}</li>
+            <li><b>Rotina:</b> ${ins.diasTreino || "?"}x por semana · ${esc(ins.tempoDia || "")} por dia</li>
+            <li><b>Corpo:</b> ${esc(ins.sexo || "")}, ${ins.idade || "?"} anos · ${ins.peso || "?"} kg · ${ins.altura || "?"} cm</li>
+            ${saude || '<li><b>Saúde:</b> sem lesões, problemas de saúde ou medicamentos</li>'}
+        </ul>
+        <a href="#/inscricoes/${esc(ins.id)}" class="drop-link" data-fechar>Ver inscrição completa</a>`;
+}
 
 // Abre (e rola até) um aluno no histórico — usado pelas notificações
 export function focarAluno(alunoId) {
@@ -231,6 +264,7 @@ function abrir(f, aoFechar, copia = false) {
 function aoEscolherAluno() {
     const a = estado.alunos.find((x) => x.id === $("fc-aluno").value);
     $("fc-resto").hidden = !a;
+    resumoInscricao(a);
     if (!a) { $("fc-aluno-info").textContent = "Escolha o aluno para montar a ficha."; return; }
     const n = estado.fichas.filter((f) => f.alunoId === a.id).length;
     $("fc-aluno-info").textContent = (a.plano ? "Plano " + a.plano + " · " : "") + (n ? n + (n === 1 ? " ficha anterior" : " fichas anteriores") : "primeira ficha");
@@ -476,6 +510,29 @@ function lerDia(diaId) {
     return { nome: painel.querySelector('[data-c="dia-nome"]').value.trim(), exercicios };
 }
 
+export function mensagemPrimeiraFicha(nome) {
+    const login = new URL(PAGINAS.login, location.href).href;
+    return "Olá, " + String(nome || "").split(" ")[0] + "! Aqui é o Fagner Lage. 💪\n\n" +
+        "A sua primeira ficha de treino já está cadastrada! A sua área do aluno foi liberada: lá você vê os exercícios de cada dia, os vídeos e manda o feedback do treino.\n\n" +
+        "Acesse: " + login + "\n\nBons treinos!";
+}
+
+async function concluirPrimeiraFicha(aluno, fone, janela, agora) {
+    // Inscrição vira "aluno ativo"
+    const ins = aluno ? daAluno(aluno.id, aluno.uid) : null;
+    if (ins && ins.status !== "ativo") {
+        update(ref(db), { ["inscricoes/" + ins.id + "/status"]: "ativo", ["inscricoes/" + ins.id + "/primeiraFichaEm"]: agora }).catch((e) => console.error(e));
+    }
+    if (!fone) return;
+    const url = "https://wa.me/" + fone + "?text=" + encodeURIComponent(mensagemPrimeiraFicha(aluno.nome));
+    if (janela) { janela.opener = null; janela.location.href = url; return; }
+    // Navegador bloqueou a janela: pergunta e abre no clique
+    if (await confirmar({ titulo: "Avisar " + aluno.nome.split(" ")[0] + " no WhatsApp?", texto: "A primeira ficha foi salva. Envie a mensagem avisando que a área do aluno foi liberada.", botao: "Abrir WhatsApp" })) {
+        const w = window.open(url, "_blank");
+        if (w) w.opener = null;
+    }
+}
+
 async function salvar(ev) {
     ev.preventDefault();
     const msg = $("fc-msg");
@@ -497,6 +554,13 @@ async function salvar(ev) {
         dias[d] = { nome: dia.nome || "Treino " + LETRAS[i], exercicios: dia.exercicios };
     }
 
+    // Primeira ficha do aluno: avisa no WhatsApp. A janela abre já no clique (senão o navegador bloqueia).
+    const aluno = estado.alunos.find((a) => a.id === alunoId);
+    const primeira = !editando && !estado.fichas.some((f) => f.alunoId === alunoId);
+    const fone = primeira ? foneWhats(aluno?.telefone) : "";
+    let janela = null;
+    if (fone) { try { janela = window.open("", "_blank"); } catch (e) { janela = null; } }
+
     const botao = $("fc-salvar");
     ocupado(botao, true);
     try {
@@ -517,11 +581,13 @@ async function salvar(ev) {
         });
         fecharModal("modal-ficha");
         desenhar();
-        const nome = estado.alunos.find((a) => a.id === alunoId)?.nome || "o aluno";
-        aviso(editando ? "Ficha atualizada." : "Ficha salva. Ela já aparece na área do aluno de " + nome.split(" ")[0] + ".", "ok");
+        const nome = aluno?.nome || "o aluno";
+        aviso(editando ? "Ficha atualizada." : primeira ? "Primeira ficha salva! A área do aluno de " + nome.split(" ")[0] + " foi liberada." : "Ficha salva. Ela já aparece na área do aluno de " + nome.split(" ")[0] + ".", "ok");
         if (location.hash !== "#/treinos") location.hash = "#/treinos";
+        if (primeira) await concluirPrimeiraFicha(aluno, fone, janela, agora);
     } catch (e) {
         console.error(e);
+        if (janela) janela.close();
         msg.textContent = mensagemErro(e);
     } finally {
         ocupado(botao, false);

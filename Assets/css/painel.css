@@ -487,3 +487,57 @@ body.side-fechada .hamb { visibility: visible; }
     .esc-n { width: 100%; }
     .drop-menu.wide { min-width: 260px; right: -60px; }
 }
+
+/* Nota em formulário */
+.form-nota { display: flex; gap: 8px; align-items: flex-start; font-size: .82rem; color: var(--muted); padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px dashed var(--line); }
+.form-nota i { color: var(--red-2); margin-top: 2px; }
+
+.drop-sep { display: block; border-top: 1px solid var(--line); margin: 6px 0; }
+
+/* ---------- Inscrições ---------- */
+.ins-card { display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: inherit; }
+.ins-top { display: flex; align-items: center; gap: 12px; }
+.ins-foto, .in-foto { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255, 59, 69, .5); }
+.ins-foto.sem, .in-foto.sem { display: grid; place-items: center; font-weight: 800; background: linear-gradient(180deg, var(--red-2), var(--red)); color: #fff; }
+.ins-nome { min-width: 0; }
+.ins-nome h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ins-nome small { color: var(--muted); font-size: .78rem; }
+.ins-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ins-linha { display: flex; justify-content: space-between; gap: 10px; font-size: .85rem; color: var(--muted); }
+.ins-linha b { color: #fff; }
+
+.in-voltar { margin-top: 26px; }
+.in-cab { display: flex; align-items: center; gap: 18px; margin: 22px 0 24px; flex-wrap: wrap; }
+.in-cab .in-foto { width: 92px; height: 92px; font-size: 1.6rem; }
+.in-cab-txt { flex: 1; min-width: 220px; }
+.in-cab-txt h1 { font-size: 1.9rem; font-weight: 900; margin: 6px 0 2px; }
+.in-cab-txt p { color: var(--muted); font-size: .9rem; }
+.in-cab-acoes { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.in-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 50px; }
+.in-bloco { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.in-bloco.alerta { border-color: rgba(255, 59, 69, .45); box-shadow: inset 3px 0 0 var(--red-2); }
+.in-bloco h2 { font-size: 1rem; display: flex; gap: 10px; align-items: center; }
+.in-bloco h2 i { color: var(--red-2); }
+.in-dado { display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-size: .9rem; padding-top: 10px; border-top: 1px solid var(--line); }
+.in-dado small { color: var(--muted); font-size: .8rem; }
+.in-dado span { word-break: break-word; }
+.in-numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.in-numeros div { text-align: center; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); border-radius: 12px; padding: 10px 4px; }
+.in-numeros b { display: block; font-family: 'Montserrat', sans-serif; font-size: 1.3rem; }
+.in-numeros small { color: var(--muted); font-size: .72rem; }
+.in-resp { display: grid; grid-template-columns: 140px 1fr; gap: 6px 10px; align-items: start; padding-top: 10px; border-top: 1px solid var(--line); font-size: .9rem; }
+.in-resp small { color: var(--muted); font-size: .8rem; padding-top: 3px; }
+.in-resp .badge { justify-self: start; }
+.in-resp p { grid-column: 2; color: #fecaca; }
+@media (max-width: 900px) { .in-grid { grid-template-columns: 1fr; } .in-dado, .in-resp { grid-template-columns: 1fr; } .in-resp p { grid-column: 1; } }
+
+.ap-plano-nome { display: block; font-size: 1.05rem; color: #fff; margin-top: 4px; }
+
+/* Resumo da inscrição no cadastro de ficha */
+.fc-insc { margin: 4px 0 18px; padding: 14px 16px; border-radius: 12px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); font-size: .86rem; }
+.fc-insc strong { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.fc-insc strong i { color: var(--red-2); }
+.fc-insc ul { list-style: none; display: grid; gap: 4px; margin-bottom: 8px; color: #d1d5db; }
+.fc-insc li b { color: #fff; }
+.fc-insc li.alerta { color: #fecaca; }
+.fc-insc li.alerta::before { content: "⚠ "; color: var(--warn); }

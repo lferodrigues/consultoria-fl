@@ -4,6 +4,7 @@
 //   - contato@fagnerlage.com.br  -> painel do administrador
 //   - e-mail cadastrado no banco, ativo e no prazo -> área do aluno
 //   - e-mail cadastrado mas desativado ou vencido   -> fica no login com aviso
+//   - inscrição enviada, aguardando a primeira ficha -> área do aluno (tela de espera)
 //   - e-mail que não está no banco                  -> página de planos
 import {
     signInWithEmailAndPassword,
@@ -121,6 +122,9 @@ async function decidirDestino(user, contaNova = false) {
         const cadastro = snap.val();
 
         if (!cadastro) {
+            // Já mandou a ficha de inscrição? Vai para a área do aluno, que mostra a tela de espera
+            const inscricao = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
+            if (inscricao && inscricao.exists()) { mostrarLogado(user); return; }
             await irParaPlanos(user, contaNova);
             return;
         }

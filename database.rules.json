@@ -2,6 +2,175 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "inscricoes": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "status",
+        "criadoEm"
+      ],
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid && newData.exists() && (!data.exists() || data.child('status').val() == 'pendente') && newData.child('status').val() == 'pendente' && newData.child('visto').val() == false && newData.child('email').val() == auth.token.email && newData.child('valor').val() == root.child('planos').child(newData.child('planoId').val()).child('preco').val()",
+        ".validate": "newData.hasChildren(['uid', 'email', 'nome', 'cpf', 'whatsapp', 'sexo', 'idade', 'endereco', 'peso', 'altura', 'objetivo', 'lesao', 'saude', 'medicamento', 'diasTreino', 'tempoDia', 'planoId', 'planoNome', 'valor', 'diaVencimento', 'primeiroVencimento', 'lgpd', 'status', 'criadoEm']) && newData.child('uid').val() == $uid",
+        "uid": {
+          ".validate": "newData.isString()"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "provedor": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "nome": {
+          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 120"
+        },
+        "cpf": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{11}$/)"
+        },
+        "whatsapp": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{10,11}$/)"
+        },
+        "sexo": {
+          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 30"
+        },
+        "idade": {
+          ".validate": "newData.isNumber() && newData.val() >= 10 && newData.val() <= 100"
+        },
+        "endereco": {
+          ".validate": "newData.hasChildren(['cep', 'rua', 'numero', 'bairro', 'cidade', 'uf'])",
+          "cep": {
+            ".validate": "newData.isString() && newData.val().matches(/^[0-9]{8}$/)"
+          },
+          "rua": {
+            ".validate": "newData.isString() && newData.val().length <= 150"
+          },
+          "numero": {
+            ".validate": "newData.isString() && newData.val().length <= 10"
+          },
+          "complemento": {
+            ".validate": "newData.isString() && newData.val().length <= 80"
+          },
+          "bairro": {
+            ".validate": "newData.isString() && newData.val().length <= 80"
+          },
+          "cidade": {
+            ".validate": "newData.isString() && newData.val().length <= 80"
+          },
+          "uf": {
+            ".validate": "newData.isString() && newData.val().matches(/^[A-Z]{2}$/)"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "foto": {
+          ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 400000"
+        },
+        "peso": {
+          ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400"
+        },
+        "altura": {
+          ".validate": "newData.isNumber() && newData.val() >= 100 && newData.val() <= 250"
+        },
+        "objetivo": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "lesao": {
+          ".validate": "newData.hasChildren(['tem'])",
+          "tem": {
+            ".validate": "newData.isBoolean()"
+          },
+          "qual": {
+            ".validate": "newData.isString() && newData.val().length <= 500"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "saude": {
+          ".validate": "newData.hasChildren(['tem'])",
+          "tem": {
+            ".validate": "newData.isBoolean()"
+          },
+          "qual": {
+            ".validate": "newData.isString() && newData.val().length <= 500"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "medicamento": {
+          ".validate": "newData.hasChildren(['tem'])",
+          "tem": {
+            ".validate": "newData.isBoolean()"
+          },
+          "qual": {
+            ".validate": "newData.isString() && newData.val().length <= 500"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "diasTreino": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 7"
+        },
+        "tempoDia": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "planoId": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "planoNome": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "valor": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "diaVencimento": {
+          ".validate": "newData.isNumber() && (newData.val() == 5 || newData.val() == 10 || newData.val() == 15 || newData.val() == 20 || newData.val() == 25)"
+        },
+        "primeiroVencimento": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)"
+        },
+        "responsavel": {
+          ".validate": "newData.hasChildren(['nome', 'consentiu']) && newData.child('consentiu').val() == true",
+          "nome": {
+            ".validate": "newData.isString() && newData.val().length <= 120"
+          },
+          "consentiu": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "lgpd": {
+          ".validate": "newData.child('aceito').val() == true && newData.child('saude').val() == true && newData.child('versao').isString() && newData.child('em').isNumber()"
+        },
+        "status": {
+          ".validate": "newData.isString() && newData.val().matches(/^(pendente|aprovada|ativo)$/)"
+        },
+        "visto": {
+          ".validate": "newData.isBoolean()"
+        },
+        "criadoEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "alunoId": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "aprovadoEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "primeiraFichaEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "$outro": {
+          ".validate": false
+        }
+      }
+    },
     "alunos": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
@@ -69,7 +238,7 @@
         "ordem"
       ],
       "$id": {
-        ".validate": "newData.hasChildren(['nome', 'link']) && newData.child('nome').isString() && newData.child('nome').val().length <= 60 && newData.child('link').isString() && newData.child('link').val().length <= 500"
+        ".validate": "newData.hasChildren(['nome']) && newData.child('nome').isString() && newData.child('nome').val().length <= 60 && (!newData.child('preco').exists() || newData.child('preco').isNumber())"
       }
     },
     "config": {
