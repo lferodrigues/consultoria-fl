@@ -5,106 +5,289 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Painel do Administrador | Fagner Lage</title>
+    <title>Painel de Controle | Fagner Lage</title>
     <meta name="theme-color" content="#07080b">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./Assets/css/admin.css?v=2">
+    <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=1">
 </head>
 
 <body>
-    <!-- Tela de verificação de acesso (some quando o admin é confirmado) -->
+    <!-- Verificação de acesso -->
     <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
 
-    <header class="topbar">
-        <div class="wrap">
-            <a href="./index.html" class="brand">
-                <img src="./Assets/img/banner05.png" alt="Fagner Lage">
-                <span>Painel<small>Administrador</small></span>
-            </a>
-            <div class="who">
-                <span class="who-email" id="admin-email"></span>
-                <button type="button" class="btn btn-ghost btn-sm" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    <div class="app" id="app">
+
+        <!-- ================= MENU LATERAL ================= -->
+        <aside class="sidebar" id="sidebar" aria-label="Menu do painel">
+            <div class="side-head">
+                <a href="#/inicio" class="side-brand">
+                    <img src="./Assets/img/banner05.png" alt="">
+                    <span>Painel de Controle</span>
+                </a>
+                <button type="button" class="side-close" id="side-close" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
             </div>
+
+            <div class="side-tools">
+                <div class="side-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="menu-search" placeholder="Encontrar opção" aria-label="Encontrar opção no menu">
+                </div>
+                <div class="side-btns">
+                    <button type="button" id="expand-all"><i class="fa-solid fa-plus"></i> Expandir</button>
+                    <button type="button" id="collapse-all"><i class="fa-solid fa-minus"></i> Recolher</button>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <ul id="menu">
+                    <li class="menu-item" data-rota="inicio">
+                        <a href="#/inicio" class="menu-link"><i class="fa-solid fa-house"></i><span>Início</span></a>
+                    </li>
+                    <li class="menu-item has-sub" data-rota="alunos">
+                        <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-users"></i><span>Alunos</span><i class="fa-solid fa-chevron-down chev"></i></button>
+                        <ul class="submenu">
+                            <li><a href="#/alunos" data-sub="alunos">Lista de alunos</a></li>
+                            <li><a href="#/alunos/novo" data-sub="alunos/novo">Cadastrar aluno</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item has-sub" data-rota="treinos">
+                        <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-dumbbell"></i><span>Treinos</span><i class="fa-solid fa-chevron-down chev"></i></button>
+                        <ul class="submenu">
+                            <li><a href="#/treinos" data-sub="treinos">Treinos cadastrados</a></li>
+                            <li><a href="#/treinos/novo" data-sub="treinos/novo">Cadastrar treino</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item has-sub" data-rota="biblioteca">
+                        <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-book-open"></i><span>Biblioteca</span><i class="fa-solid fa-chevron-down chev"></i></button>
+                        <ul class="submenu">
+                            <li><a href="#/biblioteca" data-sub="biblioteca">E-books</a></li>
+                            <li><a href="#/biblioteca/novo" data-sub="biblioteca/novo">Adicionar e-book</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item has-sub" data-rota="financeiro">
+                        <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-sack-dollar"></i><span>Financeiro</span><i class="fa-solid fa-chevron-down chev"></i></button>
+                        <ul class="submenu">
+                            <li><a href="#/financeiro" data-sub="financeiro">Lançamentos</a></li>
+                            <li><a href="#/financeiro/novo" data-sub="financeiro/novo">Novo lançamento</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="menu-empty" id="menu-empty" hidden>Nenhuma opção encontrada.</p>
+            </nav>
+
+            <a href="./index.html" class="side-foot" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Visitar site</a>
+        </aside>
+        <div class="side-overlay" id="side-overlay"></div>
+
+        <!-- ================= ÁREA PRINCIPAL ================= -->
+        <div class="main">
+            <header class="app-top">
+                <button type="button" class="hamb" id="hamb" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+                <div class="top-right">
+                    <div class="dropdown">
+                        <button type="button" class="bell" id="bell" aria-label="Avisos"><i class="fa-regular fa-bell"></i><span class="bell-n" id="bell-n">0</span></button>
+                        <div class="drop-menu wide" id="bell-menu" hidden></div>
+                    </div>
+                    <span class="hello">Olá, <strong id="admin-nome">Fagner</strong></span>
+                    <div class="dropdown">
+                        <button type="button" class="avatar" id="avatar" aria-label="Menu da conta">FL</button>
+                        <div class="drop-menu" id="avatar-menu" hidden>
+                            <span class="drop-email" id="admin-email"></span>
+                            <a href="./index.html" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Visitar site</a>
+                            <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+
+                <!-- ============ INÍCIO ============ -->
+                <section class="view" id="view-inicio" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow" id="hoje-extenso">Hoje</span>
+                            <h1>Olá, <span class="accent" id="inicio-nome">Fagner</span>!</h1>
+                            <p class="page-sub">Resumo da consultoria em tempo real.</p>
+                        </div>
+                    </div>
+                    <section class="stats stats-6">
+                        <a class="stat ok" href="#/alunos"><span class="stat-n" id="in-ativos">0</span><span class="stat-l">Alunos ativos</span></a>
+                        <a class="stat warn" href="#/alunos"><span class="stat-n" id="in-vencendo">0</span><span class="stat-l">Vencem em 7 dias</span></a>
+                        <a class="stat" href="#/treinos"><span class="stat-n" id="in-treinos">0</span><span class="stat-l">Treinos</span></a>
+                        <a class="stat" href="#/biblioteca"><span class="stat-n" id="in-ebooks">0</span><span class="stat-l">E-books</span></a>
+                        <a class="stat ok" href="#/financeiro"><span class="stat-n money" id="in-receita">R$ 0</span><span class="stat-l">Recebido no mês</span></a>
+                        <a class="stat" href="#/financeiro"><span class="stat-n money" id="in-saldo">R$ 0</span><span class="stat-l">Saldo do mês</span></a>
+                    </section>
+                    <div class="panels">
+                        <section class="panel-card">
+                            <h2><i class="fa-regular fa-calendar"></i> Vencimentos próximos</h2>
+                            <ul class="list" id="in-venc-list"></ul>
+                        </section>
+                        <section class="panel-card">
+                            <h2><i class="fa-solid fa-bolt"></i> Atalhos</h2>
+                            <div class="shortcuts">
+                                <a href="#/alunos/novo"><i class="fa-solid fa-user-plus"></i> Cadastrar aluno</a>
+                                <a href="#/treinos/novo"><i class="fa-solid fa-dumbbell"></i> Cadastrar treino</a>
+                                <a href="#/biblioteca/novo"><i class="fa-solid fa-file-pdf"></i> Adicionar e-book</a>
+                                <a href="#/financeiro/novo"><i class="fa-solid fa-sack-dollar"></i> Novo lançamento</a>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+
+                <!-- ============ ALUNOS ============ -->
+                <section class="view" id="view-alunos" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Gestão da consultoria</span>
+                            <h1>Alunos</h1>
+                        </div>
+                        <a href="#/alunos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar aluno</a>
+                    </div>
+                    <section class="stats">
+                        <button type="button" class="stat" data-filter="todos"><span class="stat-n" id="st-total">0</span><span class="stat-l">Alunos</span></button>
+                        <button type="button" class="stat ok" data-filter="ativos"><span class="stat-n" id="st-ativos">0</span><span class="stat-l">Ativos</span></button>
+                        <button type="button" class="stat warn" data-filter="vencendo"><span class="stat-n" id="st-vencendo">0</span><span class="stat-l">Vencem em 7 dias</span></button>
+                        <button type="button" class="stat bad" data-filter="vencidos"><span class="stat-n" id="st-vencidos">0</span><span class="stat-l">Vencidos</span></button>
+                    </section>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="al-busca" placeholder="Buscar por nome, e-mail ou telefone">
+                        </div>
+                        <select id="al-filtro" aria-label="Filtrar alunos">
+                            <option value="todos">Todos</option>
+                            <option value="ativos">Ativos</option>
+                            <option value="vencendo">Vencem em 7 dias</option>
+                            <option value="vencidos">Vencidos</option>
+                            <option value="inativos">Desativados</option>
+                        </select>
+                    </section>
+                    <section class="table-card">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Aluno</th><th>Telefone</th><th>Plano</th><th>Início</th><th>Vencimento</th><th>Situação</th><th class="th-actions">Ações</th></tr>
+                            </thead>
+                            <tbody id="al-tbody"></tbody>
+                        </table>
+                        <div class="empty" id="al-vazio" hidden><i class="fa-solid fa-users"></i><p id="al-vazio-txt"></p></div>
+                    </section>
+                </section>
+
+                <!-- ============ TREINOS ============ -->
+                <section class="view" id="view-treinos" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Prescrição</span>
+                            <h1>Treinos</h1>
+                        </div>
+                        <a href="#/treinos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar treino</a>
+                    </div>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="tr-busca" placeholder="Buscar treino ou exercício">
+                        </div>
+                        <select id="tr-filtro" aria-label="Filtrar por aluno"></select>
+                    </section>
+                    <div class="cards" id="tr-lista"></div>
+                    <div class="empty card-empty" id="tr-vazio" hidden><i class="fa-solid fa-dumbbell"></i><p id="tr-vazio-txt"></p></div>
+                </section>
+
+                <!-- ============ BIBLIOTECA ============ -->
+                <section class="view" id="view-biblioteca" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Materiais</span>
+                            <h1>Biblioteca</h1>
+                        </div>
+                        <a href="#/biblioteca/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Adicionar e-book</a>
+                    </div>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="bi-busca" placeholder="Buscar e-book">
+                        </div>
+                        <select id="bi-filtro" aria-label="Filtrar por categoria">
+                            <option value="">Todas as categorias</option>
+                            <option>Treino</option><option>Nutrição</option><option>Mentalidade</option><option>Saúde</option><option>Outros</option>
+                        </select>
+                    </section>
+                    <div class="cards" id="bi-lista"></div>
+                    <div class="empty card-empty" id="bi-vazio" hidden><i class="fa-solid fa-book-open"></i><p id="bi-vazio-txt"></p></div>
+                </section>
+
+                <!-- ============ FINANCEIRO ============ -->
+                <section class="view" id="view-financeiro" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Controle</span>
+                            <h1>Financeiro</h1>
+                        </div>
+                        <div class="head-actions">
+                            <input type="month" id="fi-mes" aria-label="Mês">
+                            <a href="#/financeiro/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo lançamento</a>
+                        </div>
+                    </div>
+                    <section class="stats">
+                        <div class="stat ok"><span class="stat-n money" id="fi-receitas">R$ 0</span><span class="stat-l">Recebido</span></div>
+                        <div class="stat bad"><span class="stat-n money" id="fi-despesas">R$ 0</span><span class="stat-l">Despesas pagas</span></div>
+                        <div class="stat"><span class="stat-n money" id="fi-saldo">R$ 0</span><span class="stat-l">Saldo do mês</span></div>
+                        <div class="stat warn"><span class="stat-n money" id="fi-receber">R$ 0</span><span class="stat-l">A receber</span></div>
+                    </section>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="fi-busca" placeholder="Buscar lançamento ou aluno">
+                        </div>
+                        <select id="fi-tipo" aria-label="Tipo">
+                            <option value="">Receitas e despesas</option>
+                            <option value="receita">Só receitas</option>
+                            <option value="despesa">Só despesas</option>
+                        </select>
+                        <select id="fi-status" aria-label="Situação">
+                            <option value="">Pagos e pendentes</option>
+                            <option value="pago">Pagos</option>
+                            <option value="pendente">Pendentes</option>
+                        </select>
+                    </section>
+                    <section class="table-card">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Forma</th><th>Valor</th><th>Situação</th><th class="th-actions">Ações</th></tr>
+                            </thead>
+                            <tbody id="fi-tbody"></tbody>
+                        </table>
+                        <div class="empty" id="fi-vazio" hidden><i class="fa-solid fa-sack-dollar"></i><p id="fi-vazio-txt"></p></div>
+                    </section>
+                </section>
+            </main>
+
+            <footer class="app-foot">
+                <span>Consultoria Fagner Lage · Painel de Controle</span>
+                <a href="https://feliperodrigues.net" target="_blank" rel="noopener">Produzido por: <strong>Felipe Rodrigues</strong></a>
+            </footer>
         </div>
-    </header>
+    </div>
 
-    <main class="wrap">
-        <div class="page-head">
-            <div>
-                <span class="eyebrow">Gestão da consultoria</span>
-                <h1>Alunos</h1>
-            </div>
-            <button type="button" class="btn btn-primary" id="new-btn"><i class="fa-solid fa-plus"></i> Novo aluno</button>
-        </div>
-
-        <!-- Resumo -->
-        <section class="stats">
-            <button type="button" class="stat" data-filter="todos"><span class="stat-n" id="st-total">0</span><span class="stat-l">Alunos</span></button>
-            <button type="button" class="stat ok" data-filter="ativos"><span class="stat-n" id="st-ativos">0</span><span class="stat-l">Ativos</span></button>
-            <button type="button" class="stat warn" data-filter="vencendo"><span class="stat-n" id="st-vencendo">0</span><span class="stat-l">Vencem em 7 dias</span></button>
-            <button type="button" class="stat bad" data-filter="vencidos"><span class="stat-n" id="st-vencidos">0</span><span class="stat-l">Vencidos</span></button>
-        </section>
-
-        <!-- Filtros -->
-        <section class="toolbar">
-            <div class="search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" id="search" placeholder="Buscar por nome, e-mail ou telefone">
-            </div>
-            <select id="filter" aria-label="Filtrar alunos">
-                <option value="todos">Todos</option>
-                <option value="ativos">Ativos</option>
-                <option value="vencendo">Vencem em 7 dias</option>
-                <option value="vencidos">Vencidos</option>
-                <option value="inativos">Desativados</option>
-            </select>
-        </section>
-
-        <!-- Lista -->
-        <section class="table-card">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Aluno</th>
-                        <th>Telefone</th>
-                        <th>Plano</th>
-                        <th>Início</th>
-                        <th>Vencimento</th>
-                        <th>Situação</th>
-                        <th class="th-actions">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody"></tbody>
-            </table>
-            <div class="empty" id="empty" hidden>
-                <i class="fa-solid fa-users"></i>
-                <p id="empty-text">Nenhum aluno cadastrado ainda.</p>
-            </div>
-        </section>
-    </main>
-
-    <!-- Modal: cadastrar / editar aluno -->
-    <div class="modal" id="modal" hidden>
-        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <!-- ================= MODAL: ALUNO ================= -->
+    <div class="modal" id="modal-aluno" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="al-titulo">
             <div class="modal-head">
-                <h2 id="modal-title">Novo aluno</h2>
-                <button type="button" class="icon-btn" id="modal-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+                <h2 id="al-titulo">Cadastrar aluno</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="aluno-form" novalidate>
                 <div class="grid-2">
-                    <label class="full">Nome completo *
-                        <input type="text" id="f-nome" required autocomplete="off">
-                    </label>
-                    <label>E-mail *
-                        <input type="email" id="f-email" required autocomplete="off">
-                    </label>
-                    <label>Telefone / WhatsApp
-                        <input type="tel" id="f-telefone" placeholder="(32) 99999-9999" autocomplete="off">
-                    </label>
+                    <label class="full">Nome completo *<input type="text" id="f-nome" required autocomplete="off"></label>
+                    <label>E-mail *<input type="email" id="f-email" required autocomplete="off"></label>
+                    <label>Telefone / WhatsApp<input type="tel" id="f-telefone" placeholder="(32) 99999-9999" autocomplete="off"></label>
                     <label>Plano
                         <select id="f-plano">
                             <option value="trimestral">Trimestral (3 meses)</option>
@@ -112,49 +295,158 @@
                             <option value="anual">Anual (12 meses)</option>
                         </select>
                     </label>
-                    <label>Início
-                        <input type="date" id="f-inicio" required>
-                    </label>
-                    <label>Vencimento
-                        <input type="date" id="f-vencimento" required>
-                        <small>Calculado pelo plano. Pode ajustar.</small>
-                    </label>
-                    <label class="switch-row">
-                        <input type="checkbox" id="f-ativo" checked>
-                        <span>Acesso liberado</span>
-                    </label>
+                    <label>Início<input type="date" id="f-inicio" required></label>
+                    <label>Vencimento<input type="date" id="f-vencimento" required><small>Calculado pelo plano. Pode ajustar.</small></label>
+                    <label class="switch-row"><input type="checkbox" id="f-ativo" checked><span>Acesso liberado</span></label>
                     <label class="full" id="senha-wrap">Senha inicial (opcional)
                         <input type="text" id="f-senha" minlength="6" autocomplete="off" placeholder="Mínimo de 6 caracteres">
                         <small>Preencha para o aluno entrar com e-mail e senha. Deixe em branco se ele vai entrar com Google ou Apple.</small>
                     </label>
-                    <label class="full">Observações
-                        <textarea id="f-obs" rows="3" placeholder="Objetivo, restrições, combinados..."></textarea>
-                    </label>
+                    <label class="full">Observações<textarea id="f-obs" rows="3" placeholder="Objetivo, restrições, combinados..."></textarea></label>
                 </div>
-                <p class="form-msg" id="form-msg" role="alert"></p>
+                <p class="form-msg" id="al-msg" role="alert"></p>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-ghost" id="cancel-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="save-btn">Salvar</button>
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="al-salvar">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: confirmar exclusão -->
-    <div class="modal" id="confirm" hidden>
-        <div class="modal-box small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
-            <h2 id="confirm-title">Excluir aluno?</h2>
-            <p id="confirm-text"></p>
+    <!-- ================= MODAL: TREINO ================= -->
+    <div class="modal" id="modal-treino" hidden>
+        <div class="modal-box large" role="dialog" aria-modal="true" aria-labelledby="tr-titulo">
+            <div class="modal-head">
+                <h2 id="tr-titulo">Cadastrar treino</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="treino-form" novalidate>
+                <div class="grid-2">
+                    <label class="full">Nome do treino *<input type="text" id="t-nome" placeholder="Ex.: Treino A — Peito e tríceps" required autocomplete="off"></label>
+                    <label>Aluno
+                        <select id="t-aluno"></select>
+                        <small>Deixe como "Modelo" para reaproveitar com vários alunos.</small>
+                    </label>
+                    <label>Objetivo
+                        <select id="t-objetivo">
+                            <option>Hipertrofia</option><option>Emagrecimento</option><option>Força</option>
+                            <option>Condicionamento</option><option>Mobilidade</option><option>Reabilitação</option><option>Outro</option>
+                        </select>
+                    </label>
+                    <label>Nível
+                        <select id="t-nivel"><option>Iniciante</option><option selected>Intermediário</option><option>Avançado</option></select>
+                    </label>
+                    <label>Dias da semana<input type="text" id="t-dias" placeholder="Ex.: Segunda e quinta" autocomplete="off"></label>
+                </div>
+
+                <div class="ex-head">
+                    <h3>Exercícios</h3>
+                    <button type="button" class="btn btn-ghost btn-sm" id="ex-add"><i class="fa-solid fa-plus"></i> Adicionar exercício</button>
+                </div>
+                <div class="ex-list" id="ex-list"></div>
+
+                <div class="grid-2">
+                    <label class="full">Orientações gerais<textarea id="t-obs" rows="3" placeholder="Aquecimento, cadência, cuidados..."></textarea></label>
+                </div>
+                <p class="form-msg" id="tr-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="tr-salvar">Salvar treino</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: E-BOOK ================= -->
+    <div class="modal" id="modal-ebook" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="eb-titulo">
+            <div class="modal-head">
+                <h2 id="eb-titulo">Adicionar e-book</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="ebook-form" novalidate>
+                <div class="grid-2">
+                    <label class="full">Título *<input type="text" id="e-titulo" required autocomplete="off"></label>
+                    <label>Categoria
+                        <select id="e-categoria"><option>Treino</option><option>Nutrição</option><option>Mentalidade</option><option>Saúde</option><option>Outros</option></select>
+                    </label>
+                    <label>Arquivo PDF <span id="e-arq-obrig">*</span>
+                        <input type="file" id="e-arquivo" accept="application/pdf,.pdf">
+                        <small id="e-arq-info">Até 5 MB.</small>
+                    </label>
+                    <label class="full">Descrição<textarea id="e-descricao" rows="2" placeholder="Sobre o que é este material?"></textarea></label>
+                </div>
+
+                <fieldset class="send">
+                    <legend>Enviar para</legend>
+                    <label class="radio"><input type="radio" name="e-envio" value="todos" checked> Todos os alunos</label>
+                    <label class="radio"><input type="radio" name="e-envio" value="selecionados"> Alunos selecionados</label>
+                    <div class="pick" id="e-pick" hidden>
+                        <input type="search" id="e-pick-busca" placeholder="Buscar aluno">
+                        <div class="pick-list" id="e-pick-list"></div>
+                        <small id="e-pick-n">0 selecionados</small>
+                    </div>
+                </fieldset>
+
+                <p class="form-msg" id="eb-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="eb-salvar">Salvar e-book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: LANÇAMENTO ================= -->
+    <div class="modal" id="modal-lanc" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="la-titulo">
+            <div class="modal-head">
+                <h2 id="la-titulo">Novo lançamento</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="lanc-form" novalidate>
+                <div class="segmented" role="radiogroup" aria-label="Tipo de lançamento">
+                    <label><input type="radio" name="l-tipo" value="receita" checked><span><i class="fa-solid fa-arrow-down"></i> Receita</span></label>
+                    <label><input type="radio" name="l-tipo" value="despesa"><span><i class="fa-solid fa-arrow-up"></i> Despesa</span></label>
+                </div>
+                <div class="grid-2">
+                    <label class="full">Descrição *<input type="text" id="l-descricao" placeholder="Ex.: Plano semestral — Ana" required autocomplete="off"></label>
+                    <label>Valor (R$) *<input type="text" id="l-valor" inputmode="decimal" placeholder="0,00" required autocomplete="off"></label>
+                    <label>Data *<input type="date" id="l-data" required></label>
+                    <label>Categoria<select id="l-categoria"></select></label>
+                    <label>Forma de pagamento
+                        <select id="l-forma"><option>Pix</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Dinheiro</option><option>Boleto</option><option>Transferência</option></select>
+                    </label>
+                    <label id="l-aluno-wrap">Aluno (opcional)<select id="l-aluno"></select></label>
+                    <label>Situação
+                        <select id="l-status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+                    </label>
+                    <label class="full">Observações<textarea id="l-obs" rows="2"></textarea></label>
+                </div>
+                <p class="form-msg" id="la-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="la-salvar">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: CONFIRMAR ================= -->
+    <div class="modal" id="modal-confirm" hidden>
+        <div class="modal-box small" role="alertdialog" aria-modal="true" aria-labelledby="cf-titulo">
+            <h2 id="cf-titulo">Tem certeza?</h2>
+            <p id="cf-texto"></p>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" id="confirm-no">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirm-yes">Excluir</button>
+                <button type="button" class="btn btn-ghost" id="cf-nao">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="cf-sim">Excluir</button>
             </div>
         </div>
     </div>
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=3"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=4"></script>
 </body>
 
 </html>

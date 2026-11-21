@@ -74,3 +74,52 @@ export function mascaraTelefone(v) {
 export function escaparHTML(t) {
     return String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+
+/* ---------- Financeiro ---------- */
+
+// "1.234,56" | "1234.56" | "R$ 150" -> centavos (inteiro). Retorna NaN se inválido.
+export function paraCentavos(texto) {
+    let t = String(texto ?? "").replace(/[^\d.,-]/g, "").trim();
+    if (!t) return NaN;
+    const temVirgula = t.includes(",");
+    if (temVirgula) t = t.replace(/\./g, "").replace(",", ".");
+    else if ((t.match(/\./g) || []).length > 1) t = t.replace(/\./g, "");
+    else if (/\.\d{3}$/.test(t)) t = t.replace(".", "");
+    const n = Number(t);
+    return Number.isFinite(n) ? Math.round(n * 100) : NaN;
+}
+
+export function moeda(centavos) {
+    return (Number(centavos || 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export function centavosParaTexto(centavos) {
+    return (Number(centavos || 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Resumo de um mês (AAAA-MM): recebido, despesas pagas, saldo e a receber
+export function resumoMes(lancamentos, mes) {
+    const r = { receitas: 0, despesas: 0, saldo: 0, receber: 0 };
+    for (const l of lancamentos) {
+        if (!l.data || l.data.slice(0, 7) !== mes) continue;
+        const v = Number(l.valor || 0);
+        if (l.tipo === "receita") {
+            if (l.status === "pago") r.receitas += v; else r.receber += v;
+        } else if (l.tipo === "despesa" && l.status === "pago") {
+            r.despesas += v;
+        }
+    }
+    r.saldo = r.receitas - r.despesas;
+    return r;
+}
+
+// Objeto do Firebase {id: {...}} -> lista [{id, ...}]
+export function listaDe(obj) {
+    return Object.entries(obj || {}).map(([id, v]) => ({ id, ...v }));
+}
+
+export function tamanhoArquivo(bytes) {
+    if (!bytes) return "—";
+    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
+    return (bytes / 1024 / 1024).toFixed(1).replace(".", ",") + " MB";
+}

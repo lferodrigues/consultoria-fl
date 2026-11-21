@@ -1,330 +1,244 @@
-// Painel do Administrador — cadastro de alunos no Realtime Database
+// Painel de Controle (SPA) — acesso, dados em tempo real, rotas e menu
 //
-// Estrutura no banco:
-//   alunos/{id}        -> { nome, email, telefone, plano, inicio, vencimento, ativo, obs, uid, criadoEm, atualizadoEm }
-//   emails/{emailKey}  -> { aluno: id, ativo, vencimento }   (o login consulta só isto)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    signOut,
-    createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { ref, onValue, get, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { auth, db, firebaseConfig, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
-import {
-    MESES_POR_PLANO, somarMeses, situacao, contar, filtrar,
-    dataBR, mascaraTelefone, escaparHTML
-} from "./alunos-util.js?v=1";
+// Rotas (tudo na mesma página, sem recarregar):
+//   #/inicio  #/alunos  #/treinos  #/biblioteca  #/financeiro
+//   #/<tela>/novo abre o cadastro daquela tela
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { auth, db, ehAdmin, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
+import { situacao, contar, dataBR, moeda, resumoMes, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
+import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
+import * as Alunos from "./admin-alunos.js?v=1";
+import * as Treinos from "./admin-treinos.js?v=1";
+import * as Biblioteca from "./admin-biblioteca.js?v=1";
+import * as Financeiro from "./admin-financeiro.js?v=1";
 
-const $ = (id) => document.getElementById(id);
-
-let alunos = [];          // lista atual vinda do banco
-let editandoId = null;    // null = novo aluno
-let excluirId = null;
-let pararEscuta = null;
-
-/* ---------------- Acesso ---------------- */
+const TELAS = ["inicio", "alunos", "treinos", "biblioteca", "financeiro"];
+const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", biblioteca: "Biblioteca", financeiro: "Financeiro" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro };
+const NOS = ["alunos", "treinos", "biblioteca", "financeiro"];
 
 let saindo = false;
+let iniciado = false;
+const pararEscutas = [];
+
+/* =================== Acesso =================== */
 
 onAuthStateChanged(auth, (user) => {
     if (saindo) return;
-    if (!user) {
-        if (pararEscuta) pararEscuta();
-        mostrarAcessoNegado({ texto: "Faça o seu login para entrar." });
+    if (!user || !ehAdmin(user)) {
+        pararEscutas.forEach((p) => p());
+        mostrarAcessoNegado(user
+            ? { texto: "Esta área é exclusiva do administrador.", botao: "Ir para a área do aluno", link: PAGINAS.aluno || PAGINAS.login }
+            : { texto: "Faça o seu login para entrar." });
         return;
     }
-    if (!ehAdmin(user)) {
-        if (pararEscuta) pararEscuta();
-        mostrarAcessoNegado({
-            texto: "Esta área é exclusiva do administrador.",
-            botao: "Ir para a área do aluno",
-            link: PAGINAS.aluno || PAGINAS.login
-        });
-        return;
-    }
+    if (iniciado) return;
+    iniciado = true;
+    iniciarPainel(user);
+});
+
+function iniciarPainel(user) {
+    const nome = (user.displayName || "Fagner Lage").trim();
+    $("admin-nome").textContent = nome.split(" ")[0];
+    $("inicio-nome").textContent = nome.split(" ")[0];
     $("admin-email").textContent = user.email;
+    $("avatar").textContent = nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+    $("hoje-extenso").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+    Object.values(MODULOS).forEach((m) => m.iniciar());
+    aoMudar(desenharInicio);
+    aoMudar(desenharAvisos);
+    iniciarMenu();
+    iniciarTopo();
+
+    // Escuta os dados em tempo real (os PDFs em "arquivos" só são baixados quando pedidos)
+    NOS.forEach((no) => {
+        pararEscutas.push(onValue(ref(db, no), (snap) => {
+            estado[no] = listaDe(snap.val());
+            if (no === "alunos") estado.alunos.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+            notificar();
+        }, (erro) => {
+            console.error(no, erro);
+            aviso("Sem permissão para ler \"" + no + "\". Confira as regras do Realtime Database.", "error");
+        }));
+    });
+
+    window.addEventListener("hashchange", rotear);
+    rotear();
+    notificar();
     $("gate").hidden = true;
-    escutarAlunos();
-});
+}
 
-$("logout-btn").addEventListener("click", async () => {
-    saindo = true;
-    await signOut(auth);
-    window.location.replace(PAGINAS.login);
-});
+/* =================== Rotas =================== */
 
-/* ---------------- Leitura em tempo real ---------------- */
+function rotear() {
+    const [base, acao] = location.hash.replace(/^#\/?/, "").split("/");
+    const tela = TELAS.includes(base) ? base : "inicio";
 
-function escutarAlunos() {
-    if (pararEscuta) return;
-    pararEscuta = onValue(ref(db, "alunos"), (snap) => {
-        const dados = snap.val() || {};
-        alunos = Object.entries(dados).map(([id, a]) => ({ id, ...a }));
-        alunos.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
-        desenhar();
-    }, (erro) => {
-        console.error(erro);
-        pararEscuta = null;
-        $("empty").hidden = false;
-        $("empty-text").textContent = "Sem permissão para ler os alunos. Confira as regras do Realtime Database.";
+    TELAS.forEach((t) => { $("view-" + t).hidden = t !== tela; });
+    document.title = TITULOS[tela] + " | Painel Fagner Lage";
+
+    // Menu: item ativo, grupo aberto e subitem marcado
+    document.querySelectorAll(".menu-item").forEach((li) => {
+        const ativo = li.dataset.rota === tela;
+        li.classList.toggle("ativo", ativo);
+        if (ativo && li.classList.contains("has-sub")) abrirGrupo(li, true);
+    });
+    const sub = tela + (acao === "novo" ? "/novo" : "");
+    document.querySelectorAll(".submenu a").forEach((a) => a.classList.toggle("ativo", a.dataset.sub === sub));
+
+    if (window.innerWidth <= 1024) document.body.classList.remove("side-aberta");
+    window.scrollTo(0, 0);
+
+    if (acao === "novo" && MODULOS[tela]) {
+        MODULOS[tela].novo(() => {
+            // ao fechar o cadastro, o menu volta para a lista
+            document.querySelectorAll(".submenu a").forEach((a) => a.classList.toggle("ativo", a.dataset.sub === tela));
+        });
+        history.replaceState(null, "", "#/" + tela);
+    }
+}
+
+/* =================== Menu lateral =================== */
+
+function abrirGrupo(li, abrir) {
+    li.classList.toggle("aberto", abrir);
+    li.querySelector(".menu-toggle")?.setAttribute("aria-expanded", String(abrir));
+}
+
+function iniciarMenu() {
+    document.querySelectorAll(".menu-toggle").forEach((b) => b.addEventListener("click", () => {
+        const li = b.closest(".menu-item");
+        abrirGrupo(li, !li.classList.contains("aberto"));
+    }));
+    $("expand-all").addEventListener("click", () => document.querySelectorAll(".menu-item.has-sub").forEach((li) => abrirGrupo(li, true)));
+    $("collapse-all").addEventListener("click", () => document.querySelectorAll(".menu-item.has-sub").forEach((li) => abrirGrupo(li, false)));
+
+    // Encontrar opção
+    $("menu-search").addEventListener("input", (e) => {
+        const termo = normalizar(e.target.value);
+        let algum = false;
+        document.querySelectorAll(".menu-item").forEach((li) => {
+            const rotulo = li.querySelector(".menu-link span");
+            const bateRotulo = !termo || normalizar(rotulo.textContent).includes(termo);
+            let bateSub = false;
+            li.querySelectorAll(".submenu li").forEach((s) => {
+                const ok = bateRotulo || normalizar(s.textContent).includes(termo);
+                s.hidden = !ok;
+                if (ok && termo && !bateRotulo) bateSub = true;
+            });
+            const mostrar = bateRotulo || bateSub;
+            li.hidden = !mostrar;
+            if (mostrar) algum = true;
+            if (li.classList.contains("has-sub")) {
+                // com busca: abre o que bateu; sem busca: volta a deixar aberto só o grupo da tela atual
+                abrirGrupo(li, termo ? mostrar : li.classList.contains("ativo"));
+            }
+        });
+        $("menu-empty").hidden = algum;
+    });
+    $("menu-search").addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const primeiro = [...document.querySelectorAll("#menu a")].find((a) => !a.closest("[hidden]"));
+        if (primeiro) { location.hash = primeiro.getAttribute("href"); e.target.value = ""; e.target.dispatchEvent(new Event("input")); }
+    });
+
+    // Abrir / fechar o menu
+    const desktop = () => window.innerWidth > 1024;
+    $("side-close").addEventListener("click", () => {
+        if (desktop()) document.body.classList.add("side-fechada");
+        else document.body.classList.remove("side-aberta");
+    });
+    $("hamb").addEventListener("click", () => {
+        if (desktop()) document.body.classList.remove("side-fechada");
+        else document.body.classList.add("side-aberta");
+    });
+    $("side-overlay").addEventListener("click", () => document.body.classList.remove("side-aberta"));
+}
+
+function normalizar(t) {
+    // sem acentos, hífens e espaços: "ebook" encontra "E-books"
+    return String(t || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
+}
+
+/* =================== Topo: avisos e conta =================== */
+
+function iniciarTopo() {
+    const menus = [["bell", "bell-menu"], ["avatar", "avatar-menu"]];
+    menus.forEach(([botao, menu]) => {
+        $(botao).addEventListener("click", (e) => {
+            e.stopPropagation();
+            const abrir = $(menu).hidden;
+            menus.forEach(([, m]) => { $(m).hidden = true; });
+            $(menu).hidden = !abrir;
+        });
+    });
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".dropdown")) menus.forEach(([, m]) => { $(m).hidden = true; });
+    });
+    $("bell-menu").addEventListener("click", (e) => {
+        if (e.target.closest("a")) { $("bell-menu").hidden = true; }
+    });
+    $("logout-btn").addEventListener("click", async () => {
+        saindo = true;
+        pararEscutas.forEach((p) => p());
+        await signOut(auth);
+        window.location.replace(PAGINAS.login);
     });
 }
 
-/* ---------------- Lista ---------------- */
-
-function desenhar() {
+function alunosComAviso() {
     const hoje = hojeISO();
-    const c = contar(alunos, hoje);
-    $("st-total").textContent = c.total;
-    $("st-ativos").textContent = c.ativos;
-    $("st-vencendo").textContent = c.vencendo;
-    $("st-vencidos").textContent = c.vencidos;
-
-    const lista = filtrar(alunos, $("filter").value, $("search").value, hoje);
-    $("tbody").innerHTML = lista.map((a) => {
-        const s = situacao(a, hoje);
-        return `
-        <tr>
-            <td class="td-aluno">
-                <div class="aluno-nome">${escaparHTML(a.nome)}</div>
-                <div class="aluno-email">${escaparHTML(a.email)}</div>
-            </td>
-            <td data-label="Telefone">${escaparHTML(a.telefone || "—")}</td>
-            <td data-label="Plano" class="plano">${escaparHTML(a.plano || "—")}</td>
-            <td data-label="Início">${dataBR(a.inicio)}</td>
-            <td data-label="Vencimento">${dataBR(a.vencimento)}</td>
-            <td data-label="Situação"><span class="badge ${s.classe}">${s.texto}</span></td>
-            <td class="td-actions">
-                <div class="actions">
-                    <button type="button" class="icon-btn" data-acao="editar" data-id="${a.id}" title="Editar" aria-label="Editar ${escaparHTML(a.nome)}"><i class="fa-solid fa-pen"></i></button>
-                    <button type="button" class="icon-btn" data-acao="alternar" data-id="${a.id}" title="${a.ativo === false ? "Liberar acesso" : "Desativar acesso"}" aria-label="${a.ativo === false ? "Liberar" : "Desativar"} ${escaparHTML(a.nome)}"><i class="fa-solid ${a.ativo === false ? "fa-lock-open" : "fa-lock"}"></i></button>
-                    <button type="button" class="icon-btn danger" data-acao="excluir" data-id="${a.id}" title="Excluir" aria-label="Excluir ${escaparHTML(a.nome)}"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </td>
-        </tr>`;
-    }).join("");
-
-    const vazio = lista.length === 0;
-    $("empty").hidden = !vazio;
-    if (vazio) {
-        $("empty-text").textContent = alunos.length === 0
-            ? "Nenhum aluno cadastrado ainda. Clique em \"Novo aluno\" para começar."
-            : "Nenhum aluno encontrado com esse filtro.";
-    }
+    return estado.alunos
+        .map((a) => ({ a, s: situacao(a, hoje) }))
+        .filter(({ s }) => s.chave === "vencendo" || s.chave === "vencidos")
+        .sort((x, y) => (x.a.vencimento || "").localeCompare(y.a.vencimento || ""));
 }
 
-$("search").addEventListener("input", desenhar);
-$("filter").addEventListener("change", desenhar);
-document.querySelectorAll(".stat").forEach((b) => b.addEventListener("click", () => {
-    $("filter").value = b.dataset.filter;
-    desenhar();
-}));
-
-$("tbody").addEventListener("click", (ev) => {
-    const btn = ev.target.closest("button[data-acao]");
-    if (!btn) return;
-    const aluno = alunos.find((a) => a.id === btn.dataset.id);
-    if (!aluno) return;
-    if (btn.dataset.acao === "editar") abrirModal(aluno);
-    if (btn.dataset.acao === "alternar") alternarAcesso(aluno);
-    if (btn.dataset.acao === "excluir") pedirExclusao(aluno);
-});
-
-/* ---------------- Formulário ---------------- */
-
-const campos = {
-    nome: $("f-nome"), email: $("f-email"), telefone: $("f-telefone"), plano: $("f-plano"),
-    inicio: $("f-inicio"), vencimento: $("f-vencimento"), ativo: $("f-ativo"), senha: $("f-senha"), obs: $("f-obs")
-};
-
-function recalcularVencimento() {
-    if (campos.inicio.value) {
-        campos.vencimento.value = somarMeses(campos.inicio.value, MESES_POR_PLANO[campos.plano.value] || 6);
-    }
-}
-campos.plano.addEventListener("change", recalcularVencimento);
-campos.inicio.addEventListener("change", recalcularVencimento);
-campos.telefone.addEventListener("input", (e) => { e.target.value = mascaraTelefone(e.target.value); });
-
-function abrirModal(aluno = null) {
-    editandoId = aluno ? aluno.id : null;
-    $("modal-title").textContent = aluno ? "Editar aluno" : "Novo aluno";
-    $("form-msg").textContent = "";
-    $("senha-wrap").hidden = !!aluno; // senha só no cadastro
-    campos.nome.value = aluno?.nome || "";
-    campos.email.value = aluno?.email || "";
-    campos.telefone.value = aluno?.telefone || "";
-    campos.plano.value = aluno?.plano || "semestral";
-    campos.inicio.value = aluno?.inicio || hojeISO();
-    campos.ativo.checked = aluno ? aluno.ativo !== false : true;
-    campos.senha.value = "";
-    campos.obs.value = aluno?.obs || "";
-    if (aluno?.vencimento) campos.vencimento.value = aluno.vencimento; else recalcularVencimento();
-    $("modal").hidden = false;
-    setTimeout(() => campos.nome.focus(), 50);
+function desenharAvisos() {
+    const lista = alunosComAviso();
+    $("bell-n").textContent = lista.length;
+    $("bell-n").classList.toggle("zero", lista.length === 0);
+    $("bell-menu").innerHTML = '<span class="drop-title">Avisos</span>' + (lista.length
+        ? lista.slice(0, 8).map(({ a, s }) => `
+            <a href="#/alunos" class="aviso-item"><i class="fa-solid ${s.chave === "vencidos" ? "fa-circle-exclamation" : "fa-clock"}" style="color:${s.chave === "vencidos" ? "var(--red-2)" : "var(--warn)"}"></i>
+            <span>${esc(a.nome)}<small>${s.texto} · ${dataBR(a.vencimento)}</small></span></a>`).join("")
+        : '<span class="drop-email" style="border:0">Nenhum plano vencendo. Tudo em dia!</span>');
 }
 
-function fecharModal() { $("modal").hidden = true; }
+/* =================== Início =================== */
 
-$("new-btn").addEventListener("click", () => abrirModal());
-$("modal-close").addEventListener("click", fecharModal);
-$("cancel-btn").addEventListener("click", fecharModal);
-$("modal").addEventListener("click", (e) => { if (e.target.id === "modal") fecharModal(); });
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { fecharModal(); $("confirm").hidden = true; }
-});
+function desenharInicio() {
+    const hoje = hojeISO();
+    const c = contar(estado.alunos, hoje);
+    const r = resumoMes(estado.financeiro, hoje.slice(0, 7));
+    $("in-ativos").textContent = c.ativos;
+    $("in-vencendo").textContent = c.vencendo;
+    $("in-treinos").textContent = estado.treinos.length;
+    $("in-ebooks").textContent = estado.biblioteca.length;
+    $("in-receita").textContent = moeda(r.receitas);
+    $("in-saldo").textContent = moeda(r.saldo);
 
-// App secundário só para criar o login do aluno sem desconectar o administrador
-let authCadastro = null;
-function getAuthCadastro() {
-    if (!authCadastro) authCadastro = getAuth(initializeApp(firebaseConfig, "cadastro-alunos"));
-    return authCadastro;
+    const proximos = estado.alunos
+        .filter((a) => a.ativo !== false && a.vencimento)
+        .sort((x, y) => x.vencimento.localeCompare(y.vencimento))
+        .filter((a) => a.vencimento >= somarDias(hoje, -30))
+        .slice(0, 6);
+    $("in-venc-list").innerHTML = proximos.length
+        ? proximos.map((a) => {
+            const s = situacao(a, hoje);
+            return `<li><span>${esc(a.nome)}<br><span class="muted">${esc(a.plano || "")} · vence ${dataBR(a.vencimento)}</span></span><span class="badge ${s.classe}">${s.texto}</span></li>`;
+        }).join("")
+        : '<li class="list-empty">Nenhum aluno ativo cadastrado ainda.</li>';
 }
 
-$("aluno-form").addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const msg = $("form-msg");
-    msg.textContent = "";
-
-    const dados = {
-        nome: campos.nome.value.trim(),
-        email: campos.email.value.trim().toLowerCase(),
-        telefone: campos.telefone.value.trim(),
-        plano: campos.plano.value,
-        inicio: campos.inicio.value,
-        vencimento: campos.vencimento.value,
-        ativo: campos.ativo.checked,
-        obs: campos.obs.value.trim()
-    };
-    const senha = campos.senha.value;
-
-    if (!dados.nome) return (msg.textContent = "Digite o nome do aluno.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email)) return (msg.textContent = "Digite um e-mail válido.");
-    if (!dados.inicio || !dados.vencimento) return (msg.textContent = "Preencha as datas de início e vencimento.");
-    if (dados.vencimento < dados.inicio) return (msg.textContent = "O vencimento não pode ser antes do início.");
-    if (!editandoId && senha && senha.length < 6) return (msg.textContent = "A senha precisa ter pelo menos 6 caracteres.");
-    if (dados.email === "contato@fagnerlage.com.br") return (msg.textContent = "Esse é o e-mail do administrador.");
-
-    const salvar = $("save-btn");
-    salvar.disabled = true;
-    salvar.textContent = "Salvando...";
-
-    try {
-        const antigo = editandoId ? alunos.find((a) => a.id === editandoId) : null;
-        const chaveNova = chaveEmail(dados.email);
-        const mudouEmail = !antigo || antigo.email !== dados.email;
-
-        // E-mail já usado por outro aluno?
-        if (mudouEmail) {
-            const existe = await get(ref(db, "emails/" + chaveNova));
-            if (existe.exists() && existe.val().aluno !== editandoId) {
-                msg.textContent = "Já existe um aluno cadastrado com esse e-mail.";
-                return;
-            }
-        }
-
-        const id = editandoId || push(ref(db, "alunos")).key;
-        const agora = Date.now();
-        let avisoExtra = "";
-
-        // Cria o login com senha (opcional, só no cadastro novo)
-        if (!editandoId && senha) {
-            const authSec = getAuthCadastro();
-            try {
-                const cred = await createUserWithEmailAndPassword(authSec, dados.email, senha);
-                dados.uid = cred.user.uid;
-            } catch (e) {
-                if (e.code === "auth/email-already-in-use") {
-                    avisoExtra = " Esse e-mail já tinha login no Firebase; a senha não foi alterada.";
-                } else {
-                    throw e;
-                }
-            } finally {
-                await signOut(authSec).catch(() => {});
-            }
-        }
-
-        const mudancas = {};
-        mudancas["alunos/" + id] = {
-            ...(antigo ? { uid: antigo.uid || null, criadoEm: antigo.criadoEm || agora } : { criadoEm: agora }),
-            ...dados,
-            atualizadoEm: agora
-        };
-        if (!dados.uid && antigo?.uid) mudancas["alunos/" + id].uid = antigo.uid;
-        mudancas["emails/" + chaveNova] = { aluno: id, ativo: dados.ativo, vencimento: dados.vencimento, nome: dados.nome, plano: dados.plano };
-        if (antigo && mudouEmail) mudancas["emails/" + chaveEmail(antigo.email)] = null;
-
-        await update(ref(db), mudancas);
-        fecharModal();
-        aviso((editandoId ? "Aluno atualizado." : "Aluno cadastrado.") + avisoExtra, "ok");
-    } catch (e) {
-        console.error(e);
-        const erros = {
-            "auth/invalid-email": "E-mail inválido.",
-            "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
-            "auth/operation-not-allowed": "O login por e-mail/senha não está ativado no Firebase.",
-            "PERMISSION_DENIED": "Sem permissão para salvar. Confira as regras do Realtime Database."
-        };
-        msg.textContent = erros[e.code] || (String(e.message || "").includes("PERMISSION_DENIED") ? erros.PERMISSION_DENIED : "Não foi possível salvar. Tente novamente.");
-    } finally {
-        salvar.disabled = false;
-        salvar.textContent = "Salvar";
-    }
-});
-
-/* ---------------- Ativar / desativar ---------------- */
-
-async function alternarAcesso(aluno) {
-    const ativo = aluno.ativo === false;
-    try {
-        await update(ref(db), {
-            ["alunos/" + aluno.id + "/ativo"]: ativo,
-            ["alunos/" + aluno.id + "/atualizadoEm"]: Date.now(),
-            ["emails/" + chaveEmail(aluno.email) + "/ativo"]: ativo
-        });
-        aviso(ativo ? "Acesso de " + aluno.nome + " liberado." : "Acesso de " + aluno.nome + " desativado.", "ok");
-    } catch (e) {
-        console.error(e);
-        aviso("Não foi possível alterar o acesso.", "error");
-    }
+function somarDias(iso, dias) {
+    const [a, m, d] = iso.split("-").map(Number);
+    const dt = new Date(a, m - 1, d + dias);
+    return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
 }
 
-/* ---------------- Excluir ---------------- */
-
-function pedirExclusao(aluno) {
-    excluirId = aluno.id;
-    $("confirm-text").textContent = aluno.nome + " (" + aluno.email + ") perde o acesso à área do aluno e sai da lista. Essa ação não pode ser desfeita.";
-    $("confirm").hidden = false;
-}
-
-$("confirm-no").addEventListener("click", () => { $("confirm").hidden = true; });
-$("confirm").addEventListener("click", (e) => { if (e.target.id === "confirm") $("confirm").hidden = true; });
-$("confirm-yes").addEventListener("click", async () => {
-    const aluno = alunos.find((a) => a.id === excluirId);
-    $("confirm").hidden = true;
-    if (!aluno) return;
-    try {
-        await update(ref(db), {
-            ["alunos/" + aluno.id]: null,
-            ["emails/" + chaveEmail(aluno.email)]: null
-        });
-        aviso(aluno.nome + " foi excluído.", "ok");
-    } catch (e) {
-        console.error(e);
-        aviso("Não foi possível excluir.", "error");
-    }
-});
-
-/* ---------------- Aviso rápido ---------------- */
-
-let timerAviso;
-function aviso(texto, tipo = "ok") {
-    const t = $("toast");
-    t.textContent = texto;
-    t.className = "toast show " + tipo;
-    clearTimeout(timerAviso);
-    timerAviso = setTimeout(() => { t.className = "toast " + tipo; }, 3500);
-}
+// Card "Vencem em 7 dias" do Início já abre a lista filtrada
+document.querySelector("#view-inicio .stat.warn")?.addEventListener("click", () => Alunos.filtrarPor("vencendo"));

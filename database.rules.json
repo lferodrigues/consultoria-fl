@@ -2,19 +2,45 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "alunos": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
-      ".indexOn": ["email", "vencimento"]
+      ".indexOn": [
+        "email",
+        "vencimento"
+      ]
     },
-
     "emails": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       "$chave": {
         ".read": "auth != null && auth.token.email != null && $chave == auth.token.email.toLowerCase().replace('.', ',')"
       }
+    },
+    "treinos": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "alunoId"
+      ]
+    },
+    "biblioteca": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'"
+    },
+    "arquivos": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "$id": {
+        ".validate": "newData.child('dados').isString() && newData.child('dados').val().length < 7500000"
+      }
+    },
+    "financeiro": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "data"
+      ]
     }
   }
 }
