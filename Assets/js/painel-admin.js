@@ -10,7 +10,8 @@ import { situacao, dataBR, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
 import * as Alunos from "./admin-alunos.js?v=1";
-import * as Treinos from "./admin-treinos.js?v=1";
+import * as Treinos from "./admin-fichas.js?v=1";
+import { diaPorId, ESFORCO } from "./fichas-util.js?v=1";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
 import * as Planos from "./admin-planos.js?v=1";
@@ -21,7 +22,7 @@ const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "finan
 const GRUPO = { exercicios: "treinos" };
 const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos" };
 const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios };
-const NOS = ["alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos"];
+const NOS = ["alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos"];
 
 let saindo = false;
 let iniciado = false;
@@ -57,7 +58,13 @@ function iniciarPainel(user) {
     // Escuta os dados em tempo real (os PDFs em "arquivos" só são baixados quando pedidos)
     NOS.forEach((no) => {
         pararEscutas.push(onValue(ref(db, no), (snap) => {
-            estado[no] = listaDe(snap.val());
+            if (no === "fichas") {
+                // fichas/{alunoId}/{fichaId} -> lista com alunoId
+                estado.fichas = Object.entries(snap.val() || {}).flatMap(([alunoId, fichas]) =>
+                    Object.entries(fichas || {}).map(([id, f]) => ({ id, alunoId, ...f })));
+            } else {
+                estado[no] = listaDe(snap.val());
+            }
             if (no === "alunos") estado.alunos.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
             notificar();
         }, (erro) => {
@@ -75,7 +82,7 @@ function iniciarPainel(user) {
 /* =================== Rotas =================== */
 
 function rotear() {
-    const [base, acao] = location.hash.replace(/^#\/?/, "").split("/");
+    const [base, acao, extra] = location.hash.replace(/^#\/?/, "").split("/");
     const tela = TELAS.includes(base) ? base : "inicio";
 
     TELAS.forEach((t) => { $("view-" + t).hidden = t !== tela; });
@@ -94,6 +101,11 @@ function rotear() {
 
     if (window.innerWidth <= 1024) document.body.classList.remove("side-aberta");
     window.scrollTo(0, 0);
+
+    if (tela === "treinos" && acao === "aluno" && extra) {
+        Treinos.focarAluno(extra);
+        history.replaceState(null, "", "#/treinos");
+    }
 
     if (acao === "novo" && MODULOS[tela]) {
         MODULOS[tela].novo(() => {
@@ -183,6 +195,7 @@ function iniciarTopo() {
         if (!e.target.closest(".dropdown")) menus.forEach(([, m]) => { $(m).hidden = true; });
     });
     $("bell-menu").addEventListener("click", (e) => {
+        if (e.target.closest("#fb-todos-lidos")) { e.stopPropagation(); Treinos.marcarFeedbacksLidos(); return; }
         if (e.target.closest("a")) { $("bell-menu").hidden = true; }
     });
     $("logout-btn").addEventListener("click", async () => {
@@ -202,12 +215,37 @@ function alunosComAviso() {
 }
 
 function desenharAvisos() {
-    const lista = alunosComAviso();
-    $("bell-n").textContent = lista.length;
-    $("bell-n").classList.toggle("zero", lista.length === 0);
-    $("bell-menu").innerHTML = '<span class="drop-title">Avisos</span>' + (lista.length
-        ? lista.slice(0, 8).map(({ a, s }) => `
-            <a href="#/alunos" class="aviso-item"><i class="fa-solid ${s.chave === "vencidos" ? "fa-circle-exclamation" : "fa-clock"}" style="color:${s.chave === "vencidos" ? "var(--red-2)" : "var(--warn)"}"></i>
-            <span>${esc(a.nome)}<small>${s.texto} · ${dataBR(a.vencimento)}</small></span></a>`).join("")
-        : '<span class="drop-email" style="border:0">Nenhum plano vencendo. Tudo em dia!</span>');
+    const vencimentos = alunosComAviso();
+    const feedbacks = estado.feedbacks.filter((f) => !f.lido).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+    const total = vencimentos.length + feedbacks.length;
+    $("bell-n").textContent = total > 99 ? "99+" : total;
+    $("bell-n").classList.toggle("zero", total === 0);
+
+    const nome = (id) => estado.alunos.find((a) => a.id === id)?.nome;
+    const htmlFeedbacks = feedbacks.slice(0, 6).map((f) => {
+        const e = ESFORCO[f.esforco] || { nome: f.esforco, classe: "off" };
+        return `<a href="#/treinos/aluno/${f.alunoId}" class="aviso-item fb" data-fb="${f.id}">
+            <i class="fa-solid fa-comment-dots" style="color:var(--red-2)"></i>
+            <span>${esc(nome(f.alunoId) || f.nome || "Aluno")} <em class="badge ${e.classe}">${e.nome}</em>
+            <small>${esc(diaPorId(f.dia).nome)} · ${esc(f.diaNome || "")} · ${quando(f.criadoEm)}</small>
+            ${f.comentario ? `<small class="fb-coment">“${esc(f.comentario.length > 80 ? f.comentario.slice(0, 80) + "…" : f.comentario)}”</small>` : ""}</span></a>`;
+    }).join("");
+    const htmlVenc = vencimentos.slice(0, 6).map(({ a, s }) => `
+        <a href="#/alunos" class="aviso-item"><i class="fa-solid ${s.chave === "vencidos" ? "fa-circle-exclamation" : "fa-clock"}" style="color:${s.chave === "vencidos" ? "var(--red-2)" : "var(--warn)"}"></i>
+        <span>${esc(a.nome)}<small>${s.texto} · ${dataBR(a.vencimento)}</small></span></a>`).join("");
+
+    $("bell-menu").innerHTML =
+        `<div class="drop-head"><span class="drop-title">Feedbacks dos alunos</span>${feedbacks.length ? '<button type="button" class="drop-link" id="fb-todos-lidos">Marcar como lidos</button>' : ""}</div>` +
+        (htmlFeedbacks || '<span class="drop-vazio">Nenhum feedback novo.</span>') +
+        '<span class="drop-title sep">Planos vencendo</span>' +
+        (htmlVenc || '<span class="drop-vazio">Nenhum plano vencendo. Tudo em dia!</span>');
+}
+
+function quando(ts) {
+    if (!ts) return "";
+    const min = Math.round((Date.now() - ts) / 60000);
+    if (min < 1) return "agora";
+    if (min < 60) return "há " + min + " min";
+    if (min < 1440) return "há " + Math.round(min / 60) + " h";
+    return new Date(ts).toLocaleDateString("pt-BR");
 }

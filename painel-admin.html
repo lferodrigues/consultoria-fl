@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=6">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=7">
 </head>
 
 <body>
@@ -58,8 +58,8 @@
                     <li class="menu-item has-sub" data-rota="treinos">
                         <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-dumbbell"></i><span>Treinos</span><i class="fa-solid fa-chevron-down chev"></i></button>
                         <ul class="submenu">
-                            <li><a href="#/treinos" data-sub="treinos">Treinos cadastrados</a></li>
-                            <li><a href="#/treinos/novo" data-sub="treinos/novo">Cadastrar treino</a></li>
+                            <li><a href="#/treinos" data-sub="treinos">Fichas dos alunos</a></li>
+                            <li><a href="#/treinos/novo" data-sub="treinos/novo">Cadastrar ficha de treino</a></li>
                             <li><a href="#/exercicios" data-sub="exercicios">Biblioteca de exercícios</a></li>
                         </ul>
                     </li>
@@ -166,24 +166,30 @@
                     </section>
                 </section>
 
-                <!-- ============ TREINOS ============ -->
+                <!-- ============ TREINOS: FICHAS DOS ALUNOS ============ -->
                 <section class="view" id="view-treinos" hidden>
                     <div class="page-head">
                         <div>
                             <span class="eyebrow">Prescrição</span>
                             <h1>Treinos</h1>
+                            <p class="page-sub">Todos os alunos com o histórico das fichas de treino e os feedbacks.</p>
                         </div>
-                        <a href="#/treinos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar treino</a>
+                        <a href="#/treinos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar ficha de treino</a>
                     </div>
                     <section class="toolbar">
                         <div class="search">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="search" id="tr-busca" placeholder="Buscar treino ou exercício">
+                            <input type="search" id="fh-busca" placeholder="Buscar aluno">
                         </div>
-                        <select id="tr-filtro" aria-label="Filtrar por aluno"></select>
+                        <select id="fh-filtro" aria-label="Filtrar alunos">
+                            <option value="">Todos os alunos</option>
+                            <option value="com">Com ficha</option>
+                            <option value="sem">Sem ficha</option>
+                            <option value="feedback">Com feedback novo</option>
+                        </select>
                     </section>
-                    <div class="cards" id="tr-lista"></div>
-                    <div class="empty card-empty" id="tr-vazio" hidden><i class="fa-solid fa-dumbbell"></i><p id="tr-vazio-txt"></p></div>
+                    <div class="hist" id="fh-lista"></div>
+                    <div class="empty card-empty" id="fh-vazio" hidden><i class="fa-solid fa-dumbbell"></i><p id="fh-vazio-txt"></p></div>
                 </section>
 
                 <!-- ============ BIBLIOTECA DE EXERCÍCIOS ============ -->
@@ -353,48 +359,55 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: TREINO ================= -->
-    <div class="modal" id="modal-treino" hidden>
-        <div class="modal-box large" role="dialog" aria-modal="true" aria-labelledby="tr-titulo">
+    <!-- ================= MODAL: FICHA DE TREINO ================= -->
+    <div class="modal" id="modal-ficha" hidden>
+        <div class="modal-box large" role="dialog" aria-modal="true" aria-labelledby="fc-titulo">
             <div class="modal-head">
-                <h2 id="tr-titulo">Cadastrar treino</h2>
+                <h2 id="fc-titulo">Cadastrar ficha de treino</h2>
                 <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="treino-form" novalidate>
+            <form id="ficha-form" novalidate>
+                <div class="passo"><span class="passo-n">1</span><h3>Aluno</h3></div>
                 <div class="grid-2">
-                    <label class="full">Nome do treino *<input type="text" id="t-nome" placeholder="Ex.: Treino A — Peito e tríceps" required autocomplete="off"></label>
-                    <label>Aluno
-                        <select id="t-aluno"></select>
-                        <small>Deixe como "Modelo" para reaproveitar com vários alunos.</small>
+                    <label class="full">Selecione o aluno *
+                        <select id="fc-aluno"></select>
+                        <small id="fc-aluno-info"></small>
                     </label>
-                    <label>Objetivo
-                        <select id="t-objetivo">
-                            <option>Hipertrofia</option><option>Emagrecimento</option><option>Força</option>
-                            <option>Condicionamento</option><option>Mobilidade</option><option>Reabilitação</option><option>Outro</option>
-                        </select>
-                    </label>
-                    <label>Nível
-                        <select id="t-nivel"><option>Iniciante</option><option selected>Intermediário</option><option>Avançado</option></select>
-                    </label>
-                    <label>Dias da semana<input type="text" id="t-dias" placeholder="Ex.: Segunda e quinta" autocomplete="off"></label>
                 </div>
 
-                <div class="ex-head">
-                    <h3>Exercícios</h3>
-                    <div class="ex-head-btns">
-                        <button type="button" class="btn btn-primary btn-sm" id="ex-da-biblioteca"><i class="fa-solid fa-book-open"></i> Da biblioteca</button>
-                        <button type="button" class="btn btn-ghost btn-sm" id="ex-add"><i class="fa-solid fa-plus"></i> Em branco</button>
+                <div id="fc-resto" hidden>
+                    <div class="grid-2 fc-dados">
+                        <label>Nome da ficha<input type="text" id="fc-nome" autocomplete="off" maxlength="60" placeholder="Ex.: Bloco de força"></label>
+                        <label>Início<input type="date" id="fc-inicio"></label>
+                        <label>Objetivo
+                            <select id="fc-objetivo">
+                                <option>Hipertrofia</option><option>Emagrecimento</option><option>Força</option>
+                                <option>Condicionamento</option><option>Mobilidade</option><option>Reabilitação</option><option>Outro</option>
+                            </select>
+                        </label>
+                        <label>Nível<select id="fc-nivel"><option>Iniciante</option><option selected>Intermediário</option><option>Avançado</option></select></label>
+                    </div>
+
+                    <div class="passo"><span class="passo-n">2</span><h3>Quantos dias de treino na semana?</h3></div>
+                    <div class="qtd" id="fc-qtd" role="radiogroup" aria-label="Dias de treino por semana"></div>
+                    <p class="passo-hint" id="fc-semana-hint">Escolha os dias:</p>
+                    <div class="semana" id="fc-semana"></div>
+
+                    <div id="fc-passo3" hidden>
+                        <div class="passo"><span class="passo-n">3</span><h3>Exercícios de cada dia</h3></div>
+                        <div class="dia-tabs" id="fc-tabs" role="tablist"></div>
+                        <div id="fc-dias"></div>
+                    </div>
+
+                    <div class="grid-2">
+                        <label class="full">Orientações gerais<textarea id="fc-obs" rows="2" placeholder="Aquecimento, cadência, cuidados..."></textarea></label>
                     </div>
                 </div>
-                <div class="ex-list" id="ex-list"></div>
 
-                <div class="grid-2">
-                    <label class="full">Orientações gerais<textarea id="t-obs" rows="3" placeholder="Aquecimento, cadência, cuidados..."></textarea></label>
-                </div>
-                <p class="form-msg" id="tr-msg" role="alert"></p>
+                <p class="form-msg" id="fc-msg" role="alert"></p>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="tr-salvar">Salvar treino</button>
+                    <button type="submit" class="btn btn-primary" id="fc-salvar">Salvar ficha</button>
                 </div>
             </form>
         </div>
@@ -573,7 +586,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=7"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=8"></script>
 </body>
 
 </html>

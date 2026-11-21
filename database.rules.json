@@ -17,12 +17,24 @@
         ".read": "auth != null && auth.token.email != null && $chave == auth.token.email.toLowerCase().replace('.', ',')"
       }
     },
-    "treinos": {
+    "fichas": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "$alunoId": {
+        ".read": "auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == $alunoId && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false"
+      }
+    },
+    "feedbacks": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".indexOn": [
-        "alunoId"
-      ]
+        "alunoId",
+        "criadoEm"
+      ],
+      "$id": {
+        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('alunoId').val() == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false",
+        ".validate": "newData.hasChildren(['alunoId', 'esforco', 'criadoEm', 'dia']) && newData.child('esforco').isString() && newData.child('esforco').val().matches(/^(minimo|medio|alto)$/) && (!newData.child('comentario').exists() || (newData.child('comentario').isString() && newData.child('comentario').val().length <= 1000))"
+      }
     },
     "exercicios": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",

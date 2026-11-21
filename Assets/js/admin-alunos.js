@@ -212,8 +212,9 @@ async function excluir(aluno) {
     if (!ok) return;
     try {
         const mudancas = { ["alunos/" + aluno.id]: null, ["emails/" + chaveEmail(aluno.email)]: null };
-        // Treinos do aluno ficam como modelo (sem aluno)
-        estado.treinos.filter((t) => t.alunoId === aluno.id).forEach((t) => { mudancas["treinos/" + t.id + "/alunoId"] = null; });
+        // Fichas de treino e feedbacks do aluno saem junto
+        mudancas["fichas/" + aluno.id] = null;
+        estado.feedbacks.filter((f) => f.alunoId === aluno.id).forEach((f) => { mudancas["feedbacks/" + f.id] = null; });
         await update(ref(db), mudancas);
         aviso(aluno.nome + " foi excluído.", "ok");
     } catch (e) {

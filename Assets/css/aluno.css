@@ -31,6 +31,126 @@
 .treino p { color: #c4c8cf; font-size: .92rem; }
 
 @media (max-width: 760px) {
-    .info-cards { grid-template-columns: 1fr; }
+    .welcome { margin: 26px 0 18px; }
+    .info-cards { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .info { padding: 12px; border-radius: 12px; }
+    .info > i { display: none; }
+    .info-l { font-size: .7rem; }
+    .info strong { font-size: .88rem; }
+    .info small { font-size: .68rem; }
+    .info .badge { font-size: .66rem; padding: 3px 7px; }
     .treino { flex-direction: column; align-items: flex-start; }
+}
+
+/* ===== Ficha de treino do aluno ===== */
+body.modal-aberto { overflow: hidden; }
+.treino-area { margin-bottom: 60px; }
+.treino-vazio {
+    display: flex; gap: 18px; align-items: center; padding: 26px; border-radius: 16px;
+    background: linear-gradient(120deg, rgba(227, 32, 43, .16), var(--card) 60%); border: 1px solid rgba(255, 59, 69, .3);
+}
+.treino-vazio h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+.treino-vazio p { color: #c4c8cf; font-size: .92rem; }
+
+.treino-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+
+/* Cartão no estilo do app (print de referência) */
+.ficha-card {
+    background: linear-gradient(180deg, #171a22, #101218); border: 1px solid rgba(255, 255, 255, .07);
+    border-radius: 28px; padding: 26px 22px 22px; box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .9);
+}
+.ficha-head h2 { font-size: 1.35rem; font-weight: 900; line-height: 1.2; }
+.ficha-head p { color: var(--muted); font-size: .84rem; margin-top: 4px; }
+.ficha-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 18px 0 16px; }
+.sem-dia {
+    aspect-ratio: 1; max-height: 48px; border-radius: 12px; border: 1px solid transparent; cursor: pointer;
+    background: #22252d; color: #e5e7eb; font-weight: 800; font-size: .95rem; position: relative;
+}
+.sem-dia:hover:not(:disabled) { border-color: rgba(255, 59, 69, .5); }
+.sem-dia.ativo { background: linear-gradient(180deg, var(--red-2), var(--red)); color: #fff; box-shadow: 0 8px 20px -8px rgba(227, 32, 43, .8); }
+.sem-dia:disabled { background: #15171d; color: #3f444e; cursor: default; }
+.sem-dia.hoje::after { content: ""; position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: currentColor; }
+.ficha-descanso { font-size: .84rem; color: var(--muted); background: rgba(255, 255, 255, .03); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.ficha-descanso i { color: var(--red-2); margin-right: 6px; }
+
+.ficha-lista { list-style: none; display: grid; gap: 10px; }
+.ficha-lista li {
+    display: flex; align-items: center; background: #1d2029; border: 1px solid rgba(255, 255, 255, .04);
+    border-radius: 16px; transition: border-color .2s, opacity .2s;
+}
+.ficha-lista li:hover { border-color: rgba(255, 59, 69, .35); }
+.ex-abrir {
+    flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr auto; column-gap: 10px; align-items: center;
+    padding: 14px 6px 14px 18px; background: none; border: 0; cursor: pointer; text-align: left;
+}
+.ex-abrir strong { grid-column: 1; font-size: .98rem; font-weight: 800; }
+.ex-abrir small { grid-column: 1; color: var(--muted); font-size: .82rem; margin-top: 2px; }
+.ex-play { grid-column: 2; grid-row: 1 / 3; color: rgba(255, 255, 255, .35); font-size: 1.1rem; }
+.ex-abrir:hover .ex-play { color: var(--red-2); }
+.ex-check {
+    flex-shrink: 0; width: 28px; height: 28px; margin-right: 16px; border-radius: 50%; cursor: pointer;
+    border: 2px solid var(--red-2); background: transparent; color: transparent; font-size: .75rem; display: grid; place-items: center;
+    transition: background .2s, color .2s, transform .15s;
+}
+.ex-check:hover { transform: scale(1.08); }
+.ficha-lista li.feito .ex-check { background: var(--red-2); color: #fff; }
+.ficha-lista li.feito .ex-abrir strong { color: #c4c8cf; }
+
+.ficha-prog { margin-top: 18px; }
+.ficha-barra { height: 7px; border-radius: 999px; background: #262a33; overflow: hidden; }
+.ficha-barra span { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--red), var(--red-2)); transition: width .35s ease; }
+.ficha-prog small { display: block; color: var(--muted); font-size: .8rem; margin-top: 8px; }
+.ficha-feedback { width: 100%; margin-top: 16px; padding: 14px; border-radius: 14px; font-size: .9rem; }
+
+.ficha-info { display: grid; gap: 14px; }
+.info-bloco { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.info-bloco strong { display: block; font-size: 1.05rem; margin: 4px 0 10px; }
+.info-bloco p { color: #c4c8cf; font-size: .9rem; white-space: pre-line; margin-top: 6px; }
+.info-bloco.dica { display: flex; gap: 12px; align-items: flex-start; background: rgba(227, 32, 43, .08); border-color: rgba(255, 59, 69, .25); }
+.info-bloco.dica i { color: var(--red-2); font-size: 1.2rem; margin-top: 2px; }
+.info-bloco.dica p { margin: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: .72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(255, 255, 255, .06); color: #d1d5db; }
+
+/* Pop-up do vídeo */
+.video-box { max-width: 760px; }
+.video-wrap { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-vazio { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); text-align: center; padding: 20px; }
+.video-vazio i { font-size: 2rem; color: rgba(255, 255, 255, .25); }
+.mv-dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 16px; }
+.mv-dados div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.mv-dados small { display: block; color: var(--muted); font-size: .74rem; }
+.mv-dados strong { font-size: 1.05rem; }
+.mv-obs { margin-top: 12px; color: #d1d5db; font-size: .9rem; padding: 12px 14px; border-left: 3px solid var(--red-2); background: rgba(255, 255, 255, .02); border-radius: 0 10px 10px 0; }
+
+/* Feedback */
+.fb-resumo { color: #d1d5db; font-size: .9rem; margin-bottom: 16px; }
+.esforco { border: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.esforco legend { font-size: .82rem; font-weight: 700; color: #d1d5db; margin-bottom: 8px; }
+.esforco input { position: absolute; opacity: 0; pointer-events: none; }
+.esforco span {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 14px; cursor: pointer;
+    background: var(--input); border: 1px solid var(--line); font-weight: 700; font-size: .88rem; color: var(--muted);
+}
+.esforco span i { font-size: 1.4rem; }
+.esforco label:nth-of-type(1) input:checked + span { color: var(--ok); border-color: var(--ok); background: rgba(74, 222, 128, .1); }
+.esforco label:nth-of-type(2) input:checked + span { color: var(--warn); border-color: var(--warn); background: rgba(251, 191, 36, .1); }
+.esforco label:nth-of-type(3) input:checked + span { color: var(--red-2); border-color: var(--red-2); background: rgba(255, 59, 69, .12); }
+.esforco input:focus-visible + span { outline: 2px solid #fff; outline-offset: 2px; }
+.fb-coment { display: flex; flex-direction: column; gap: 6px; font-size: .82rem; font-weight: 600; color: #d1d5db; }
+.fb-coment textarea { background: var(--input); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; outline: none; resize: vertical; font-size: .92rem; }
+.fb-coment textarea:focus { border-color: var(--red-2); box-shadow: 0 0 0 3px rgba(255, 59, 69, .15); }
+.fb-nota { display: block; color: var(--muted); font-size: .76rem; margin-top: 12px; text-align: right; }
+
+@media (max-width: 900px) {
+    .treino-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+    .ficha-card { padding: 22px 16px 18px; border-radius: 26px; }
+    .ficha-semana { gap: 6px; }
+    .ex-abrir { padding-left: 14px; }
+    .ex-check { margin-right: 12px; }
+    .modal { padding: 10px; }
+    .modal-box { padding: 20px 16px; }
 }
