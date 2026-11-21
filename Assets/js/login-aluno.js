@@ -3,8 +3,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebas
 import {
     getAuth,
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    updateProfile,
     sendPasswordResetEmail,
     GoogleAuthProvider,
     signInWithPopup,
@@ -40,20 +38,15 @@ const google = new GoogleAuthProvider();
 // Elementos
 const $ = (id) => document.getElementById(id);
 const form = $("auth-form");
-const nameField = $("field-name");
-const nameInput = $("name");
 const emailInput = $("email");
 const passInput = $("password");
 const submitBtn = $("submit-btn");
 const forgotBtn = $("forgot-btn");
 const googleBtn = $("google-btn");
-const switchBtn = $("switch-btn");
-const switchText = $("switch-text");
 const message = $("message");
 const loading = $("loading");
 const logged = $("logged");
 
-let modoCadastro = false;
 let verificandoGoogle = false; // evita mostrar "logado" enquanto checa o cadastro
 
 // Mensagens de erro do Firebase em português
@@ -63,7 +56,6 @@ const erros = {
     "auth/invalid-credential": "E-mail ou senha incorretos.",
     "auth/wrong-password": "E-mail ou senha incorretos.",
     "auth/user-not-found": "Não existe conta com esse e-mail.",
-    "auth/email-already-in-use": "Já existe uma conta com esse e-mail.",
     "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
     "auth/too-many-requests": "Muitas tentativas. Espere um pouco e tente de novo.",
     "auth/popup-closed-by-user": "A janela do Google foi fechada antes de terminar.",
@@ -88,19 +80,6 @@ function tratarErro(e) {
     mostrar(erros[e.code] || "Não foi possível concluir. Tente novamente.");
 }
 
-// Alterna entre "Entrar" e "Criar conta"
-switchBtn.addEventListener("click", () => {
-    modoCadastro = !modoCadastro;
-    nameField.hidden = !modoCadastro;
-    forgotBtn.hidden = modoCadastro;
-    submitBtn.textContent = modoCadastro ? "Criar conta" : "Entrar";
-    $("title").textContent = modoCadastro ? "Criar conta" : "Entrar";
-    switchText.textContent = modoCadastro ? "Já tem conta?" : "Ainda não tem conta?";
-    switchBtn.textContent = modoCadastro ? "Entrar" : "Criar conta";
-    passInput.autocomplete = modoCadastro ? "new-password" : "current-password";
-    mostrar("", "");
-});
-
 // Mostrar / esconder senha
 $("toggle-pass").addEventListener("click", (ev) => {
     const visivel = passInput.type === "text";
@@ -108,23 +87,17 @@ $("toggle-pass").addEventListener("click", (ev) => {
     ev.currentTarget.innerHTML = visivel ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
 });
 
-// Entrar ou cadastrar com e-mail
+// Entrar com e-mail
 form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const email = emailInput.value.trim();
     const senha = passInput.value;
 
     if (!email || !senha) return mostrar("Preencha e-mail e senha.");
-    if (modoCadastro && !nameInput.value.trim()) return mostrar("Digite o seu nome.");
 
     carregando(true);
     try {
-        if (modoCadastro) {
-            const cred = await createUserWithEmailAndPassword(auth, email, senha);
-            await updateProfile(cred.user, { displayName: nameInput.value.trim() });
-        } else {
-            await signInWithEmailAndPassword(auth, email, senha);
-        }
+        await signInWithEmailAndPassword(auth, email, senha);
     } catch (e) {
         tratarErro(e);
     } finally {
