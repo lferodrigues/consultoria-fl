@@ -1,7 +1,11 @@
-// Login da Área do Aluno — Firebase Authentication (e-mail/senha e Google)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+// Login da Área do Aluno — Firebase Authentication + Realtime Database
+//
+// Para onde cada pessoa vai depois de entrar:
+//   - contato@fagnerlage.com.br  -> painel do administrador
+//   - e-mail cadastrado no banco, ativo e no prazo -> área do aluno
+//   - e-mail cadastrado mas desativado ou vencido   -> fica no login com aviso
+//   - e-mail que não está no banco                  -> página de planos
 import {
-    getAuth,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
     GoogleAuthProvider,
@@ -12,28 +16,9 @@ import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=1";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyALkfMd9sTok0tuFgRmDkqgK6NCh4kAGr0",
-    authDomain: "flconsultoria.firebaseapp.com",
-    databaseURL: "https://flconsultoria-default-rtdb.firebaseio.com",
-    projectId: "flconsultoria",
-    storageBucket: "flconsultoria.firebasestorage.app",
-    messagingSenderId: "907260382682",
-    appId: "1:907260382682:web:b456647534f5b58df444e3",
-    measurementId: "G-7GPBGL18YG"
-};
-
-// Página para onde o aluno vai depois de entrar.
-// Deixe vazio ("") para apenas mostrar a mensagem de boas-vindas nesta tela.
-const REDIRECIONAR_PARA = "";
-
-// Página de planos, para quem entra com um Google que ainda não está cadastrado.
-const PAGINA_PLANOS = "./planos.html";
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-auth.languageCode = "pt";
 const google = new GoogleAuthProvider();
 const apple = new OAuthProvider("apple.com");
 apple.addScope("email");
@@ -53,7 +38,10 @@ const message = $("message");
 const loading = $("loading");
 const logged = $("logged");
 
-let verificandoGoogle = false; // (Google ou Apple) evita mostrar "logado" enquanto checa o cadastro
+// Enquanto a janela do Google/Apple está aberta, quem decide o destino é o botão
+// (ele sabe se a conta acabou de ser criada). Fora isso, decide o onAuthStateChanged.
+let aguardandoPopup = false;
+let verificando = false;
 
 // Mensagens de erro do Firebase em português
 const erros = {
@@ -62,7 +50,7 @@ const erros = {
     "auth/invalid-credential": "E-mail ou senha incorretos.",
     "auth/wrong-password": "E-mail ou senha incorretos.",
     "auth/user-not-found": "Não existe conta com esse e-mail.",
-    "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
+    "auth/user-disabled": "Esta conta foi desativada.",
     "auth/too-many-requests": "Muitas tentativas. Espere um pouco e tente de novo.",
     "auth/popup-closed-by-user": "A janela de login foi fechada antes de terminar.",
     "auth/cancelled-popup-request": "A janela de login foi fechada antes de terminar.",
@@ -90,59 +78,110 @@ function tratarErro(e) {
     mostrar(erros[e.code] || "Não foi possível concluir. Tente novamente.");
 }
 
+function mostrarLogado(user) {
+    if (PAGINAS.aluno) {
+        window.location.href = PAGINAS.aluno;
+        return;
+    }
+    $("auth-area").hidden = true;
+    $("user-name").textContent = user.displayName || user.email;
+    logged.hidden = false;
+    mostrar("", "");
+}
+
+function mostrarFormulario() {
+    $("auth-area").hidden = false;
+    logged.hidden = true;
+}
+
+async function irParaPlanos(user, contaNova) {
+    const email = user.email || "";
+    // Conta criada agora pelo Google/Apple sem cadastro: apaga para não sobrar lixo no Firebase
+    if (contaNova) {
+        try { await deleteUser(user); } catch (e) { await signOut(auth); }
+    } else {
+        await signOut(auth);
+    }
+    window.location.href = PAGINAS.planos + "?nao-cadastrado=1&email=" + encodeURIComponent(email);
+}
+
+// Decide o destino de quem acabou de entrar
+async function decidirDestino(user, contaNova = false) {
+    if (verificando) return;
+    verificando = true;
+
+    if (ehAdmin(user)) {
+        window.location.href = PAGINAS.admin;
+        return;
+    }
+
+    carregando(true);
+    try {
+        const snap = await get(ref(db, "emails/" + chaveEmail(user.email)));
+        const cadastro = snap.val();
+
+        if (!cadastro) {
+            await irParaPlanos(user, contaNova);
+            return;
+        }
+        if (cadastro.ativo === false) {
+            await signOut(auth);
+            mostrar("Seu acesso está desativado. Fale com o personal para liberar.");
+            return;
+        }
+        if (cadastro.vencimento && cadastro.vencimento < hojeISO()) {
+            await signOut(auth);
+            mostrar("Seu plano venceu. Fale com o personal para renovar.");
+            return;
+        }
+        mostrarLogado(user);
+    } catch (e) {
+        console.error(e);
+        await signOut(auth);
+        mostrar("Não foi possível verificar o seu cadastro. Tente novamente em instantes.");
+    } finally {
+        verificando = false;
+        carregando(false);
+    }
+}
+
 // Mostrar / esconder senha
 $("toggle-pass").addEventListener("click", (ev) => {
     const visivel = passInput.type === "text";
     passInput.type = visivel ? "password" : "text";
-    ev.currentTarget.innerHTML = visivel ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
+    ev.currentTarget.innerHTML = visivel ? '<i class="fa-regular fa-eye"></i>' : '<i class="fa-regular fa-eye-slash"></i>';
 });
 
-// Entrar com e-mail
+// Entrar com e-mail (o destino é decidido no onAuthStateChanged)
 form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const email = emailInput.value.trim();
     const senha = passInput.value;
-
     if (!email || !senha) return mostrar("Preencha e-mail e senha.");
 
+    mostrar("", "");
     carregando(true);
     try {
         await signInWithEmailAndPassword(auth, email, senha);
     } catch (e) {
         tratarErro(e);
-    } finally {
         carregando(false);
     }
 });
 
 // Entrar com Google ou Apple
-// Só entra quem já tem cadastro. Se o e-mail ainda não existe no Firebase,
-// a conta recém-criada é apagada e a pessoa vai para a página de planos.
 async function entrarComProvedor(provedor) {
+    mostrar("", "");
     carregando(true);
-    verificandoGoogle = true;
+    aguardandoPopup = true;
     try {
         const resultado = await signInWithPopup(auth, provedor);
         const info = getAdditionalUserInfo(resultado);
-
-        if (info && info.isNewUser) {
-            const email = resultado.user.email || "";
-            try {
-                await deleteUser(resultado.user);
-            } catch (e) {
-                console.error("Não foi possível apagar a conta nova:", e);
-                await signOut(auth);
-            }
-            window.location.href = PAGINA_PLANOS + "?nao-cadastrado=1&email=" + encodeURIComponent(email);
-            return;
-        }
-
-        verificandoGoogle = false;
-        mostrarLogado(resultado.user);
+        aguardandoPopup = false;
+        await decidirDestino(resultado.user, !!(info && info.isNewUser));
     } catch (e) {
-        verificandoGoogle = false;
+        aguardandoPopup = false;
         tratarErro(e);
-    } finally {
         carregando(false);
     }
 }
@@ -168,25 +207,12 @@ forgotBtn.addEventListener("click", async () => {
 // Sair
 $("logout-btn").addEventListener("click", () => signOut(auth));
 
-// Mostra a tela de "logado" (ou redireciona, se configurado)
-function mostrarLogado(user) {
-    if (REDIRECIONAR_PARA) {
-        window.location.href = REDIRECIONAR_PARA;
-        return;
-    }
-    $("auth-area").hidden = true;
-    $("user-name").textContent = user.displayName || user.email;
-    logged.hidden = false;
-    mostrar("", "");
-}
-
-// Reage ao login / logout
+// Reage ao login / logout (inclui quem já estava logado ao abrir a página)
 onAuthStateChanged(auth, (user) => {
-    if (verificandoGoogle) return; // o botão do Google decide o que fazer
+    if (aguardandoPopup) return;
     if (user) {
-        mostrarLogado(user);
+        decidirDestino(user);
     } else {
-        $("auth-area").hidden = false;
-        logged.hidden = true;
+        mostrarFormulario();
     }
 });

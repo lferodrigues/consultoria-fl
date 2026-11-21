@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Painel do Administrador | Fagner Lage</title>
+    <meta name="theme-color" content="#07080b">
+    <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./Assets/css/admin.css?v=1">
+</head>
+
+<body>
+    <!-- Tela de verificação de acesso (some quando o admin é confirmado) -->
+    <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
+
+    <header class="topbar">
+        <div class="wrap">
+            <a href="./index.html" class="brand">
+                <img src="./Assets/img/banner05.png" alt="Fagner Lage">
+                <span>Painel<small>Administrador</small></span>
+            </a>
+            <div class="who">
+                <span class="who-email" id="admin-email"></span>
+                <button type="button" class="btn btn-ghost btn-sm" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <!-- Aviso: e-mail do admin ainda não verificado -->
+        <div class="alert" id="verify-alert" hidden>
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+                <strong>Confirme o e-mail do administrador.</strong>
+                <span>Por segurança, o banco de dados só libera os alunos para o e-mail verificado. Clique no botão, abra o link que chegar em contato@fagnerlage.com.br e depois entre de novo.</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="verify-btn">Enviar verificação</button>
+        </div>
+
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">Gestão da consultoria</span>
+                <h1>Alunos</h1>
+            </div>
+            <button type="button" class="btn btn-primary" id="new-btn"><i class="fa-solid fa-plus"></i> Novo aluno</button>
+        </div>
+
+        <!-- Resumo -->
+        <section class="stats">
+            <button type="button" class="stat" data-filter="todos"><span class="stat-n" id="st-total">0</span><span class="stat-l">Alunos</span></button>
+            <button type="button" class="stat ok" data-filter="ativos"><span class="stat-n" id="st-ativos">0</span><span class="stat-l">Ativos</span></button>
+            <button type="button" class="stat warn" data-filter="vencendo"><span class="stat-n" id="st-vencendo">0</span><span class="stat-l">Vencem em 7 dias</span></button>
+            <button type="button" class="stat bad" data-filter="vencidos"><span class="stat-n" id="st-vencidos">0</span><span class="stat-l">Vencidos</span></button>
+        </section>
+
+        <!-- Filtros -->
+        <section class="toolbar">
+            <div class="search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="search" placeholder="Buscar por nome, e-mail ou telefone">
+            </div>
+            <select id="filter" aria-label="Filtrar alunos">
+                <option value="todos">Todos</option>
+                <option value="ativos">Ativos</option>
+                <option value="vencendo">Vencem em 7 dias</option>
+                <option value="vencidos">Vencidos</option>
+                <option value="inativos">Desativados</option>
+            </select>
+        </section>
+
+        <!-- Lista -->
+        <section class="table-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Telefone</th>
+                        <th>Plano</th>
+                        <th>Início</th>
+                        <th>Vencimento</th>
+                        <th>Situação</th>
+                        <th class="th-actions">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            <div class="empty" id="empty" hidden>
+                <i class="fa-solid fa-users"></i>
+                <p id="empty-text">Nenhum aluno cadastrado ainda.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal: cadastrar / editar aluno -->
+    <div class="modal" id="modal" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-head">
+                <h2 id="modal-title">Novo aluno</h2>
+                <button type="button" class="icon-btn" id="modal-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="aluno-form" novalidate>
+                <div class="grid-2">
+                    <label class="full">Nome completo *
+                        <input type="text" id="f-nome" required autocomplete="off">
+                    </label>
+                    <label>E-mail *
+                        <input type="email" id="f-email" required autocomplete="off">
+                    </label>
+                    <label>Telefone / WhatsApp
+                        <input type="tel" id="f-telefone" placeholder="(32) 99999-9999" autocomplete="off">
+                    </label>
+                    <label>Plano
+                        <select id="f-plano">
+                            <option value="trimestral">Trimestral (3 meses)</option>
+                            <option value="semestral" selected>Semestral (6 meses)</option>
+                            <option value="anual">Anual (12 meses)</option>
+                        </select>
+                    </label>
+                    <label>Início
+                        <input type="date" id="f-inicio" required>
+                    </label>
+                    <label>Vencimento
+                        <input type="date" id="f-vencimento" required>
+                        <small>Calculado pelo plano. Pode ajustar.</small>
+                    </label>
+                    <label class="switch-row">
+                        <input type="checkbox" id="f-ativo" checked>
+                        <span>Acesso liberado</span>
+                    </label>
+                    <label class="full" id="senha-wrap">Senha inicial (opcional)
+                        <input type="text" id="f-senha" minlength="6" autocomplete="off" placeholder="Mínimo de 6 caracteres">
+                        <small>Preencha para o aluno entrar com e-mail e senha. Deixe em branco se ele vai entrar com Google ou Apple.</small>
+                    </label>
+                    <label class="full">Observações
+                        <textarea id="f-obs" rows="3" placeholder="Objetivo, restrições, combinados..."></textarea>
+                    </label>
+                </div>
+                <p class="form-msg" id="form-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: confirmar exclusão -->
+    <div class="modal" id="confirm" hidden>
+        <div class="modal-box small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+            <h2 id="confirm-title">Excluir aluno?</h2>
+            <p id="confirm-text"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" id="confirm-no">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirm-yes">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script type="module" src="./Assets/js/painel-admin.js?v=1"></script>
+</body>
+
+</html>

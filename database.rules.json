@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "alunos": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' && auth.token.email_verified == true",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' && auth.token.email_verified == true",
+      ".indexOn": ["email", "vencimento"]
+    },
+
+    "emails": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' && auth.token.email_verified == true",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' && auth.token.email_verified == true",
+      "$chave": {
+        ".read": "auth != null && auth.token.email != null && $chave == auth.token.email.toLowerCase().replace('.', ',')"
+      }
+    }
+  }
+}
