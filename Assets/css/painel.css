@@ -361,6 +361,29 @@ body.side-fechada .hamb { visibility: visible; }
 .segmented.pix-tipos { grid-template-columns: repeat(5, 1fr); }
 .segmented.pix-tipos span { padding: 10px 4px; font-size: .8rem; }
 
+/* Depoimentos */
+.menu-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--red); color: #fff; font-size: .68rem; font-weight: 800; display: inline-grid; place-items: center; }
+.menu-badge[hidden] { display: none; }
+.stats-3 { grid-template-columns: repeat(3, 1fr); }
+.dep-cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.dep-card.no-site { border-color: rgba(74, 222, 128, .4); }
+.dep-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dp-estrelas { color: #fbbf24; font-size: 1.05rem; letter-spacing: 2px; margin-right: auto; }
+.dp-estrelas em { font-style: normal; color: #3a3f4a; }
+.dep-texto { color: #e5e7eb; font-size: .93rem; line-height: 1.55; flex: 1; font-style: italic; }
+.dep-autor { display: flex; flex-direction: column; }
+.dep-autor small { color: var(--muted); font-size: .78rem; }
+.dep-switch {
+    display: inline-flex; align-items: center; gap: 10px; padding: 7px 12px 7px 7px; border-radius: 999px; cursor: pointer;
+    background: var(--input); border: 1px solid var(--line); color: #d1d5db; font-weight: 700; font-size: .8rem;
+}
+.dep-switch-bola { width: 34px; height: 20px; border-radius: 999px; background: #2a2e37; position: relative; transition: background .2s; flex-shrink: 0; }
+.dep-switch-bola::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #9aa0ab; transition: transform .2s, background .2s; }
+.dep-switch.on { border-color: rgba(74, 222, 128, .5); color: var(--ok); }
+.dep-switch.on .dep-switch-bola { background: rgba(74, 222, 128, .35); }
+.dep-switch.on .dep-switch-bola::after { transform: translateX(14px); background: var(--ok); }
+.dep-switch:disabled { opacity: .5; cursor: not-allowed; }
+
 /* Valores do financeiro */
 .valor { font-weight: 700; white-space: nowrap; }
 .valor.receita { color: var(--ok); }
@@ -444,6 +467,8 @@ body.side-fechada .hamb { visibility: visible; }
     .toolbar select { width: 100%; }
     .shortcuts { grid-template-columns: 1fr; }
     .app-foot { padding: 14px 16px; }
+    .stats-3 { grid-template-columns: repeat(3, 1fr); }
+    .stats-3 .stat { padding: 14px 12px; }
     .segmented.pix-tipos { grid-template-columns: repeat(3, 1fr); }
     .pix-acoes, .pix-cobrar { width: 100%; }
     .pix-cobrar { flex-direction: column; }

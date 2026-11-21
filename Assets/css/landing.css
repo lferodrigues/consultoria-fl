@@ -201,6 +201,32 @@ h1, h2, h3 { font-family: 'Montserrat', 'Inter', sans-serif; line-height: 1.15; 
 .plan .price strong { display: block; font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; line-height: 1.1; }
 .plan .price small { color: var(--muted); font-size: .85rem; }
 
+/* Depoimentos */
+.depo { background: var(--bg); }
+.depo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.depo-card {
+    position: relative; display: flex; flex-direction: column; gap: 16px; padding: 30px 26px 24px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--line);
+}
+.depo-card::before {
+    content: "\201C"; position: absolute; top: -6px; right: 20px; font-family: Georgia, serif; font-size: 5.5rem; line-height: 1;
+    color: rgba(227, 32, 43, .35);
+}
+.depo-estrelas { color: #fbbf24; letter-spacing: 3px; font-size: 1.05rem; }
+.depo-estrelas em { font-style: normal; color: #3a3f4a; }
+.depo-card blockquote { color: #e5e7eb; font-size: 1rem; line-height: 1.65; flex: 1; }
+.depo-autor { display: flex; align-items: center; gap: 12px; }
+.depo-avatar {
+    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
+    background: linear-gradient(180deg, var(--red-2), var(--red)); color: #fff; flex-shrink: 0;
+}
+.depo-autor strong { display: block; }
+.depo-autor small { color: var(--muted); font-size: .8rem; }
+@media (max-width: 700px) {
+    .depo-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; padding-bottom: 10px; margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
+    .depo-card { flex: 0 0 86%; scroll-snap-align: center; }
+}
+
 /* CTA final */
 .final {
     text-align: center;

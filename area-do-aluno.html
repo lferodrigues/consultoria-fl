@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/aluno.css?v=8">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=10">
 </head>
 
 <body>
@@ -55,13 +55,17 @@
                     <span class="al-tile-ico"><i class="fa-solid fa-clipboard-check"></i></span>
                     <span class="al-tile-txt"><strong>Meu progresso</strong><small id="tile-progresso">Treinos e feedbacks</small></span>
                 </a>
-                <a href="#/arquivos" class="al-tile">
-                    <span class="al-tile-ico"><i class="fa-solid fa-box-archive"></i></span>
-                    <span class="al-tile-txt"><strong>Arquivos</strong><small id="tile-arquivos">E-books do personal</small></span>
+                <a href="#/ebooks" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-book-open"></i></span>
+                    <span class="al-tile-txt"><strong>E-books</strong><small id="tile-arquivos">Materiais do personal</small></span>
                 </a>
                 <a href="#/faturas" class="al-tile">
                     <span class="al-tile-ico"><i class="fa-solid fa-dollar-sign"></i></span>
                     <span class="al-tile-txt"><strong>Faturas</strong><small id="tile-faturas">Plano e pagamento</small></span>
+                </a>
+                <a href="#/depoimentos" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-comment-dots"></i></span>
+                    <span class="al-tile-txt"><strong>Depoimentos</strong><small id="tile-depoimentos">Conte sua experiência</small></span>
                 </a>
             </div>
             <a href="#/faturas" class="al-aviso" id="al-aviso-venc" hidden></a>
@@ -130,10 +134,45 @@
             </div>
         </section>
 
-        <!-- ===== Arquivos ===== -->
-        <section class="al-view" id="view-arquivos" hidden>
+        <!-- ===== E-books ===== -->
+        <section class="al-view" id="view-ebooks" hidden>
             <ul class="arq-lista" id="arq-lista"></ul>
-            <div class="al-vazio" id="arq-vazio" hidden><i class="fa-solid fa-box-archive"></i><p>Nenhum arquivo por aqui ainda. Quando o personal enviar um e-book, ele aparece nesta tela.</p></div>
+            <div class="al-vazio" id="arq-vazio" hidden><i class="fa-solid fa-book-open"></i><p>Nenhum e-book por aqui ainda. Quando o personal enviar um material, ele aparece nesta tela.</p></div>
+        </section>
+
+        <!-- ===== Depoimentos ===== -->
+        <section class="al-view" id="view-depoimentos" hidden>
+            <form class="al-bloco dep-form" id="dep-form" novalidate>
+                <h2><i class="fa-solid fa-comment-dots"></i> Deixe seu depoimento</h2>
+                <p class="dep-intro">Conte como está sendo a consultoria com o Fagner. Os melhores depoimentos podem aparecer no site.</p>
+                <fieldset class="estrelas" id="dep-estrelas">
+                    <legend>Sua nota</legend>
+                    <input type="radio" name="dep-nota" id="dep-n5" value="5"><label for="dep-n5" title="5 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n4" value="4"><label for="dep-n4" title="4 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n3" value="3"><label for="dep-n3" title="3 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n2" value="2"><label for="dep-n2" title="2 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n1" value="1"><label for="dep-n1" title="1 estrela">★</label>
+                </fieldset>
+                <label class="fb-coment">Seu depoimento
+                    <textarea id="dep-texto" rows="5" maxlength="600" placeholder="Ex.: Em 3 meses saí do platô, perdi 6 kg e ganhei disciplina. O acompanhamento faz toda a diferença!"></textarea>
+                    <small class="dep-cont" id="dep-cont">0 / 600</small>
+                </label>
+                <label class="fb-coment">Como seu nome aparece no site
+                    <select id="dep-nome-modo">
+                        <option value="inicial">Primeiro nome e inicial</option>
+                        <option value="primeiro">Só o primeiro nome</option>
+                        <option value="completo">Nome completo</option>
+                    </select>
+                    <small id="dep-nome-prev"></small>
+                </label>
+                <label class="dep-autoriza"><input type="checkbox" id="dep-autorizo"> <span>Autorizo o personal Fagner Lage a publicar este depoimento no site, com o nome escolhido acima.</span></label>
+                <p class="form-msg" id="dep-msg" role="alert"></p>
+                <button type="submit" class="btn btn-primary dep-enviar" id="dep-enviar"><i class="fa-solid fa-paper-plane"></i> Enviar depoimento</button>
+            </form>
+            <div class="al-bloco">
+                <h2>Seus depoimentos</h2>
+                <ul class="pg-lista" id="dep-lista"></ul>
+            </div>
         </section>
 
         <!-- ===== Faturas ===== -->
@@ -179,7 +218,8 @@
         <a href="#/inicio"><i class="fa-solid fa-house"></i> Início</a>
         <a href="#/treino"><i class="fa-solid fa-dumbbell"></i> Treinos</a>
         <a href="#/progresso"><i class="fa-solid fa-clipboard-check"></i> Meu progresso</a>
-        <a href="#/arquivos"><i class="fa-solid fa-box-archive"></i> Arquivos</a>
+        <a href="#/ebooks"><i class="fa-solid fa-book-open"></i> E-books</a>
+        <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
         <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
         <a href="./index.html"><i class="fa-solid fa-globe"></i> Visitar site</a>
         <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
@@ -235,7 +275,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/area-aluno.js?v=5"></script>
+    <script type="module" src="./Assets/js/area-aluno.js?v=7"></script>
 </body>
 
 </html>

@@ -215,6 +215,7 @@ async function excluir(aluno) {
         // Fichas de treino e feedbacks do aluno saem junto
         mudancas["fichas/" + aluno.id] = null;
         estado.feedbacks.filter((f) => f.alunoId === aluno.id).forEach((f) => { mudancas["feedbacks/" + f.id] = null; });
+        estado.depoimentos.filter((d) => d.alunoId === aluno.id).forEach((d) => { mudancas["depoimentos/" + d.id] = null; mudancas["depoimentosPublicos/" + d.id] = null; });
         await update(ref(db), mudancas);
         aviso(aluno.nome + " foi excluído.", "ok");
     } catch (e) {

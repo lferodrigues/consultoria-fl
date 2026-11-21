@@ -1,5 +1,5 @@
 // Área do Aluno (app) — só entra quem está logado, cadastrado, ativo e no prazo.
-// Telas: #/inicio  #/treino  #/progresso  #/arquivos  #/faturas
+// Telas: #/inicio  #/treino  #/progresso  #/ebooks  #/depoimentos  #/faturas
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, get, onValue, push, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
@@ -15,7 +15,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const wa = (texto) => "https://wa.me/" + WHATSAPP + (texto ? "?text=" + encodeURIComponent(texto) : "");
 
-const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", arquivos: "Arquivos", faturas: "Faturas" };
+const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebooks: "E-books", depoimentos: "Depoimentos", faturas: "Faturas" };
 
 let saindo = false;
 let aluno = null;       // { id, nome, email }
@@ -87,7 +87,8 @@ $("logout-btn").addEventListener("click", sair);
 /* =================== Telas (sem recarregar a página) =================== */
 
 function rotear() {
-    const tela = location.hash.replace(/^#\/?/, "").split("/")[0];
+    let tela = location.hash.replace(/^#\/?/, "").split("/")[0];
+    if (tela === "arquivos") tela = "ebooks"; // endereço antigo
     const atual = tela in TELAS ? tela : "inicio";
     Object.keys(TELAS).forEach((t) => { $("view-" + t).hidden = t !== atual; });
     const inicio = atual === "inicio";
@@ -101,6 +102,7 @@ function rotear() {
     fecharNotificacoes();
     window.scrollTo(0, 0);
     if (atual === "progresso") carregarProgresso();
+    if (atual === "depoimentos") carregarDepoimentos();
 }
 
 /* =================== Menu (botão de baixo) =================== */
@@ -157,8 +159,8 @@ function montarNotificacoes() {
     }
     const limite = Date.now() - 60 * 86400000;
     ebooks.filter((e) => (e.criadoEm || 0) > limite).forEach((e) => lista.push({
-        icone: "fa-file-pdf", cor: "red", link: "#/arquivos", quando: e.criadoEm,
-        titulo: "Novo arquivo: " + e.titulo, texto: e.categoria || "E-book", novo: (e.criadoEm || 0) > visto
+        icone: "fa-book-open", cor: "red", link: "#/ebooks", quando: e.criadoEm,
+        titulo: "Novo e-book: " + e.titulo, texto: e.categoria || "E-book", novo: (e.criadoEm || 0) > visto
     }));
 
     return lista.sort((a, b) => b.quando - a.quando).slice(0, 10);
@@ -313,7 +315,7 @@ function desenharInicio() {
     }
     const semana = treinosDaSemana();
     $("tile-progresso").textContent = ficha ? semana.feitos + " de " + semana.planejados + " treinos na semana" : "Treinos e feedbacks";
-    $("tile-arquivos").textContent = ebooks.length ? ebooks.length + (ebooks.length === 1 ? " arquivo" : " arquivos") : "E-books do personal";
+    $("tile-arquivos").textContent = ebooks.length ? ebooks.length + (ebooks.length === 1 ? " e-book" : " e-books") : "Materiais do personal";
     const dias = diasParaVencer();
     $("tile-faturas").textContent = dias === null ? "Plano e pagamento" : dias === 0 ? "Vence hoje" : "Vence em " + dias + (dias === 1 ? " dia" : " dias");
     const aviso = $("al-aviso-venc");
@@ -377,7 +379,7 @@ async function carregarProgresso() {
         : '<li class="pg-vazio">Você ainda não enviou feedbacks. Depois de treinar, toque em "Feedback do dia" na tela de Treinos.</li>';
 }
 
-/* =================== Arquivos (e-books) =================== */
+/* =================== E-books =================== */
 
 function escutarArquivos() {
     onValue(ref(db, "biblioteca"), (snap) => {
@@ -429,9 +431,80 @@ $("arq-lista").addEventListener("click", async (ev) => {
         setTimeout(() => URL.revokeObjectURL(url), 15000);
     } catch (err) {
         console.error(err);
-        aviso("Não foi possível abrir este arquivo agora.", "error");
+        aviso("Não foi possível abrir este e-book agora.", "error");
     } finally {
         b.disabled = false;
+    }
+});
+
+/* =================== Depoimentos =================== */
+//   depoimentos/{id} -> { alunoId, nome, nomeExibicao, texto, nota, autorizado, criadoEm, publicado, visto }
+
+function nomeExibicao(modo) {
+    const partes = aluno.nome.trim().split(/\s+/);
+    if (modo === "completo") return aluno.nome.trim();
+    if (modo === "primeiro" || partes.length === 1) return partes[0];
+    return partes[0] + " " + partes[partes.length - 1][0].toUpperCase() + ".";
+}
+
+function atualizarPreviaNome() {
+    $("dep-nome-prev").textContent = "Vai aparecer como: " + nomeExibicao($("dep-nome-modo").value);
+}
+$("dep-nome-modo").addEventListener("change", atualizarPreviaNome);
+$("dep-texto").addEventListener("input", () => { $("dep-cont").textContent = $("dep-texto").value.length + " / 600"; $("dep-msg").textContent = ""; });
+document.querySelectorAll('input[name="dep-nota"]').forEach((r) => r.addEventListener("change", () => { $("dep-msg").textContent = ""; }));
+$("dep-autorizo").addEventListener("change", () => { $("dep-msg").textContent = ""; });
+
+async function carregarDepoimentos() {
+    atualizarPreviaNome();
+    $("dep-lista").innerHTML = '<li class="pg-vazio">Carregando...</li>';
+    try {
+        const snap = await get(query(ref(db, "depoimentos"), orderByChild("alunoId"), equalTo(aluno.id)));
+        const lista = Object.entries(snap.val() || {}).map(([id, d]) => ({ id, ...d })).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        $("tile-depoimentos").textContent = lista.some((d) => d.publicado) ? "Seu depoimento está no site!" : "Conte sua experiência";
+        $("dep-lista").innerHTML = lista.length
+            ? lista.map((d) => `<li>
+                <div class="pg-topo"><span class="dep-estrelas">${"★".repeat(d.nota || 0)}<em>${"★".repeat(5 - (d.nota || 0))}</em></span>
+                ${d.publicado ? '<span class="badge ok">Publicado no site</span>' : '<span class="badge off">Enviado</span>'}</div>
+                <p>“${esc(d.texto)}”</p>
+                <small>${esc(d.nomeExibicao || "")} · ${new Date(d.criadoEm || Date.now()).toLocaleDateString("pt-BR")}</small>
+            </li>`).join("")
+            : '<li class="pg-vazio">Você ainda não enviou depoimentos.</li>';
+    } catch (e) {
+        console.error(e);
+        $("dep-lista").innerHTML = '<li class="pg-vazio">Não foi possível carregar seus depoimentos agora.</li>';
+    }
+}
+
+$("dep-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const msg = $("dep-msg");
+    const nota = Number(document.querySelector('input[name="dep-nota"]:checked')?.value || 0);
+    const texto = $("dep-texto").value.trim();
+    if (!nota) return (msg.textContent = "Escolha uma nota de 1 a 5 estrelas.");
+    if (texto.length < 20) return (msg.textContent = "Escreva um pouco mais (pelo menos 20 caracteres).");
+    if (!$("dep-autorizo").checked) return (msg.textContent = "Marque a autorização para o personal poder publicar o depoimento.");
+
+    const botao = $("dep-enviar");
+    botao.disabled = true;
+    try {
+        const id = push(ref(db, "depoimentos")).key;
+        await update(ref(db), {
+            ["depoimentos/" + id]: {
+                alunoId: aluno.id, nome: aluno.nome, nomeExibicao: nomeExibicao($("dep-nome-modo").value),
+                texto, nota, autorizado: true, criadoEm: Date.now(), publicado: false, visto: false
+            }
+        });
+        $("dep-form").reset();
+        $("dep-cont").textContent = "0 / 600";
+        msg.textContent = "";
+        aviso("Obrigado! Seu depoimento foi enviado ao personal.", "ok");
+        carregarDepoimentos();
+    } catch (e) {
+        console.error(e);
+        msg.textContent = "Não foi possível enviar agora. Tente novamente em instantes.";
+    } finally {
+        botao.disabled = false;
     }
 });
 

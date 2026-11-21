@@ -17,13 +17,14 @@ import * as Financeiro from "./admin-financeiro.js?v=1";
 import * as Planos from "./admin-planos.js?v=1";
 import * as Exercicios from "./admin-exercicios.js?v=1";
 import * as Pix from "./admin-pix.js?v=1";
+import * as Depoimentos from "./admin-depoimentos.js?v=1";
 
-const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos"];
+const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu
 const GRUPO = { exercicios: "treinos" };
-const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos" };
-const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios };
-const NOS = ["alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos"];
+const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", depoimentos: "Depoimentos" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos };
+const NOS = ["alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 
 let saindo = false;
 let iniciado = false;
@@ -109,6 +110,8 @@ function rotear() {
         Pix.editar();
         history.replaceState(null, "", "#/financeiro");
     }
+
+    if (tela === "depoimentos") Depoimentos.marcarVistos();
 
     if (tela === "treinos" && acao === "aluno" && extra) {
         Treinos.focarAluno(extra);
@@ -225,7 +228,8 @@ function alunosComAviso() {
 function desenharAvisos() {
     const vencimentos = alunosComAviso();
     const feedbacks = estado.feedbacks.filter((f) => !f.lido).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
-    const total = vencimentos.length + feedbacks.length;
+    const deps = Depoimentos.novos();
+    const total = vencimentos.length + feedbacks.length + deps.length;
     $("bell-n").textContent = total > 99 ? "99+" : total;
     $("bell-n").classList.toggle("zero", total === 0);
 
@@ -245,6 +249,8 @@ function desenharAvisos() {
     $("bell-menu").innerHTML =
         `<div class="drop-head"><span class="drop-title">Feedbacks dos alunos</span>${feedbacks.length ? '<button type="button" class="drop-link" id="fb-todos-lidos">Marcar como lidos</button>' : ""}</div>` +
         (htmlFeedbacks || '<span class="drop-vazio">Nenhum feedback novo.</span>') +
+        (deps.length ? '<span class="drop-title sep">Depoimentos</span>' +
+            `<a href="#/depoimentos" class="aviso-item"><i class="fa-solid fa-star" style="color:#fbbf24"></i><span>${deps.length} ${deps.length === 1 ? "depoimento novo" : "depoimentos novos"}<small>Toque para ler e escolher os que vão para o site</small></span></a>` : "") +
         '<span class="drop-title sep">Planos vencendo</span>' +
         (htmlVenc || '<span class="drop-vazio">Nenhum plano vencendo. Tudo em dia!</span>');
 }

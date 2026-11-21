@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=9">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=10">
 </head>
 
 <body>
@@ -84,6 +84,9 @@
                             <li><a href="#/planos" data-sub="planos">Planos do site</a></li>
                             <li><a href="#/planos/novo" data-sub="planos/novo">Novo plano</a></li>
                         </ul>
+                    </li>
+                    <li class="menu-item" data-rota="depoimentos">
+                        <a href="#/depoimentos" class="menu-link"><i class="fa-solid fa-comment-dots"></i><span>Depoimentos</span><span class="menu-badge" id="menu-dep-n" hidden>0</span></a>
                     </li>
                 </ul>
                 <p class="menu-empty" id="menu-empty" hidden>Nenhuma opção encontrada.</p>
@@ -268,6 +271,37 @@
                         <button type="button" class="btn btn-primary btn-sm" id="pl-importar">Importar planos atuais</button>
                     </div>
                     <div class="cards plan-cards" id="pl-lista"></div>
+                </section>
+
+                <!-- ============ DEPOIMENTOS ============ -->
+                <section class="view" id="view-depoimentos" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Site</span>
+                            <h1>Depoimentos</h1>
+                            <p class="page-sub">Leia o que os alunos escreveram e marque quantos quiser para aparecer no site.</p>
+                        </div>
+                        <a href="./index.html#depoimentos" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver no site</a>
+                    </div>
+                    <section class="stats stats-3">
+                        <button type="button" class="stat" data-dep-filtro=""><span class="stat-n" id="dp-total">0</span><span class="stat-l">Depoimentos</span></button>
+                        <button type="button" class="stat ok" data-dep-filtro="site"><span class="stat-n" id="dp-site">0</span><span class="stat-l">No site</span></button>
+                        <button type="button" class="stat warn" data-dep-filtro="novos"><span class="stat-n" id="dp-novos">0</span><span class="stat-l">Novos</span></button>
+                    </section>
+                    <section class="toolbar">
+                        <div class="search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="dp-busca" placeholder="Buscar por aluno ou texto">
+                        </div>
+                        <select id="dp-filtro" aria-label="Filtrar depoimentos">
+                            <option value="">Todos</option>
+                            <option value="novos">Novos</option>
+                            <option value="site">No site</option>
+                            <option value="fora">Fora do site</option>
+                        </select>
+                    </section>
+                    <div class="cards dep-cards" id="dp-lista"></div>
+                    <div class="empty card-empty" id="dp-vazio" hidden><i class="fa-solid fa-comment-dots"></i><p id="dp-vazio-txt"></p></div>
                 </section>
 
                 <!-- ============ FINANCEIRO ============ -->
@@ -619,7 +653,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=9"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=10"></script>
 </body>
 
 </html>

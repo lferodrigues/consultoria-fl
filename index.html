@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./Assets/css/landing.css?v=4">
+    <link rel="stylesheet" href="./Assets/css/landing.css?v=5">
 </head>
 
 <body>
@@ -232,6 +232,18 @@
         </div>
     </section>
 
+    <!-- Depoimentos (aparece quando o personal publica algum pelo painel) -->
+    <section class="section depo" id="depoimentos" hidden>
+        <div class="container">
+            <div class="section-head">
+                <span class="eyebrow">Depoimentos</span>
+                <h2>Quem treina com o Fagner <span class="accent">recomenda</span></h2>
+                <p>Resultados reais de alunos da consultoria online.</p>
+            </div>
+            <div class="depo-grid" id="depo-lista"></div>
+        </div>
+    </section>
+
     <!-- Planos -->
     <section class="section plans" id="planos">
         <div class="container">
@@ -326,6 +338,7 @@
     </script>
     <script src="./Assets/js/sec.js"></script>
     <script type="module" src="./Assets/js/planos-site.js?v=1"></script>
+    <script type="module" src="./Assets/js/depoimentos-site.js?v=1"></script>
 </body>
 
 </html>

@@ -3,7 +3,7 @@
 export const $ = (id) => document.getElementById(id);
 
 // Dados vindos do Realtime Database (atualizados em tempo real)
-export const estado = { alunos: [], fichas: [], feedbacks: [], biblioteca: [], financeiro: [], planos: [], exercicios: [] };
+export const estado = { alunos: [], fichas: [], feedbacks: [], biblioteca: [], financeiro: [], planos: [], exercicios: [], depoimentos: [] };
 
 const inscritos = new Set();
 export function aoMudar(fn) { inscritos.add(fn); }
