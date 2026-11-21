@@ -1,0 +1,36 @@
+/* ===== Área do Aluno — complementa o admin.css ===== */
+.accent { color: var(--red-2); }
+
+.welcome { margin: 40px 0 26px; }
+.welcome h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; line-height: 1.1; margin: 6px 0 10px; }
+.welcome p { color: var(--muted); max-width: 560px; }
+
+.info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.info {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 4px;
+}
+.info > i {
+    width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 8px;
+    background: rgba(227, 32, 43, .14); color: var(--red-2);
+}
+.info-l { color: var(--muted); font-size: .8rem; }
+.info strong { font-size: 1.15rem; text-transform: capitalize; }
+.info small { color: var(--muted); font-size: .8rem; }
+
+.treino {
+    display: flex; gap: 18px; align-items: center; padding: 26px; margin-bottom: 60px; border-radius: 16px;
+    background: linear-gradient(120deg, rgba(227, 32, 43, .16), var(--card) 60%);
+    border: 1px solid rgba(255, 59, 69, .3);
+}
+.treino-icone {
+    flex-shrink: 0; width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
+    background: linear-gradient(180deg, var(--red-2), var(--red)); font-size: 1.4rem;
+}
+.treino h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+.treino p { color: #c4c8cf; font-size: .92rem; }
+
+@media (max-width: 760px) {
+    .info-cards { grid-template-columns: 1fr; }
+    .treino { flex-direction: column; align-items: flex-start; }
+}

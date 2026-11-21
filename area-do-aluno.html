@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Área do Aluno | Fagner Lage</title>
+    <meta name="theme-color" content="#07080b">
+    <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./Assets/css/admin.css?v=2">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=1">
+</head>
+
+<body>
+    <!-- Verificação de acesso (some quando o aluno é confirmado) -->
+    <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
+
+    <header class="topbar">
+        <div class="wrap">
+            <a href="./index.html" class="brand">
+                <img src="./Assets/img/banner05.png" alt="Fagner Lage">
+                <span>Fagner Lage<small>Área do aluno</small></span>
+            </a>
+            <button type="button" class="btn btn-ghost btn-sm" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="welcome">
+            <span class="eyebrow">Bem-vindo de volta</span>
+            <h1>Olá, <span class="accent" id="aluno-nome">aluno</span>!</h1>
+            <p>Bora treinar? Aqui fica tudo da sua consultoria com o personal Fagner Lage.</p>
+        </section>
+
+        <section class="info-cards">
+            <div class="info">
+                <i class="fa-solid fa-dumbbell"></i>
+                <span class="info-l">Seu plano</span>
+                <strong id="aluno-plano">—</strong>
+            </div>
+            <div class="info">
+                <i class="fa-regular fa-calendar"></i>
+                <span class="info-l">Vencimento</span>
+                <strong id="aluno-venc">—</strong>
+                <small id="aluno-dias"></small>
+            </div>
+            <div class="info">
+                <i class="fa-solid fa-circle-check"></i>
+                <span class="info-l">Situação</span>
+                <strong><span class="badge ok" id="aluno-status">Ativo</span></strong>
+            </div>
+        </section>
+
+        <section class="treino">
+            <div class="treino-icone"><i class="fa-solid fa-person-running"></i></div>
+            <div>
+                <h2>Seu treino</h2>
+                <p>Seu treino personalizado vai aparecer aqui. Em breve você vai poder ver os exercícios, as séries e os vídeos direto por esta área.</p>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="./Assets/js/area-aluno.js?v=1"></script>
+</body>
+
+</html>

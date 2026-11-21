@@ -26,8 +26,8 @@ export const PAGINAS = {
     login: "./login.html",
     admin: "./painel-admin.html",
     planos: "./planos.html",
-    // Área do aluno: deixe "" enquanto ela não existir (o login mostra só a mensagem de boas-vindas)
-    aluno: ""
+    // Página da área do aluno (deixe "" para o login mostrar só a mensagem de boas-vindas)
+    aluno: "./area-do-aluno.html"
 };
 
 export function ehAdmin(user) {

@@ -11,11 +11,12 @@ import {
     createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue, get, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { auth, db, firebaseConfig, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=1";
+import { auth, db, firebaseConfig, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 import {
     MESES_POR_PLANO, somarMeses, situacao, contar, filtrar,
     dataBR, mascaraTelefone, escaparHTML
 } from "./alunos-util.js?v=1";
+import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 
 const $ = (id) => document.getElementById(id);
 
@@ -26,10 +27,22 @@ let pararEscuta = null;
 
 /* ---------------- Acesso ---------------- */
 
+let saindo = false;
+
 onAuthStateChanged(auth, (user) => {
-    if (!user || !ehAdmin(user)) {
+    if (saindo) return;
+    if (!user) {
         if (pararEscuta) pararEscuta();
-        window.location.replace(PAGINAS.login);
+        mostrarAcessoNegado({ texto: "Faça o seu login para entrar." });
+        return;
+    }
+    if (!ehAdmin(user)) {
+        if (pararEscuta) pararEscuta();
+        mostrarAcessoNegado({
+            texto: "Esta área é exclusiva do administrador.",
+            botao: "Ir para a área do aluno",
+            link: PAGINAS.aluno || PAGINAS.login
+        });
         return;
     }
     $("admin-email").textContent = user.email;
@@ -37,7 +50,11 @@ onAuthStateChanged(auth, (user) => {
     escutarAlunos();
 });
 
-$("logout-btn").addEventListener("click", () => signOut(auth));
+$("logout-btn").addEventListener("click", async () => {
+    saindo = true;
+    await signOut(auth);
+    window.location.replace(PAGINAS.login);
+});
 
 /* ---------------- Leitura em tempo real ---------------- */
 
@@ -237,7 +254,7 @@ $("aluno-form").addEventListener("submit", async (ev) => {
             atualizadoEm: agora
         };
         if (!dados.uid && antigo?.uid) mudancas["alunos/" + id].uid = antigo.uid;
-        mudancas["emails/" + chaveNova] = { aluno: id, ativo: dados.ativo, vencimento: dados.vencimento };
+        mudancas["emails/" + chaveNova] = { aluno: id, ativo: dados.ativo, vencimento: dados.vencimento, nome: dados.nome, plano: dados.plano };
         if (antigo && mudouEmail) mudancas["emails/" + chaveEmail(antigo.email)] = null;
 
         await update(ref(db), mudancas);

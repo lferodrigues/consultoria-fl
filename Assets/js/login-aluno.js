@@ -17,7 +17,7 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=1";
+import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 
 const google = new GoogleAuthProvider();
 const apple = new OAuthProvider("apple.com");
