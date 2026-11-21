@@ -112,15 +112,16 @@ body.modal-aberto { overflow: hidden; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tag { font-size: .72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(255, 255, 255, .06); color: #d1d5db; }
 
-/* Pop-up do vídeo — vertical 9:16, estilo story */
+/* Pop-up do vídeo
+   Computador e tablet: horizontal 16:9.
+   Celular (até 600 px): vertical 9:16, estilo story (regras no fim do arquivo). */
 .modal-box.video-box {
-    width: auto; max-width: min(440px, 100%); padding: 12px; border-radius: 24px;
+    width: 100%; max-width: 820px; padding: 14px; border-radius: 24px;
     display: flex; flex-direction: column; gap: 10px; max-height: 96vh;
 }
 .story {
-    position: relative; margin: 0 auto; border-radius: 18px; overflow: hidden; background: #000;
-    height: min(72vh, 720px); aspect-ratio: 9 / 16; max-width: 100%;
-    box-shadow: 0 20px 50px -20px rgba(227, 32, 43, .45);
+    position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000;
+    box-shadow: 0 20px 50px -20px rgba(227, 32, 43, .45); flex-shrink: 0;
 }
 .video-wrap { position: absolute; inset: 0; background: #000; }
 .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -175,8 +176,12 @@ body.modal-aberto { overflow: hidden; }
     .ex-check { margin-right: 12px; }
     .modal { padding: 10px; }
     .modal-box { padding: 20px 16px; }
-    /* No celular o story ocupa quase a tela toda */
+
+}
+
+/* Celular: vídeo vertical 9:16, estilo story, ocupando quase a tela toda */
+@media (max-width: 600px) {
     #modal-video { padding: 0; align-items: stretch; }
     .modal-box.video-box { max-width: 100%; width: 100%; max-height: 100vh; height: 100%; border-radius: 0; border: 0; padding: 8px 8px 12px; justify-content: center; }
-    .story { height: auto; width: 100%; max-height: calc(100vh - 150px); flex: 1 1 auto; aspect-ratio: auto; min-height: 0; }
+    .story { width: 100%; aspect-ratio: auto; flex: 1 1 auto; min-height: 0; max-height: calc(100vh - 150px); border-radius: 18px; }
 }
