@@ -88,6 +88,7 @@ switchBtn.addEventListener("click", () => {
     nameField.hidden = !modoCadastro;
     forgotBtn.hidden = modoCadastro;
     submitBtn.textContent = modoCadastro ? "Criar conta" : "Entrar";
+    $("title").textContent = modoCadastro ? "Criar conta" : "Entrar";
     switchText.textContent = modoCadastro ? "Já tem conta?" : "Ainda não tem conta?";
     switchBtn.textContent = modoCadastro ? "Entrar" : "Criar conta";
     passInput.autocomplete = modoCadastro ? "new-password" : "current-password";
@@ -157,18 +158,18 @@ $("logout-btn").addEventListener("click", () => signOut(auth));
 
 // Reage ao login / logout
 onAuthStateChanged(auth, (user) => {
-    const telaLogin = [form, googleBtn, document.querySelector(".divider"), document.querySelector(".switch")];
+    const authArea = $("auth-area");
     if (user) {
         if (REDIRECIONAR_PARA) {
             window.location.href = REDIRECIONAR_PARA;
             return;
         }
-        telaLogin.forEach((el) => (el.hidden = true));
+        authArea.hidden = true;
         $("user-name").textContent = user.displayName || user.email;
         logged.hidden = false;
         mostrar("", "");
     } else {
-        telaLogin.forEach((el) => (el.hidden = false));
+        authArea.hidden = false;
         logged.hidden = true;
     }
 });
