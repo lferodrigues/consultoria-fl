@@ -8,6 +8,8 @@ import {
     sendPasswordResetEmail,
     GoogleAuthProvider,
     signInWithPopup,
+    getAdditionalUserInfo,
+    deleteUser,
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
@@ -26,6 +28,9 @@ const firebaseConfig = {
 // Página para onde o aluno vai depois de entrar.
 // Deixe vazio ("") para apenas mostrar a mensagem de boas-vindas nesta tela.
 const REDIRECIONAR_PARA = "";
+
+// Página de planos, para quem entra com um Google que ainda não está cadastrado.
+const PAGINA_PLANOS = "./planos.html";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -49,6 +54,7 @@ const loading = $("loading");
 const logged = $("logged");
 
 let modoCadastro = false;
+let verificandoGoogle = false; // evita mostrar "logado" enquanto checa o cadastro
 
 // Mensagens de erro do Firebase em português
 const erros = {
@@ -127,11 +133,31 @@ form.addEventListener("submit", async (ev) => {
 });
 
 // Entrar com Google
+// Só entra quem já tem cadastro. Se o e-mail do Google ainda não existe no Firebase,
+// a conta recém-criada é apagada e a pessoa vai para a página de planos.
 googleBtn.addEventListener("click", async () => {
     carregando(true);
+    verificandoGoogle = true;
     try {
-        await signInWithPopup(auth, google);
+        const resultado = await signInWithPopup(auth, google);
+        const info = getAdditionalUserInfo(resultado);
+
+        if (info && info.isNewUser) {
+            const email = resultado.user.email || "";
+            try {
+                await deleteUser(resultado.user);
+            } catch (e) {
+                console.error("Não foi possível apagar a conta nova:", e);
+                await signOut(auth);
+            }
+            window.location.href = PAGINA_PLANOS + "?nao-cadastrado=1&email=" + encodeURIComponent(email);
+            return;
+        }
+
+        verificandoGoogle = false;
+        mostrarLogado(resultado.user);
     } catch (e) {
+        verificandoGoogle = false;
         tratarErro(e);
     } finally {
         carregando(false);
@@ -156,20 +182,25 @@ forgotBtn.addEventListener("click", async () => {
 // Sair
 $("logout-btn").addEventListener("click", () => signOut(auth));
 
+// Mostra a tela de "logado" (ou redireciona, se configurado)
+function mostrarLogado(user) {
+    if (REDIRECIONAR_PARA) {
+        window.location.href = REDIRECIONAR_PARA;
+        return;
+    }
+    $("auth-area").hidden = true;
+    $("user-name").textContent = user.displayName || user.email;
+    logged.hidden = false;
+    mostrar("", "");
+}
+
 // Reage ao login / logout
 onAuthStateChanged(auth, (user) => {
-    const authArea = $("auth-area");
+    if (verificandoGoogle) return; // o botão do Google decide o que fazer
     if (user) {
-        if (REDIRECIONAR_PARA) {
-            window.location.href = REDIRECIONAR_PARA;
-            return;
-        }
-        authArea.hidden = true;
-        $("user-name").textContent = user.displayName || user.email;
-        logged.hidden = false;
-        mostrar("", "");
+        mostrarLogado(user);
     } else {
-        authArea.hidden = false;
+        $("auth-area").hidden = false;
         logged.hidden = true;
     }
 });
