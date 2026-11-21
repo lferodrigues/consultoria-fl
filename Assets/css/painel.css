@@ -341,6 +341,26 @@ body.side-fechada .hamb { visibility: visible; }
 .aviso-item .fb-coment { font-style: italic; color: #c4c8cf; }
 .drop-menu.wide { min-width: 340px; max-height: 70vh; overflow-y: auto; }
 
+/* Chave Pix */
+.pix-card {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 20px; margin-bottom: 18px; border-radius: 16px;
+    background: linear-gradient(110deg, rgba(50, 188, 173, .12), var(--card) 45%); border: 1px solid rgba(50, 188, 173, .35);
+}
+.pix-card.vazio { background: linear-gradient(110deg, rgba(227, 32, 43, .12), var(--card) 50%); border-color: rgba(255, 59, 69, .35); }
+.pix-ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 1.4rem; background: rgba(50, 188, 173, .16); color: #32bcad; flex-shrink: 0; }
+.pix-card.vazio .pix-ico { background: rgba(227, 32, 43, .14); color: var(--red-2); }
+.pix-txt { flex: 1; min-width: 200px; display: flex; flex-direction: column; }
+.pix-txt small { color: var(--muted); font-size: .78rem; }
+.pix-chave { font-size: 1.1rem; font-family: 'Montserrat', sans-serif; word-break: break-all; margin: 2px 0; }
+.pix-acoes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pix-cobrar { display: flex; gap: 6px; }
+.pix-cobrar input { width: 140px; background: var(--input); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; outline: none; font-size: .85rem; }
+.pix-cobrar input:focus { border-color: #32bcad; }
+.pix-erro { color: var(--red-2); font-size: .88rem; }
+.pix-intro { color: var(--muted); font-size: .88rem; margin-bottom: 14px; }
+.segmented.pix-tipos { grid-template-columns: repeat(5, 1fr); }
+.segmented.pix-tipos span { padding: 10px 4px; font-size: .8rem; }
+
 /* Valores do financeiro */
 .valor { font-weight: 700; white-space: nowrap; }
 .valor.receita { color: var(--ok); }
@@ -424,6 +444,12 @@ body.side-fechada .hamb { visibility: visible; }
     .toolbar select { width: 100%; }
     .shortcuts { grid-template-columns: 1fr; }
     .app-foot { padding: 14px 16px; }
+    .segmented.pix-tipos { grid-template-columns: repeat(3, 1fr); }
+    .pix-acoes, .pix-cobrar { width: 100%; }
+    .pix-cobrar { flex-direction: column; }
+    .pix-cobrar input { width: 100%; }
+    .pix-acoes .btn { justify-content: center; }
+    .pix-acoes > .btn { flex: 1; }
     .semana { gap: 5px; }
     .dia-btn small { display: none; }
     .hist-head { padding: 14px; gap: 10px; }

@@ -16,6 +16,7 @@ import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
 import * as Planos from "./admin-planos.js?v=1";
 import * as Exercicios from "./admin-exercicios.js?v=1";
+import * as Pix from "./admin-pix.js?v=1";
 
 const TELAS = ["inicio", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos"];
 // Telas que ficam dentro de um grupo do menu
@@ -51,6 +52,7 @@ function iniciarPainel(user) {
     $("avatar").textContent = nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
 
     Object.values(MODULOS).forEach((m) => m.iniciar());
+    Pix.iniciar();
     aoMudar(desenharAvisos);
     iniciarMenu();
     iniciarTopo();
@@ -94,13 +96,19 @@ function rotear() {
         li.classList.toggle("ativo", ativo);
         if (ativo && li.classList.contains("has-sub")) abrirGrupo(li, true);
     });
-    const sub = tela + (acao === "novo" ? "/novo" : "");
+    const sub = tela + (acao === "novo" ? "/novo" : acao === "pix" ? "/pix" : "");
     // Biblioteca de exercícios: #/exercicios/<grupo>; "novo" mantém o grupo aberto
     if (tela === "exercicios" && acao !== "novo") Exercicios.selecionarCategoria(acao || "");
     document.querySelectorAll(".submenu a").forEach((a) => a.classList.toggle("ativo", a.dataset.sub === sub));
 
     if (window.innerWidth <= 1024) document.body.classList.remove("side-aberta");
     window.scrollTo(0, 0);
+
+    // #/financeiro/pix abre o cadastro da chave Pix
+    if (tela === "financeiro" && acao === "pix") {
+        Pix.editar();
+        history.replaceState(null, "", "#/financeiro");
+    }
 
     if (tela === "treinos" && acao === "aluno" && extra) {
         Treinos.focarAluno(extra);
