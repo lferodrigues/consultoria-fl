@@ -192,6 +192,34 @@ body.side-fechada .hamb { visibility: visible; }
 .item-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
 .card-empty { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 50px; }
 
+/* Planos: prévia igual ao site */
+.alert.info { background: rgba(227, 32, 43, .08); border-color: rgba(255, 59, 69, .35); margin: 0 0 20px; }
+.alert.info > i { color: var(--red-2); }
+.plan-cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: start; }
+.plan-admin { display: flex; flex-direction: column; gap: 10px; }
+.plan-admin.oculto .plan-preview { opacity: .45; filter: grayscale(.6); }
+.plan-admin-top { display: flex; justify-content: space-between; align-items: center; }
+.plan-admin-acoes { justify-content: center; }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+.plan-preview .plan {
+    position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 30px 26px 26px;
+    display: flex; flex-direction: column; gap: 12px; min-height: 100%;
+}
+.plan-preview .plan.featured { border-color: var(--red); background: linear-gradient(180deg, rgba(227, 32, 43, .12), var(--card) 55%); box-shadow: 0 30px 60px -30px rgba(227, 32, 43, .6); }
+.plan-preview .plan > .tag {
+    position: absolute; top: -12px; left: 26px; background: var(--red); color: #fff; font-size: .68rem;
+    font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px;
+}
+.plan-preview .plan-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: rgba(227, 32, 43, .14); color: var(--red-2); }
+.plan-preview h3 { font-family: 'Montserrat', sans-serif; font-size: 1.25rem; }
+.plan-preview .dur, .plan-preview .plan-for { color: var(--muted); font-size: .88rem; }
+.plan-preview .price strong { font-family: 'Montserrat', sans-serif; font-size: 1.7rem; font-weight: 900; }
+.plan-preview .price small { display: block; color: var(--muted); font-size: .8rem; }
+.plan-preview ul { list-style: none; color: #c4c8cf; font-size: .9rem; }
+.plan-preview ul li { padding: 4px 0; }
+.plan-preview ul li i { color: var(--red-2); margin-right: 8px; }
+.plan-preview .btn { justify-content: center; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; }
+
 /* Valores do financeiro */
 .valor { font-weight: 700; white-space: nowrap; }
 .valor.receita { color: var(--ok); }

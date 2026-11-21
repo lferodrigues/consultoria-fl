@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./Assets/css/landing.css?v=3">
+    <link rel="stylesheet" href="./Assets/css/landing.css?v=4">
     <link rel="stylesheet" href="./Assets/css/planos.css?v=1">
 </head>
 
@@ -55,7 +55,7 @@
     <!-- Planos -->
     <section class="section plans" id="planos">
         <div class="container">
-            <div class="grid-3">
+            <div class="grid-3" data-planos="pagina">
                 <div class="plan reveal">
                     <span class="plan-icon"><i class="fa-solid fa-bolt"></i></span>
                     <h3>Trimestral</h3>
@@ -171,6 +171,7 @@
             els.forEach(function (e) { io.observe(e); });
         })();
     </script>
+    <script type="module" src="./Assets/js/planos-site.js?v=1"></script>
 </body>
 
 </html>

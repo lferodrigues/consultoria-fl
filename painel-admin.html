@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=4">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=5">
 </head>
 
 <body>
@@ -74,6 +74,13 @@
                         <ul class="submenu">
                             <li><a href="#/financeiro" data-sub="financeiro">Lançamentos</a></li>
                             <li><a href="#/financeiro/novo" data-sub="financeiro/novo">Novo lançamento</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item has-sub" data-rota="planos">
+                        <button type="button" class="menu-link menu-toggle" aria-expanded="false"><i class="fa-solid fa-tags"></i><span>Planos</span><i class="fa-solid fa-chevron-down chev"></i></button>
+                        <ul class="submenu">
+                            <li><a href="#/planos" data-sub="planos">Planos do site</a></li>
+                            <li><a href="#/planos/novo" data-sub="planos/novo">Novo plano</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -199,6 +206,30 @@
                     </section>
                     <div class="cards" id="bi-lista"></div>
                     <div class="empty card-empty" id="bi-vazio" hidden><i class="fa-solid fa-book-open"></i><p id="bi-vazio-txt"></p></div>
+                </section>
+
+                <!-- ============ PLANOS ============ -->
+                <section class="view" id="view-planos" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Site</span>
+                            <h1>Planos</h1>
+                            <p class="page-sub">Os cards aparecem no index e na página de planos, nesta ordem.</p>
+                        </div>
+                        <div class="head-actions">
+                            <a href="./planos.html" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver no site</a>
+                            <a href="#/planos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo plano</a>
+                        </div>
+                    </div>
+                    <div class="alert info" id="pl-aviso" hidden>
+                        <i class="fa-solid fa-circle-info"></i>
+                        <div>
+                            <strong>Nenhum plano cadastrado no banco.</strong>
+                            <span>Enquanto isso, o site mostra os 3 planos fixos de antes (Trimestral, Semestral e Anual). Importe esses planos para começar a editá-los daqui.</span>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" id="pl-importar">Importar planos atuais</button>
+                    </div>
+                    <div class="cards plan-cards" id="pl-lista"></div>
                 </section>
 
                 <!-- ============ FINANCEIRO ============ -->
@@ -410,6 +441,43 @@
         </div>
     </div>
 
+    <!-- ================= MODAL: PLANO ================= -->
+    <div class="modal" id="modal-plano" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="pl-titulo">
+            <div class="modal-head">
+                <h2 id="pl-titulo">Novo plano</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="plano-form" novalidate>
+                <div class="grid-2">
+                    <label>Nome do plano *<input type="text" id="p-nome" placeholder="Ex.: Semestral" required autocomplete="off" maxlength="40"></label>
+                    <label>Duração<input type="text" id="p-duracao" placeholder="Ex.: 6 meses de acompanhamento" autocomplete="off" maxlength="60"></label>
+                    <label>Preço (opcional)<input type="text" id="p-preco" inputmode="decimal" placeholder="Ex.: 599,00" autocomplete="off"><small>Deixe em branco para não mostrar preço.</small></label>
+                    <label>Texto abaixo do preço<input type="text" id="p-periodo" placeholder="Ex.: à vista ou em até 6x" autocomplete="off" maxlength="40"></label>
+                    <label class="full">Frase do plano<input type="text" id="p-descricao" placeholder="Ex.: Tempo certo para sair do platô e ver resultado de verdade." autocomplete="off" maxlength="140"></label>
+                    <label class="full">Benefícios (um por linha) *<textarea id="p-beneficios" rows="5" placeholder="Treino personalizado&#10;Suporte para dúvidas&#10;Acesso à área do aluno"></textarea></label>
+                    <label>Texto do botão<input type="text" id="p-botao" placeholder="Ex.: Quero o semestral" autocomplete="off" maxlength="40"></label>
+                    <label>Link do botão *<input type="text" id="p-link" placeholder="./consuloria_semestral.html ou https://..." autocomplete="off"><small>Página de matrícula, WhatsApp ou link de pagamento.</small></label>
+                    <label>Ícone
+                        <select id="p-icone">
+                            <option value="fa-bolt">Raio</option><option value="fa-fire">Fogo</option><option value="fa-trophy">Troféu</option>
+                            <option value="fa-star">Estrela</option><option value="fa-crown">Coroa</option><option value="fa-dumbbell">Halter</option>
+                            <option value="fa-heart-pulse">Coração</option><option value="fa-gem">Diamante</option>
+                        </select>
+                    </label>
+                    <label>Selo de destaque<input type="text" id="p-tag" placeholder="Ex.: Mais escolhido" autocomplete="off" maxlength="24"></label>
+                    <label class="switch-row"><input type="checkbox" id="p-destaque"><span>Card em destaque (vermelho)</span></label>
+                    <label class="switch-row"><input type="checkbox" id="p-visivel" checked><span>Mostrar no site</span></label>
+                </div>
+                <p class="form-msg" id="pl-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="pl-salvar">Salvar plano</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ================= MODAL: CONFIRMAR ================= -->
     <div class="modal" id="modal-confirm" hidden>
         <div class="modal-box small" role="alertdialog" aria-modal="true" aria-labelledby="cf-titulo">
@@ -424,7 +492,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=5"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=6"></script>
 </body>
 
 </html>

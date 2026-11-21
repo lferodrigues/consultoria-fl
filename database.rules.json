@@ -41,6 +41,16 @@
       ".indexOn": [
         "data"
       ]
+    },
+    "planos": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "ordem"
+      ],
+      "$id": {
+        ".validate": "newData.hasChildren(['nome', 'link']) && newData.child('nome').isString() && newData.child('nome').val().length <= 60 && newData.child('link').isString() && newData.child('link').val().length <= 500"
+      }
     }
   }
 }

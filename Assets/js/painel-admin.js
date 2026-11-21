@@ -1,7 +1,7 @@
 // Painel de Controle (SPA) — acesso, dados em tempo real, rotas e menu
 //
 // Rotas (tudo na mesma página, sem recarregar):
-//   #/inicio  #/alunos  #/treinos  #/biblioteca  #/financeiro
+//   #/inicio  #/alunos  #/treinos  #/biblioteca  #/financeiro  #/planos
 //   #/<tela>/novo abre o cadastro daquela tela
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -13,11 +13,12 @@ import * as Alunos from "./admin-alunos.js?v=1";
 import * as Treinos from "./admin-treinos.js?v=1";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
+import * as Planos from "./admin-planos.js?v=1";
 
-const TELAS = ["inicio", "alunos", "treinos", "biblioteca", "financeiro"];
-const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", biblioteca: "Biblioteca", financeiro: "Financeiro" };
-const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro };
-const NOS = ["alunos", "treinos", "biblioteca", "financeiro"];
+const TELAS = ["inicio", "alunos", "treinos", "biblioteca", "financeiro", "planos"];
+const TITULOS = { inicio: "Início", alunos: "Alunos", treinos: "Treinos", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos };
+const NOS = ["alunos", "treinos", "biblioteca", "financeiro", "planos"];
 
 let saindo = false;
 let iniciado = false;
