@@ -185,3 +185,191 @@ body.modal-aberto { overflow: hidden; }
     .modal-box.video-box { max-width: 100%; width: 100%; max-height: 100vh; height: 100%; border-radius: 0; border: 0; padding: 8px 8px 12px; justify-content: center; }
     .story { width: 100%; aspect-ratio: auto; flex: 1 1 auto; min-height: 0; max-height: calc(100vh - 150px); border-radius: 18px; }
 }
+
+/* ===================================================================
+   App do aluno (tela inicial no modelo de app)
+   =================================================================== */
+.app-aluno { max-width: 1100px; margin: 0 auto; min-height: 100vh; padding-bottom: 96px; }
+.al-view { padding: 0 18px; }
+.al-view:not(#view-inicio) { padding-top: 18px; }
+
+/* Topo */
+.al-top {
+    position: sticky; top: 0; z-index: 30; height: 60px; display: flex; align-items: center; gap: 12px;
+    padding: 0 16px; background: rgba(7, 8, 11, .88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+}
+.al-marca { display: flex; align-items: center; gap: 8px; font-family: 'Montserrat', sans-serif; font-weight: 800; }
+.al-marca img { height: 30px; width: auto; }
+.al-voltar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 1.05rem; }
+.al-voltar:hover { background: rgba(255, 255, 255, .06); }
+.al-top-titulo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; }
+.al-top-dir { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.al-bell {
+    position: relative; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+    background: transparent; border: 2px solid var(--red); color: var(--red-2);
+}
+.al-bell:hover { background: rgba(227, 32, 43, .12); }
+.al-bell-n {
+    position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+    background: var(--red); color: #fff; font-size: .68rem; font-weight: 800; display: grid; place-items: center; border: 2px solid var(--bg);
+    animation: al-pulso 1.6s ease-in-out infinite;
+}
+@keyframes al-pulso { 50% { transform: scale(1.15); } }
+
+/* Painel de notificações */
+.al-notifs {
+    position: absolute; top: 64px; right: 12px; width: min(380px, calc(100vw - 24px)); max-height: 70vh; overflow-y: auto;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 8px; z-index: 40;
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, .85);
+}
+.al-notifs-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.al-link { background: none; border: 0; color: var(--red-2); font-weight: 700; font-size: .8rem; cursor: pointer; }
+.al-notif { display: flex; gap: 12px; padding: 12px 10px; border-radius: 12px; position: relative; }
+.al-notif:hover { background: rgba(255, 255, 255, .04); }
+.al-notif.novo { background: rgba(227, 32, 43, .07); }
+.al-notif.novo::after { content: ""; position: absolute; top: 16px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--red-2); }
+.al-notif-ico { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; }
+.al-notif-ico.red { background: rgba(227, 32, 43, .16); color: var(--red-2); }
+.al-notif-ico.warn { background: rgba(251, 191, 36, .14); color: var(--warn); }
+.al-notif-txt { display: flex; flex-direction: column; min-width: 0; padding-right: 14px; }
+.al-notif-txt strong { font-size: .9rem; }
+.al-notif-txt small { color: #c4c8cf; font-size: .8rem; }
+.al-notif-txt em { font-style: normal; color: var(--muted); font-size: .72rem; margin-top: 3px; }
+.al-notif-vazio { padding: 18px 10px; color: var(--muted); font-size: .88rem; text-align: center; }
+
+/* Início: cabeçalho com a foto e saudação */
+#view-inicio { padding: 0; }
+.al-hero {
+    display: flex; flex-direction: column; align-items: center; padding: 30px 18px 70px; text-align: center;
+    background:
+        radial-gradient(420px 220px at 50% 0%, rgba(227, 32, 43, .35), transparent 70%),
+        linear-gradient(180deg, #1a0a0d 0%, #0d0f14 100%);
+}
+.al-foto {
+    width: 112px; height: 112px; border-radius: 50%; object-fit: cover; object-position: center 20%;
+    border: 3px solid var(--red-2); box-shadow: 0 0 0 5px rgba(227, 32, 43, .18), 0 16px 40px -10px rgba(227, 32, 43, .6);
+}
+.al-nome-personal { margin-top: 12px; font-size: 1.05rem; }
+.al-cref { color: var(--muted); font-size: .82rem; }
+.al-saudacao { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 1.7rem; margin: -48px 18px 16px; letter-spacing: -.01em; position: relative; }
+.al-saudacao #aluno-nome { font-weight: 800; color: var(--red-2); }
+
+.al-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px; }
+.al-tile {
+    display: flex; align-items: center; gap: 14px; padding: 18px 16px; min-height: 96px; border-radius: 12px;
+    background: #1b1f28; border: 1px solid rgba(255, 255, 255, .06); transition: transform .15s, border-color .2s, background .2s;
+}
+.al-tile:hover { border-color: rgba(255, 59, 69, .45); background: #20242e; }
+.al-tile:active { transform: scale(.98); }
+.al-tile-ico {
+    flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 1.35rem; color: #fff;
+    background: linear-gradient(180deg, var(--red-2), var(--red)); box-shadow: 0 10px 24px -10px rgba(227, 32, 43, .9);
+}
+.al-tile-txt { display: flex; flex-direction: column; min-width: 0; }
+.al-tile-txt strong { font-size: 1rem; }
+.al-tile-txt small { color: var(--muted); font-size: .76rem; margin-top: 2px; }
+.al-aviso {
+    display: flex; align-items: center; gap: 12px; margin: 14px 14px 0; padding: 14px 16px; border-radius: 12px;
+    background: rgba(251, 191, 36, .08); border: 1px solid rgba(251, 191, 36, .35); color: var(--warn);
+}
+.al-aviso span { flex: 1; display: flex; flex-direction: column; color: var(--text); }
+.al-aviso small { color: var(--muted); }
+
+/* Menu de baixo */
+.al-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr);
+    background: #12151c; border-top: 1px solid var(--line); padding: 8px 6px calc(10px + env(safe-area-inset-bottom));
+}
+.al-nav a, .al-nav button {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; border: 0; background: none; cursor: pointer;
+    color: #c4c8cf; font-size: .76rem; font-weight: 600;
+}
+.al-nav i { font-size: 1.3rem; }
+.al-nav a:hover, .al-nav button:hover, .al-nav .ativo { color: var(--red-2); }
+
+/* Menu lateral */
+.al-sheet-fundo { position: fixed; inset: 0; z-index: 45; background: rgba(0, 0, 0, .55); }
+.al-sheet {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 46; width: min(300px, 86vw); padding: 18px 12px; overflow-y: auto;
+    background: var(--bg-2); border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px;
+}
+.al-sheet-head { display: flex; align-items: center; gap: 12px; padding: 6px 8px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+.al-sheet-head div { display: flex; flex-direction: column; min-width: 0; }
+.al-sheet-head small { color: var(--muted); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; }
+.avatar-al { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: rgba(227, 32, 43, .15); border: 2px solid var(--red); }
+.al-sheet a, .al-sheet button {
+    display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 10px; border: 0; background: none;
+    font-size: .95rem; cursor: pointer; text-align: left; width: 100%;
+}
+.al-sheet a i, .al-sheet button i { width: 20px; text-align: center; color: var(--red-2); }
+.al-sheet a:hover, .al-sheet button:hover { background: rgba(255, 255, 255, .05); }
+.al-sheet #logout-btn { margin-top: auto; color: var(--red-2); }
+
+/* Blocos das telas internas */
+.al-bloco { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+.al-bloco h2 { font-size: 1rem; margin-bottom: 12px; display: flex; gap: 8px; align-items: center; }
+.al-vazio { text-align: center; padding: 50px 20px; color: var(--muted); }
+.al-vazio i { font-size: 2rem; color: rgba(255, 255, 255, .2); margin-bottom: 10px; }
+
+/* Meu progresso */
+.al-cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.al-num { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 12px; text-align: center; }
+.al-num strong { display: block; font-family: 'Montserrat', sans-serif; font-size: 1.7rem; font-weight: 900; color: var(--red-2); line-height: 1.1; }
+.al-num small { color: var(--muted); font-size: .74rem; }
+.pg-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.pg-dia { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; border-radius: 12px; background: #1b1f28; font-size: .8rem; }
+.pg-dia i { font-size: .85rem; }
+.pg-dia.feito { background: rgba(74, 222, 128, .12); color: var(--ok); }
+.pg-dia.falta { color: var(--red-2); }
+.pg-dia.plan { color: #c4c8cf; }
+.pg-dia.folga { color: #4b505b; }
+.pg-dia.hoje { outline: 2px solid var(--red-2); outline-offset: -2px; }
+.pg-lista { list-style: none; display: grid; gap: 8px; }
+.pg-lista li { padding: 12px 14px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+.pg-topo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.pg-lista small { color: var(--muted); font-size: .78rem; }
+.pg-lista p { margin-top: 6px; font-size: .88rem; color: #d1d5db; font-style: italic; }
+.pg-lista .pg-vazio { color: var(--muted); font-size: .88rem; text-align: center; }
+
+/* Arquivos */
+.arq-lista { list-style: none; display: grid; gap: 10px; }
+.arq { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.arq-ico { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; font-size: 1.3rem; background: rgba(227, 32, 43, .14); color: var(--red-2); }
+.arq-txt { flex: 1; min-width: 0; }
+.arq-txt strong { display: block; }
+.arq-txt small { color: var(--muted); font-size: .78rem; }
+.arq-txt p { color: #c4c8cf; font-size: .84rem; margin-top: 4px; }
+
+/* Faturas */
+.plano-nome { display: block; font-size: 1.4rem; font-family: 'Montserrat', sans-serif; text-transform: capitalize; margin: 4px 0 14px; }
+.plano-linhas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.plano-linhas div { background: var(--bg-2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.plano-linhas small { color: var(--muted); font-size: .76rem; }
+.plano-linhas em { font-style: normal; color: var(--muted); font-size: .78rem; }
+.pix-bloco { border-color: rgba(50, 188, 173, .35); background: linear-gradient(160deg, rgba(50, 188, 173, .1), var(--card) 50%); }
+.pix-bloco h2 i { color: #32bcad; }
+.pix-chave-al { display: block; font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin: 4px 0 2px; word-break: break-all; }
+.pix-nome-al { color: var(--muted); font-size: .82rem; }
+.pix-botoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.pix-botoes .btn, .pix-comprovante { justify-content: center; }
+.pix-comprovante { width: 100%; margin-top: 8px; }
+
+/* Treino dentro do app */
+#view-treino .treino-area { margin-bottom: 20px; }
+
+@media (min-width: 900px) {
+    .al-tiles { grid-template-columns: repeat(4, 1fr); padding: 0 18px; }
+    .al-tile { flex-direction: column; text-align: center; min-height: 170px; justify-content: center; }
+    .al-saudacao { text-align: center; }
+    .al-aviso { margin: 16px 18px 0; }
+    .al-nav { left: 50%; right: auto; bottom: 16px; transform: translateX(-50%); width: 480px; border: 1px solid var(--line); border-radius: 18px; padding: 8px 6px; box-shadow: 0 20px 40px -12px rgba(0, 0, 0, .8); }
+}
+@media (max-width: 600px) {
+    .pix-botoes { grid-template-columns: 1fr; }
+    .al-tile { padding: 16px 12px; gap: 10px; }
+    .al-tile-ico { width: 50px; height: 50px; font-size: 1.2rem; }
+    .al-tile-txt strong { font-size: .95rem; }
+}
+
+/* Aviso rápido acima do menu de baixo */
+.toast { bottom: calc(96px + env(safe-area-inset-bottom)); }

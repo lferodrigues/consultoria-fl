@@ -25,7 +25,7 @@
       }
     },
     "feedbacks": {
-      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' || (auth != null && auth.token.email != null && query.orderByChild == 'alunoId' && query.equalTo == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val())",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".indexOn": [
         "alunoId",
@@ -44,14 +44,15 @@
       ]
     },
     "biblioteca": {
-      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' || (auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false)",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'"
     },
     "arquivos": {
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       "$id": {
-        ".validate": "newData.child('dados').isString() && newData.child('dados').val().length < 7500000"
+        ".validate": "newData.child('dados').isString() && newData.child('dados').val().length < 7500000",
+        ".read": "(auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false) && (root.child('biblioteca').child($id).child('para').val() != 'selecionados' || root.child('biblioteca').child($id).child('alunos').child(root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val()).exists())"
       }
     },
     "financeiro": {
@@ -75,7 +76,8 @@
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       "pix": {
-        ".validate": "newData.hasChildren(['tipo', 'chave', 'nome', 'cidade']) && newData.child('tipo').val().matches(/^(cpf|cnpj|email|telefone|aleatoria)$/) && newData.child('chave').isString() && newData.child('chave').val().length <= 77 && newData.child('nome').isString() && newData.child('nome').val().length <= 25"
+        ".validate": "newData.hasChildren(['tipo', 'chave', 'nome', 'cidade']) && newData.child('tipo').val().matches(/^(cpf|cnpj|email|telefone|aleatoria)$/) && newData.child('chave').isString() && newData.child('chave').val().length <= 77 && newData.child('nome').isString() && newData.child('nome').val().length <= 25",
+        ".read": "(auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false)"
       }
     }
   }

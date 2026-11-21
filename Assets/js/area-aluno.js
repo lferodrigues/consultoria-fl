@@ -1,23 +1,32 @@
-// Área do Aluno — só entra quem está logado, cadastrado, ativo e no prazo.
-// Mostra a ficha de treino atual, o vídeo de cada exercício e o feedback do dia.
+// Área do Aluno (app) — só entra quem está logado, cadastrado, ativo e no prazo.
+// Telas: #/inicio  #/treino  #/progresso  #/arquivos  #/faturas
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { ref, get, onValue, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { ref, get, onValue, push, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
-import { situacao, diasEntre, dataBR } from "./alunos-util.js?v=2";
+import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-util.js?v=2";
 import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO } from "./fichas-util.js?v=1";
+import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 
-// WhatsApp que recebe os feedbacks (55 = Brasil, 32 = DDD)
+// WhatsApp do personal (55 = Brasil, 32 = DDD)
 const WHATSAPP = "5532998528266";
 
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const wa = (texto) => "https://wa.me/" + WHATSAPP + (texto ? "?text=" + encodeURIComponent(texto) : "");
+
+const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", arquivos: "Arquivos", faturas: "Faturas" };
 
 let saindo = false;
-let aluno = null;      // { id, nome, email }
-let ficha = null;      // ficha atual
-let diaSel = null;     // "seg", "ter"...
-let exAberto = null;   // índice do exercício no pop-up
+let aluno = null;       // { id, nome, email }
+let cadastro = null;    // emails/{chave}
+let ficha = null;       // ficha atual
+let diaSel = null;      // "seg", "ter"...
+let exAberto = null;
+let ebooks = [];
+let pix = null;
+let precoPlano = 0;
+let feedbacks = null;   // carregados ao abrir "Meu progresso"
 
 /* =================== Acesso =================== */
 
@@ -28,9 +37,8 @@ onAuthStateChanged(auth, async (user) => {
 
     try {
         const snap = await get(ref(db, "emails/" + chaveEmail(user.email)));
-        const cadastro = snap.val();
+        cadastro = snap.val();
         const hoje = hojeISO();
-
         if (!cadastro) {
             return mostrarAcessoNegado({ texto: "O e-mail " + (user.email || "") + " não está cadastrado. Escolha um plano para começar.", botao: "Ver planos", link: PAGINAS.planos });
         }
@@ -40,33 +48,162 @@ onAuthStateChanged(auth, async (user) => {
         if (cadastro.vencimento && cadastro.vencimento < hoje) {
             return mostrarAcessoNegado({ texto: "Seu plano venceu. Fale com o personal para renovar.", botao: "Ver planos", link: PAGINAS.planos });
         }
-
         const nome = cadastro.nome || user.displayName || user.email;
         aluno = { id: cadastro.aluno, nome, email: user.email };
-        $("aluno-nome").textContent = nome.split(" ")[0];
-        $("aluno-plano").textContent = cadastro.plano || "Consultoria";
-        $("aluno-venc").textContent = dataBR(cadastro.vencimento);
-        if (cadastro.vencimento) {
-            const dias = diasEntre(hoje, cadastro.vencimento);
-            $("aluno-dias").textContent = dias === 0 ? "Vence hoje" : "Faltam " + dias + (dias === 1 ? " dia" : " dias");
-        }
-        const s = situacao(cadastro, hoje);
-        $("aluno-status").textContent = s.texto;
-        $("aluno-status").className = "badge " + s.classe;
-        $("gate").hidden = true;
-
-        escutarFicha();
+        iniciarApp();
     } catch (e) {
         console.error(e);
         mostrarAcessoNegado({ texto: "Não foi possível verificar o seu acesso. Faça o login de novo.", botao: "Fazer login" });
     }
 });
 
-$("logout-btn").addEventListener("click", async () => {
+function iniciarApp() {
+    const primeiro = aluno.nome.split(" ")[0];
+    const h = new Date().getHours();
+    $("al-saudacao").textContent = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+    $("aluno-nome").textContent = primeiro;
+    $("al-sheet-nome").textContent = aluno.nome;
+    $("al-sheet-email").textContent = aluno.email;
+    $("al-iniciais").textContent = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+    $("nav-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ".");
+
+    desenharFaturas();
+    escutarFicha();
+    escutarArquivos();
+    carregarPix();
+
+    window.addEventListener("hashchange", rotear);
+    rotear();
+    $("gate").hidden = true;
+}
+
+async function sair() {
     saindo = true;
     await signOut(auth);
     window.location.replace(PAGINAS.login);
-});
+}
+$("logout-btn").addEventListener("click", sair);
+
+/* =================== Telas (sem recarregar a página) =================== */
+
+function rotear() {
+    const tela = location.hash.replace(/^#\/?/, "").split("/")[0];
+    const atual = tela in TELAS ? tela : "inicio";
+    Object.keys(TELAS).forEach((t) => { $("view-" + t).hidden = t !== atual; });
+    const inicio = atual === "inicio";
+    $("al-voltar").hidden = inicio;
+    $("al-marca").hidden = !inicio;
+    $("al-top-titulo").hidden = inicio;
+    $("al-top-titulo").textContent = TELAS[atual];
+    document.querySelectorAll(".al-nav [data-nav]").forEach((a) => a.classList.toggle("ativo", inicio));
+    document.title = (TELAS[atual] || "Área do Aluno") + " | Fagner Lage";
+    fecharMenu();
+    fecharNotificacoes();
+    window.scrollTo(0, 0);
+    if (atual === "progresso") carregarProgresso();
+}
+
+/* =================== Menu (botão de baixo) =================== */
+
+function abrirMenu() {
+    $("al-sheet").hidden = false;
+    $("al-sheet-fundo").hidden = false;
+    $("nav-menu").setAttribute("aria-expanded", "true");
+}
+function fecharMenu() {
+    $("al-sheet").hidden = true;
+    $("al-sheet-fundo").hidden = true;
+    $("nav-menu").setAttribute("aria-expanded", "false");
+}
+$("nav-menu").addEventListener("click", () => ($("al-sheet").hidden ? abrirMenu() : fecharMenu()));
+$("al-sheet-fundo").addEventListener("click", fecharMenu);
+$("al-sheet").addEventListener("click", (e) => { if (e.target.closest("a")) fecharMenu(); });
+
+/* =================== Notificações =================== */
+
+const chaveVisto = () => "fl-notif-visto-" + aluno.id;
+const chaveVencVisto = () => "fl-venc-visto-" + aluno.id;
+const lerLocal = (k, padrao) => { try { return localStorage.getItem(k) ?? padrao; } catch { return padrao; } };
+const gravarLocal = (k, v) => { try { localStorage.setItem(k, v); } catch { /* navegação privada */ } };
+
+function diasParaVencer() {
+    return cadastro?.vencimento ? diasEntre(hojeISO(), cadastro.vencimento) : null;
+}
+
+function montarNotificacoes() {
+    const visto = Number(lerLocal(chaveVisto(), 0));
+    const vencVisto = lerLocal(chaveVencVisto(), "");
+    const lista = [];
+
+    const dias = diasParaVencer();
+    if (dias !== null && dias <= 7) {
+        lista.push({
+            icone: "fa-clock", cor: "warn", link: "#/faturas", quando: Date.now(),
+            titulo: dias === 0 ? "Seu plano vence hoje" : "Seu plano vence em " + dias + (dias === 1 ? " dia" : " dias"),
+            texto: "Vencimento em " + dataBR(cadastro.vencimento) + ". Renove pelo Pix em Faturas.",
+            novo: vencVisto !== hojeISO()
+        });
+    }
+    if (ficha) {
+        const criada = ficha.criadoEm || 0;
+        const mudou = ficha.atualizadoEm || criada;
+        const atualizada = mudou - criada > 60000;
+        lista.push({
+            icone: "fa-dumbbell", cor: "red", link: "#/treino", quando: mudou,
+            titulo: atualizada ? "Sua ficha de treino foi atualizada" : "Nova ficha de treino",
+            texto: (ficha.nome || "Ficha de treino") + " · " + diasDaFicha(ficha).length + " dias por semana",
+            novo: mudou > visto
+        });
+    }
+    const limite = Date.now() - 60 * 86400000;
+    ebooks.filter((e) => (e.criadoEm || 0) > limite).forEach((e) => lista.push({
+        icone: "fa-file-pdf", cor: "red", link: "#/arquivos", quando: e.criadoEm,
+        titulo: "Novo arquivo: " + e.titulo, texto: e.categoria || "E-book", novo: (e.criadoEm || 0) > visto
+    }));
+
+    return lista.sort((a, b) => b.quando - a.quando).slice(0, 10);
+}
+
+function quando(ts) {
+    const min = Math.round((Date.now() - ts) / 60000);
+    if (min < 1) return "agora";
+    if (min < 60) return "há " + min + " min";
+    if (min < 1440) return "há " + Math.round(min / 60) + " h";
+    if (min < 2880) return "ontem";
+    return new Date(ts).toLocaleDateString("pt-BR");
+}
+
+function atualizarSino() {
+    if (!aluno) return;
+    const n = montarNotificacoes().filter((x) => x.novo).length;
+    $("al-bell-n").textContent = n > 9 ? "9+" : n;
+    $("al-bell-n").hidden = n === 0;
+    $("al-bell").setAttribute("aria-label", n ? n + " notificações novas" : "Notificações");
+}
+
+function abrirNotificacoes() {
+    const lista = montarNotificacoes();
+    $("al-notifs-lista").innerHTML = lista.length
+        ? lista.map((x) => `
+            <a href="${x.link}" class="al-notif${x.novo ? " novo" : ""}">
+                <span class="al-notif-ico ${x.cor}"><i class="fa-solid ${x.icone}"></i></span>
+                <span class="al-notif-txt"><strong>${esc(x.titulo)}</strong><small>${esc(x.texto)}</small><em>${x.cor === "warn" ? "Aviso" : quando(x.quando)}</em></span>
+            </a>`).join("")
+        : '<p class="al-notif-vazio">Nenhuma notificação por enquanto.</p>';
+    $("al-notifs").hidden = false;
+    $("al-bell").setAttribute("aria-expanded", "true");
+    // Abriu = viu
+    gravarLocal(chaveVisto(), String(Date.now()));
+    gravarLocal(chaveVencVisto(), hojeISO());
+    atualizarSino();
+}
+function fecharNotificacoes() {
+    $("al-notifs").hidden = true;
+    $("al-bell").setAttribute("aria-expanded", "false");
+}
+$("al-bell").addEventListener("click", (e) => { e.stopPropagation(); $("al-notifs").hidden ? abrirNotificacoes() : fecharNotificacoes(); });
+$("al-notifs-fechar").addEventListener("click", fecharNotificacoes);
+document.addEventListener("click", (e) => { if (!e.target.closest("#al-notifs") && !e.target.closest("#al-bell")) fecharNotificacoes(); });
 
 /* =================== Ficha de treino =================== */
 
@@ -75,15 +212,18 @@ function escutarFicha() {
         const lista = Object.entries(snap.val() || {}).map(([id, f]) => ({ id, ...f }));
         ficha = fichaAtual(lista);
         if (!ficha || !diasDaFicha(ficha).length) {
+            ficha = null;
             $("treino-vazio").hidden = false;
             $("treino-grid").hidden = true;
-            return;
+        } else {
+            $("treino-vazio").hidden = true;
+            $("treino-grid").hidden = false;
+            const dias = diasDaFicha(ficha).map((d) => d.id);
+            if (!dias.includes(diaSel)) diaSel = dias.includes(diaDeHoje()) ? diaDeHoje() : dias[0];
+            desenharFicha();
         }
-        $("treino-vazio").hidden = true;
-        $("treino-grid").hidden = false;
-        const dias = diasDaFicha(ficha).map((d) => d.id);
-        if (!dias.includes(diaSel)) diaSel = dias.includes(diaDeHoje()) ? diaDeHoje() : dias[0];
-        desenharFicha();
+        desenharInicio();
+        atualizarSino();
     }, (erro) => {
         console.error(erro);
         $("treino-vazio").hidden = false;
@@ -94,12 +234,12 @@ function escutarFicha() {
 const diaAtual = () => diasDaFicha(ficha).find((d) => d.id === diaSel);
 
 // Exercícios concluídos ficam salvos no aparelho, por ficha, dia e data
-const chaveFeitos = () => `fl-feitos-${ficha.id}-${diaSel}-${hojeISO()}`;
-function lerFeitos() {
-    try { return new Set(JSON.parse(localStorage.getItem(chaveFeitos()) || "[]")); } catch { return new Set(); }
+const chaveFeitos = (diaId = diaSel, data = hojeISO()) => `fl-feitos-${ficha.id}-${diaId}-${data}`;
+function lerFeitos(diaId, data) {
+    try { return new Set(JSON.parse(localStorage.getItem(chaveFeitos(diaId, data)) || "[]")); } catch { return new Set(); }
 }
 function gravarFeitos(set) {
-    try { localStorage.setItem(chaveFeitos(), JSON.stringify([...set])); } catch { /* navegação privada */ }
+    gravarLocal(chaveFeitos(), JSON.stringify([...set]));
 }
 
 function desenharFicha() {
@@ -159,7 +299,188 @@ function alternarFeito(i) {
     if (feitos.has(i)) feitos.delete(i); else feitos.add(i);
     gravarFeitos(feitos);
     desenharFicha();
+    desenharInicio();
 }
+
+/* =================== Início =================== */
+
+function desenharInicio() {
+    const hoje = diaDeHoje();
+    if (!ficha) $("tile-treino").textContent = "Aguardando sua ficha";
+    else {
+        const d = diasDaFicha(ficha).find((x) => x.id === hoje);
+        $("tile-treino").textContent = d ? "Hoje: " + (d.nome || "Treino") : "Hoje é dia de descanso";
+    }
+    const semana = treinosDaSemana();
+    $("tile-progresso").textContent = ficha ? semana.feitos + " de " + semana.planejados + " treinos na semana" : "Treinos e feedbacks";
+    $("tile-arquivos").textContent = ebooks.length ? ebooks.length + (ebooks.length === 1 ? " arquivo" : " arquivos") : "E-books do personal";
+    const dias = diasParaVencer();
+    $("tile-faturas").textContent = dias === null ? "Plano e pagamento" : dias === 0 ? "Vence hoje" : "Vence em " + dias + (dias === 1 ? " dia" : " dias");
+    const aviso = $("al-aviso-venc");
+    aviso.hidden = !(dias !== null && dias <= 7);
+    if (!aviso.hidden) aviso.innerHTML = `<i class="fa-solid fa-clock"></i><span><strong>${dias === 0 ? "Seu plano vence hoje" : "Seu plano vence em " + dias + (dias === 1 ? " dia" : " dias")}</strong><small>Toque para renovar pelo Pix</small></span><i class="fa-solid fa-chevron-right"></i>`;
+}
+
+/* =================== Meu progresso =================== */
+
+function semanaAtual() {
+    // Datas de segunda a domingo da semana de hoje
+    const hoje = new Date();
+    const desloc = (hoje.getDay() + 6) % 7;
+    return DIAS.map((d, i) => {
+        const dt = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - desloc + i);
+        const iso = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+        return { ...d, iso };
+    });
+}
+
+function treinosDaSemana() {
+    if (!ficha) return { feitos: 0, planejados: 0, dias: [] };
+    const ativos = new Set(diasDaFicha(ficha).map((d) => d.id));
+    const dias = semanaAtual().map((d) => ({ ...d, treina: ativos.has(d.id), feito: ativos.has(d.id) && lerFeitos(d.id, d.iso).size > 0, futuro: d.iso > hojeISO() }));
+    return { feitos: dias.filter((d) => d.feito).length, planejados: ativos.size, dias };
+}
+
+async function carregarProgresso() {
+    const s = treinosDaSemana();
+    $("pg-semana").textContent = s.feitos;
+    $("pg-semana-txt").textContent = "de " + s.planejados + " treinos nesta semana";
+    $("pg-dias").innerHTML = s.dias.map((d) => `
+        <div class="pg-dia ${d.feito ? "feito" : d.treina ? (d.futuro ? "plan" : "falta") : "folga"}${d.iso === hojeISO() ? " hoje" : ""}" title="${d.nome}">
+            <b>${d.letra}</b><i class="fa-solid ${d.feito ? "fa-check" : d.treina ? (d.futuro ? "fa-dumbbell" : "fa-xmark") : "fa-bed"}"></i>
+        </div>`).join("");
+
+    $("pg-lista").innerHTML = '<li class="pg-vazio">Carregando...</li>';
+    try {
+        const snap = await get(query(ref(db, "feedbacks"), orderByChild("alunoId"), equalTo(aluno.id)));
+        feedbacks = Object.entries(snap.val() || {}).map(([id, f]) => ({ id, ...f })).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+    } catch (e) {
+        console.error(e);
+        feedbacks = null;
+    }
+    if (!feedbacks) {
+        $("pg-lista").innerHTML = '<li class="pg-vazio">Não foi possível carregar seus feedbacks agora.</li>';
+        return;
+    }
+    const mes = hojeISO().slice(0, 7);
+    $("pg-mes").textContent = feedbacks.filter((f) => (f.data || "").slice(0, 7) === mes).length;
+    $("pg-esforco").textContent = feedbacks[0] ? (ESFORCO[feedbacks[0].esforco]?.nome || "—") : "—";
+    $("pg-lista").innerHTML = feedbacks.length
+        ? feedbacks.slice(0, 20).map((f) => {
+            const e = ESFORCO[f.esforco] || { nome: f.esforco, classe: "off" };
+            return `<li>
+                <div class="pg-topo"><strong>${dataBR(f.data)} · ${esc(diaPorId(f.dia).nome)}</strong><span class="badge ${e.classe}">${e.nome}</span></div>
+                <small>${esc(f.diaNome || "Treino")} · ${f.feitos ?? 0} de ${f.total ?? 0} exercícios</small>
+                ${f.comentario ? `<p>“${esc(f.comentario)}”</p>` : ""}
+            </li>`;
+        }).join("")
+        : '<li class="pg-vazio">Você ainda não enviou feedbacks. Depois de treinar, toque em "Feedback do dia" na tela de Treinos.</li>';
+}
+
+/* =================== Arquivos (e-books) =================== */
+
+function escutarArquivos() {
+    onValue(ref(db, "biblioteca"), (snap) => {
+        ebooks = Object.entries(snap.val() || {}).map(([id, e]) => ({ id, ...e }))
+            .filter((e) => e.para !== "selecionados" || (e.alunos && e.alunos[aluno.id]))
+            .sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        desenharArquivos();
+        desenharInicio();
+        atualizarSino();
+    }, (e) => {
+        console.warn("Arquivos indisponíveis:", e);
+        ebooks = [];
+        desenharArquivos();
+    });
+}
+
+function desenharArquivos() {
+    $("arq-vazio").hidden = ebooks.length > 0;
+    $("arq-lista").innerHTML = ebooks.map((e) => `
+        <li class="arq">
+            <span class="arq-ico"><i class="fa-solid fa-file-pdf"></i></span>
+            <div class="arq-txt">
+                <strong>${esc(e.titulo)}</strong>
+                <small>${esc(e.categoria || "E-book")} · ${tamanhoArquivo(e.tamanho)}</small>
+                ${e.descricao ? `<p>${esc(e.descricao)}</p>` : ""}
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" data-arq="${e.id}"><i class="fa-solid fa-download"></i> Abrir</button>
+        </li>`).join("");
+}
+
+$("arq-lista").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("[data-arq]");
+    if (!b) return;
+    const e = ebooks.find((x) => x.id === b.dataset.arq);
+    b.disabled = true;
+    try {
+        const arq = (await get(ref(db, "arquivos/" + b.dataset.arq))).val();
+        if (!arq?.dados) throw new Error("sem arquivo");
+        const bin = atob(arq.dados);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = arq.nome || (e?.titulo || "ebook") + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+    } catch (err) {
+        console.error(err);
+        aviso("Não foi possível abrir este arquivo agora.", "error");
+    } finally {
+        b.disabled = false;
+    }
+});
+
+/* =================== Faturas =================== */
+
+function desenharFaturas() {
+    const hoje = hojeISO();
+    $("aluno-plano").textContent = cadastro.plano ? "Plano " + cadastro.plano : "Consultoria";
+    $("aluno-venc").textContent = dataBR(cadastro.vencimento);
+    const dias = diasParaVencer();
+    $("aluno-dias").textContent = dias === null ? "" : dias === 0 ? "vence hoje" : "faltam " + dias + (dias === 1 ? " dia" : " dias");
+    const s = situacao(cadastro, hoje);
+    $("aluno-status").textContent = s.texto;
+    $("aluno-status").className = "badge " + s.classe;
+}
+
+async function carregarPix() {
+    try {
+        const [snapPix, snapPlanos] = await Promise.all([get(ref(db, "config/pix")), get(ref(db, "planos"))]);
+        pix = snapPix.val();
+        // Valor do plano: procura o plano do aluno pelo nome na página de planos
+        const nomePlano = String(cadastro.plano || "").toLowerCase();
+        const plano = Object.values(snapPlanos.val() || {}).find((p) => String(p.nome || "").toLowerCase() === nomePlano);
+        precoPlano = plano?.preco || 0;
+    } catch (e) {
+        console.warn("Pix indisponível:", e);
+        pix = null;
+    }
+    const tem = !!pix?.chave;
+    $("pix-bloco").hidden = !tem;
+    $("pix-vazio").hidden = tem;
+    if (!tem) return;
+    $("pix-tipo").textContent = TIPOS_PIX[pix.tipo]?.nome || pix.tipo;
+    $("pix-chave").textContent = chaveFormatada(pix.tipo, pix.chave);
+    $("pix-nome").textContent = pix.nome + (pix.banco ? " · " + pix.banco : "");
+    $("pix-copiar-codigo").innerHTML = '<i class="fa-solid fa-qrcode"></i> Copiar Pix copia e cola' + (precoPlano ? " · " + moeda(precoPlano) : "");
+    $("pix-comprovante").href = wa("Olá, Fagner! Segue o comprovante do pagamento do " + (cadastro.plano ? "plano " + cadastro.plano : "plano") + " — " + aluno.nome + ".");
+}
+
+async function copiar(texto, msg) {
+    try { await navigator.clipboard.writeText(texto); aviso(msg, "ok"); }
+    catch { window.prompt("Copie o texto abaixo:", texto); }
+}
+$("pix-copiar-chave").addEventListener("click", () => pix && copiar(pix.chave, "Chave Pix copiada. Cole no app do seu banco."));
+$("pix-copiar-codigo").addEventListener("click", () => {
+    if (!pix) return;
+    copiar(pixCopiaECola({ chave: pix.chave, nome: pix.nome, cidade: pix.cidade, valorCentavos: precoPlano }),
+        "Pix copia e cola copiado. No app do banco, escolha Pix → Copia e cola.");
+});
 
 /* =================== Pop-ups =================== */
 
@@ -182,6 +503,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     const aberto = [...document.querySelectorAll(".modal:not([hidden])")].pop();
     if (aberto) fecharModal(aberto.id);
+    else { fecharMenu(); fecharNotificacoes(); }
 });
 
 function abrirVideo(i) {
@@ -253,7 +575,7 @@ $("feedback-form").addEventListener("submit", async (ev) => {
         "Exercícios feitos: " + feitos + " de " + total,
         comentario ? "Comentário: " + comentario : ""
     ].filter(Boolean).join("\n");
-    const janela = window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(texto), "_blank");
+    const janela = window.open(wa(texto), "_blank");
     if (janela) janela.opener = null;
 
     const botao = $("fb-enviar");

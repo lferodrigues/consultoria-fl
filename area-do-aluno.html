@@ -13,51 +13,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/aluno.css?v=6">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=8">
 </head>
 
 <body>
     <!-- Verificação de acesso (some quando o aluno é confirmado) -->
     <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
 
-    <header class="topbar">
-        <div class="wrap">
-            <a href="./index.html" class="brand">
-                <img src="./Assets/img/banner05.png" alt="Fagner Lage">
-                <span>Fagner Lage<small>Área do aluno</small></span>
-            </a>
-            <button type="button" class="btn btn-ghost btn-sm" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
-        </div>
-    </header>
+    <div class="app-aluno" id="app">
 
-    <main class="wrap">
-        <section class="welcome">
-            <span class="eyebrow">Bem-vindo de volta</span>
-            <h1>Olá, <span class="accent" id="aluno-nome">aluno</span>!</h1>
-            <p>Bora treinar? Aqui fica tudo da sua consultoria com o personal Fagner Lage.</p>
+        <!-- ===== Topo ===== -->
+        <header class="al-top">
+            <a href="#/inicio" class="al-voltar" id="al-voltar" aria-label="Voltar ao início" hidden><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="#/inicio" class="al-marca" id="al-marca"><img src="./Assets/img/banner05.png" alt=""><span>Fagner Lage</span></a>
+            <strong class="al-top-titulo" id="al-top-titulo" hidden></strong>
+            <div class="al-top-dir">
+                <button type="button" class="al-bell" id="al-bell" aria-label="Notificações" aria-expanded="false">
+                    <i class="fa-regular fa-bell"></i><span class="al-bell-n" id="al-bell-n" hidden>0</span>
+                </button>
+            </div>
+            <div class="al-notifs" id="al-notifs" hidden role="dialog" aria-label="Notificações">
+                <div class="al-notifs-head"><strong>Notificações</strong><button type="button" class="al-link" id="al-notifs-fechar">Fechar</button></div>
+                <div id="al-notifs-lista"></div>
+            </div>
+        </header>
+
+        <!-- ===== Início ===== -->
+        <section class="al-view" id="view-inicio" hidden>
+            <div class="al-hero">
+                <img class="al-foto" src="./administrador/Assets/img/4.jpeg" alt="Personal Fagner Lage">
+                <strong class="al-nome-personal">Fagner Lage</strong>
+                <small class="al-cref">Personal Trainer</small>
+            </div>
+            <h1 class="al-saudacao"><span id="al-saudacao">Olá</span>, <span id="aluno-nome">aluno</span>!</h1>
+            <div class="al-tiles">
+                <a href="#/treino" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dumbbell"></i></span>
+                    <span class="al-tile-txt"><strong>Treinos</strong><small id="tile-treino">Sua ficha de treino</small></span>
+                </a>
+                <a href="#/progresso" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-clipboard-check"></i></span>
+                    <span class="al-tile-txt"><strong>Meu progresso</strong><small id="tile-progresso">Treinos e feedbacks</small></span>
+                </a>
+                <a href="#/arquivos" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-box-archive"></i></span>
+                    <span class="al-tile-txt"><strong>Arquivos</strong><small id="tile-arquivos">E-books do personal</small></span>
+                </a>
+                <a href="#/faturas" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dollar-sign"></i></span>
+                    <span class="al-tile-txt"><strong>Faturas</strong><small id="tile-faturas">Plano e pagamento</small></span>
+                </a>
+            </div>
+            <a href="#/faturas" class="al-aviso" id="al-aviso-venc" hidden></a>
         </section>
 
-        <section class="info-cards">
-            <div class="info">
-                <i class="fa-solid fa-dumbbell"></i>
-                <span class="info-l">Seu plano</span>
-                <strong id="aluno-plano">—</strong>
-            </div>
-            <div class="info">
-                <i class="fa-regular fa-calendar"></i>
-                <span class="info-l">Vencimento</span>
-                <strong id="aluno-venc">—</strong>
-                <small id="aluno-dias"></small>
-            </div>
-            <div class="info">
-                <i class="fa-solid fa-circle-check"></i>
-                <span class="info-l">Situação</span>
-                <strong><span class="badge ok" id="aluno-status">Ativo</span></strong>
-            </div>
-        </section>
-
-        <!-- Ficha de treino -->
-        <section class="treino-area" id="treino-area">
+        <!-- ===== Treinos ===== -->
+        <section class="al-view" id="view-treino" hidden>
+            <div class="treino-area" id="treino-area">
             <div class="treino-vazio" id="treino-vazio" hidden>
                 <div class="treino-icone"><i class="fa-solid fa-person-running"></i></div>
                 <div>
@@ -98,9 +110,80 @@
                     </div>
                 </aside>
             </div>
+            </div>
         </section>
-    </main>
 
+        <!-- ===== Meu progresso ===== -->
+        <section class="al-view" id="view-progresso" hidden>
+            <div class="al-cards3">
+                <div class="al-num"><strong id="pg-semana">0</strong><small id="pg-semana-txt">treinos nesta semana</small></div>
+                <div class="al-num"><strong id="pg-mes">0</strong><small>feedbacks no mês</small></div>
+                <div class="al-num"><strong id="pg-esforco">—</strong><small>último esforço</small></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Esta semana</h2>
+                <div class="pg-semana" id="pg-dias"></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Seus feedbacks</h2>
+                <ul class="pg-lista" id="pg-lista"></ul>
+            </div>
+        </section>
+
+        <!-- ===== Arquivos ===== -->
+        <section class="al-view" id="view-arquivos" hidden>
+            <ul class="arq-lista" id="arq-lista"></ul>
+            <div class="al-vazio" id="arq-vazio" hidden><i class="fa-solid fa-box-archive"></i><p>Nenhum arquivo por aqui ainda. Quando o personal enviar um e-book, ele aparece nesta tela.</p></div>
+        </section>
+
+        <!-- ===== Faturas ===== -->
+        <section class="al-view" id="view-faturas" hidden>
+            <div class="al-bloco plano-bloco">
+                <span class="info-l">Seu plano</span>
+                <strong class="plano-nome" id="aluno-plano">—</strong>
+                <div class="plano-linhas">
+                    <div><small>Vencimento</small><b id="aluno-venc">—</b><em id="aluno-dias"></em></div>
+                    <div><small>Situação</small><span class="badge ok" id="aluno-status">Ativo</span></div>
+                </div>
+            </div>
+            <div class="al-bloco pix-bloco" id="pix-bloco" hidden>
+                <h2><i class="fa-brands fa-pix"></i> Pagar com Pix</h2>
+                <span class="info-l">Chave Pix · <span id="pix-tipo"></span></span>
+                <strong class="pix-chave-al" id="pix-chave"></strong>
+                <small class="pix-nome-al" id="pix-nome"></small>
+                <div class="pix-botoes">
+                    <button type="button" class="btn btn-ghost" id="pix-copiar-chave"><i class="fa-regular fa-copy"></i> Copiar chave</button>
+                    <button type="button" class="btn btn-primary" id="pix-copiar-codigo"><i class="fa-solid fa-qrcode"></i> Copiar Pix copia e cola</button>
+                </div>
+                <a class="btn btn-ghost pix-comprovante" id="pix-comprovante" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Enviar comprovante</a>
+            </div>
+            <div class="al-vazio" id="pix-vazio" hidden><i class="fa-solid fa-dollar-sign"></i><p>Para renovar ou pagar o plano, fale com o personal pelo WhatsApp.</p></div>
+        </section>
+
+        <!-- ===== Menu de baixo ===== -->
+        <nav class="al-nav" aria-label="Menu principal">
+            <a href="#/inicio" data-nav="inicio"><i class="fa-solid fa-house"></i><span>Início</span></a>
+            <a href="https://www.instagram.com/fagnerlage_personal" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+            <a id="nav-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a>
+            <button type="button" id="nav-menu" aria-expanded="false"><i class="fa-solid fa-bars"></i><span>Menu</span></button>
+        </nav>
+    </div>
+
+    <!-- Menu lateral (botão Menu) -->
+    <div class="al-sheet-fundo" id="al-sheet-fundo" hidden></div>
+    <aside class="al-sheet" id="al-sheet" aria-label="Menu" hidden>
+        <div class="al-sheet-head">
+            <span class="avatar-al" id="al-iniciais">A</span>
+            <div><strong id="al-sheet-nome">Aluno</strong><small id="al-sheet-email"></small></div>
+        </div>
+        <a href="#/inicio"><i class="fa-solid fa-house"></i> Início</a>
+        <a href="#/treino"><i class="fa-solid fa-dumbbell"></i> Treinos</a>
+        <a href="#/progresso"><i class="fa-solid fa-clipboard-check"></i> Meu progresso</a>
+        <a href="#/arquivos"><i class="fa-solid fa-box-archive"></i> Arquivos</a>
+        <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
+        <a href="./index.html"><i class="fa-solid fa-globe"></i> Visitar site</a>
+        <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    </aside>
 
     <!-- Pop-up: vídeo do exercício -->
     <div class="modal" id="modal-video" hidden>
@@ -152,7 +235,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/area-aluno.js?v=4"></script>
+    <script type="module" src="./Assets/js/area-aluno.js?v=5"></script>
 </body>
 
 </html>
