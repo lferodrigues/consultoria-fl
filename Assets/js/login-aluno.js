@@ -5,6 +5,7 @@ import {
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
     GoogleAuthProvider,
+    OAuthProvider,
     signInWithPopup,
     getAdditionalUserInfo,
     deleteUser,
@@ -34,6 +35,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 auth.languageCode = "pt";
 const google = new GoogleAuthProvider();
+const apple = new OAuthProvider("apple.com");
+apple.addScope("email");
+apple.addScope("name");
+apple.setCustomParameters({ locale: "pt_BR" });
 
 // Elementos
 const $ = (id) => document.getElementById(id);
@@ -43,11 +48,12 @@ const passInput = $("password");
 const submitBtn = $("submit-btn");
 const forgotBtn = $("forgot-btn");
 const googleBtn = $("google-btn");
+const appleBtn = $("apple-btn");
 const message = $("message");
 const loading = $("loading");
 const logged = $("logged");
 
-let verificandoGoogle = false; // evita mostrar "logado" enquanto checa o cadastro
+let verificandoGoogle = false; // (Google ou Apple) evita mostrar "logado" enquanto checa o cadastro
 
 // Mensagens de erro do Firebase em português
 const erros = {
@@ -58,8 +64,11 @@ const erros = {
     "auth/user-not-found": "Não existe conta com esse e-mail.",
     "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
     "auth/too-many-requests": "Muitas tentativas. Espere um pouco e tente de novo.",
-    "auth/popup-closed-by-user": "A janela do Google foi fechada antes de terminar.",
-    "auth/popup-blocked": "O navegador bloqueou a janela do Google. Libere os pop-ups e tente de novo.",
+    "auth/popup-closed-by-user": "A janela de login foi fechada antes de terminar.",
+    "auth/cancelled-popup-request": "A janela de login foi fechada antes de terminar.",
+    "auth/popup-blocked": "O navegador bloqueou a janela de login. Libere os pop-ups e tente de novo.",
+    "auth/operation-not-allowed": "Esse tipo de login ainda não está ativado.",
+    "auth/account-exists-with-different-credential": "Esse e-mail já está cadastrado com outra forma de login. Entre com e-mail ou Google.",
     "auth/unauthorized-domain": "Este domínio não está autorizado no Firebase.",
     "auth/network-request-failed": "Sem conexão. Verifique sua internet."
 };
@@ -73,6 +82,7 @@ function carregando(sim) {
     loading.hidden = !sim;
     submitBtn.disabled = sim;
     googleBtn.disabled = sim;
+    appleBtn.disabled = sim;
 }
 
 function tratarErro(e) {
@@ -105,14 +115,14 @@ form.addEventListener("submit", async (ev) => {
     }
 });
 
-// Entrar com Google
-// Só entra quem já tem cadastro. Se o e-mail do Google ainda não existe no Firebase,
+// Entrar com Google ou Apple
+// Só entra quem já tem cadastro. Se o e-mail ainda não existe no Firebase,
 // a conta recém-criada é apagada e a pessoa vai para a página de planos.
-googleBtn.addEventListener("click", async () => {
+async function entrarComProvedor(provedor) {
     carregando(true);
     verificandoGoogle = true;
     try {
-        const resultado = await signInWithPopup(auth, google);
+        const resultado = await signInWithPopup(auth, provedor);
         const info = getAdditionalUserInfo(resultado);
 
         if (info && info.isNewUser) {
@@ -135,7 +145,10 @@ googleBtn.addEventListener("click", async () => {
     } finally {
         carregando(false);
     }
-});
+}
+
+googleBtn.addEventListener("click", () => entrarComProvedor(google));
+appleBtn.addEventListener("click", () => entrarComProvedor(apple));
 
 // Esqueci a senha
 forgotBtn.addEventListener("click", async () => {
