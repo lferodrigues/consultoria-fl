@@ -6,7 +6,7 @@
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
-import { situacao, contar, dataBR, moeda, resumoMes, listaDe } from "./alunos-util.js?v=2";
+import { situacao, dataBR, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
 import * as Alunos from "./admin-alunos.js?v=1";
@@ -42,13 +42,10 @@ onAuthStateChanged(auth, (user) => {
 function iniciarPainel(user) {
     const nome = (user.displayName || "Fagner Lage").trim();
     $("admin-nome").textContent = nome.split(" ")[0];
-    $("inicio-nome").textContent = nome.split(" ")[0];
     $("admin-email").textContent = user.email;
     $("avatar").textContent = nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
-    $("hoje-extenso").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
     Object.values(MODULOS).forEach((m) => m.iniciar());
-    aoMudar(desenharInicio);
     aoMudar(desenharAvisos);
     iniciarMenu();
     iniciarTopo();
@@ -207,38 +204,3 @@ function desenharAvisos() {
             <span>${esc(a.nome)}<small>${s.texto} · ${dataBR(a.vencimento)}</small></span></a>`).join("")
         : '<span class="drop-email" style="border:0">Nenhum plano vencendo. Tudo em dia!</span>');
 }
-
-/* =================== Início =================== */
-
-function desenharInicio() {
-    const hoje = hojeISO();
-    const c = contar(estado.alunos, hoje);
-    const r = resumoMes(estado.financeiro, hoje.slice(0, 7));
-    $("in-ativos").textContent = c.ativos;
-    $("in-vencendo").textContent = c.vencendo;
-    $("in-treinos").textContent = estado.treinos.length;
-    $("in-ebooks").textContent = estado.biblioteca.length;
-    $("in-receita").textContent = moeda(r.receitas);
-    $("in-saldo").textContent = moeda(r.saldo);
-
-    const proximos = estado.alunos
-        .filter((a) => a.ativo !== false && a.vencimento)
-        .sort((x, y) => x.vencimento.localeCompare(y.vencimento))
-        .filter((a) => a.vencimento >= somarDias(hoje, -30))
-        .slice(0, 6);
-    $("in-venc-list").innerHTML = proximos.length
-        ? proximos.map((a) => {
-            const s = situacao(a, hoje);
-            return `<li><span>${esc(a.nome)}<br><span class="muted">${esc(a.plano || "")} · vence ${dataBR(a.vencimento)}</span></span><span class="badge ${s.classe}">${s.texto}</span></li>`;
-        }).join("")
-        : '<li class="list-empty">Nenhum aluno ativo cadastrado ainda.</li>';
-}
-
-function somarDias(iso, dias) {
-    const [a, m, d] = iso.split("-").map(Number);
-    const dt = new Date(a, m - 1, d + dias);
-    return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
-}
-
-// Card "Vencem em 7 dias" do Início já abre a lista filtrada
-document.querySelector("#view-inicio .stat.warn")?.addEventListener("click", () => Alunos.filtrarPor("vencendo"));

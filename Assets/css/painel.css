@@ -158,11 +158,17 @@ body.side-fechada .hamb { visibility: visible; }
 .shortcuts a i { color: var(--red-2); }
 .shortcuts a:hover { border-color: rgba(255, 59, 69, .5); background: rgba(227, 32, 43, .08); }
 
-/* Logo na tela Início */
-#view-inicio .page-head { align-items: center; }
-.inicio-logo {
-    width: 150px; height: auto; border-radius: 20px; flex-shrink: 0;
-    box-shadow: 0 0 0 1px rgba(255, 59, 69, .25), 0 18px 50px -12px rgba(227, 32, 43, .55);
+/* Tela Início: só a logo, centralizada */
+.view-inicio:not([hidden]) { min-height: calc(100vh - 62px - 52px - 48px); display: flex; align-items: center; justify-content: center; }
+.inicio-marca { display: flex; align-items: center; gap: 28px; }
+.inicio-marca img { width: 230px; height: auto; filter: drop-shadow(0 20px 40px rgba(227, 32, 43, .45)); }
+.inicio-nome { display: flex; flex-direction: column; line-height: 1; }
+.inicio-nome strong { font-family: 'Montserrat', sans-serif; font-weight: 900; text-transform: uppercase; font-size: clamp(2.4rem, 5vw, 4.2rem); letter-spacing: -.01em; }
+.inicio-nome span { font-family: 'Montserrat', sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(1.4rem, 3vw, 2.4rem); color: var(--red-2); margin-top: 8px; }
+.inicio-nome small { color: var(--muted); font-size: clamp(.9rem, 1.6vw, 1.15rem); margin-top: 14px; }
+@media (max-width: 760px) {
+    .inicio-marca { flex-direction: column; text-align: center; gap: 10px; }
+    .inicio-marca img { width: 170px; }
 }
 
 /* Cartões (treinos e e-books) */
@@ -268,7 +274,5 @@ body.side-fechada .hamb { visibility: visible; }
     .toolbar select { width: 100%; }
     .shortcuts { grid-template-columns: 1fr; }
     .app-foot { padding: 14px 16px; }
-    #view-inicio .page-head { flex-direction: row; align-items: center; }
-    .inicio-logo { width: 84px; border-radius: 14px; }
     .drop-menu.wide { min-width: 260px; right: -60px; }
 }

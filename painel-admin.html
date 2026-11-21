@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=2">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=4">
 </head>
 
 <body>
@@ -108,37 +108,14 @@
             <main class="content">
 
                 <!-- ============ INÍCIO ============ -->
-                <section class="view" id="view-inicio" hidden>
-                    <div class="page-head">
-                        <div>
-                            <span class="eyebrow" id="hoje-extenso">Hoje</span>
-                            <h1>Olá, <span class="accent" id="inicio-nome">Fagner</span>!</h1>
-                            <p class="page-sub">Resumo da consultoria em tempo real.</p>
+                <section class="view view-inicio" id="view-inicio" hidden>
+                    <div class="inicio-marca" role="img" aria-label="Fagner Lage Personal Trainer">
+                        <img src="./Assets/img/banner05.png" alt="">
+                        <div class="inicio-nome">
+                            <strong>Fagner Lage</strong>
+                            <span>Personal Trainer</span>
+                            <small>Consultoria online de treino</small>
                         </div>
-                        <img class="inicio-logo" src="./Assets/img/logo.png" alt="Fagner Lage Personal Trainer">
-                    </div>
-                    <section class="stats stats-6">
-                        <a class="stat ok" href="#/alunos"><span class="stat-n" id="in-ativos">0</span><span class="stat-l">Alunos ativos</span></a>
-                        <a class="stat warn" href="#/alunos"><span class="stat-n" id="in-vencendo">0</span><span class="stat-l">Vencem em 7 dias</span></a>
-                        <a class="stat" href="#/treinos"><span class="stat-n" id="in-treinos">0</span><span class="stat-l">Treinos</span></a>
-                        <a class="stat" href="#/biblioteca"><span class="stat-n" id="in-ebooks">0</span><span class="stat-l">E-books</span></a>
-                        <a class="stat ok" href="#/financeiro"><span class="stat-n money" id="in-receita">R$ 0</span><span class="stat-l">Recebido no mês</span></a>
-                        <a class="stat" href="#/financeiro"><span class="stat-n money" id="in-saldo">R$ 0</span><span class="stat-l">Saldo do mês</span></a>
-                    </section>
-                    <div class="panels">
-                        <section class="panel-card">
-                            <h2><i class="fa-regular fa-calendar"></i> Vencimentos próximos</h2>
-                            <ul class="list" id="in-venc-list"></ul>
-                        </section>
-                        <section class="panel-card">
-                            <h2><i class="fa-solid fa-bolt"></i> Atalhos</h2>
-                            <div class="shortcuts">
-                                <a href="#/alunos/novo"><i class="fa-solid fa-user-plus"></i> Cadastrar aluno</a>
-                                <a href="#/treinos/novo"><i class="fa-solid fa-dumbbell"></i> Cadastrar treino</a>
-                                <a href="#/biblioteca/novo"><i class="fa-solid fa-file-pdf"></i> Adicionar e-book</a>
-                                <a href="#/financeiro/novo"><i class="fa-solid fa-sack-dollar"></i> Novo lançamento</a>
-                            </div>
-                        </section>
                     </div>
                 </section>
 
@@ -447,7 +424,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=4"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=5"></script>
 </body>
 
 </html>
