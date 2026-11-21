@@ -8,7 +8,6 @@ import {
     getAuth,
     onAuthStateChanged,
     signOut,
-    sendEmailVerification,
     createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue, get, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -34,26 +33,11 @@ onAuthStateChanged(auth, (user) => {
         return;
     }
     $("admin-email").textContent = user.email;
-    $("verify-alert").hidden = user.emailVerified;
     $("gate").hidden = true;
     escutarAlunos();
 });
 
 $("logout-btn").addEventListener("click", () => signOut(auth));
-
-$("verify-btn").addEventListener("click", async (ev) => {
-    const btn = ev.currentTarget;
-    btn.disabled = true;
-    try {
-        await sendEmailVerification(auth.currentUser);
-        aviso("Link de verificação enviado para " + auth.currentUser.email, "ok");
-    } catch (e) {
-        console.error(e);
-        aviso("Não foi possível enviar agora. Tente de novo em alguns minutos.", "error");
-    } finally {
-        btn.disabled = false;
-    }
-});
 
 /* ---------------- Leitura em tempo real ---------------- */
 
@@ -68,9 +52,7 @@ function escutarAlunos() {
         console.error(erro);
         pararEscuta = null;
         $("empty").hidden = false;
-        $("empty-text").textContent = auth.currentUser && !auth.currentUser.emailVerified
-            ? "Confirme o e-mail do administrador para ver os alunos (aviso no topo)."
-            : "Sem permissão para ler os alunos. Confira as regras do Realtime Database.";
+        $("empty-text").textContent = "Sem permissão para ler os alunos. Confira as regras do Realtime Database.";
     });
 }
 
@@ -267,7 +249,7 @@ $("aluno-form").addEventListener("submit", async (ev) => {
             "auth/invalid-email": "E-mail inválido.",
             "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
             "auth/operation-not-allowed": "O login por e-mail/senha não está ativado no Firebase.",
-            "PERMISSION_DENIED": "Sem permissão para salvar. Confirme o e-mail do administrador e as regras do banco."
+            "PERMISSION_DENIED": "Sem permissão para salvar. Confira as regras do Realtime Database."
         };
         msg.textContent = erros[e.code] || (String(e.message || "").includes("PERMISSION_DENIED") ? erros.PERMISSION_DENIED : "Não foi possível salvar. Tente novamente.");
     } finally {
