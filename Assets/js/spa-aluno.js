@@ -29,7 +29,7 @@
             appCheck: "on",
             robots: "noindex, nofollow",
             css: ["./Assets/css/admin.css?v=3", "./Assets/css/aluno.css?v=12", "./Assets/css/aluno-claro.css?v=1"],
-            modulo: "./Assets/js/area-aluno.js?v=11"
+            modulo: "./Assets/js/area-aluno.js?v=12"
         }
     };
 
@@ -107,6 +107,12 @@
         const conteudo = modelo.content.cloneNode(true);
         nos[vista] = Array.from(conteudo.childNodes);
         document.body.insertBefore(conteudo, document.getElementById("spa-fim"));
+        // Área do aluno com dados salvos no aparelho: abre direto, sem tela de carregamento
+        if (vista === "area") {
+            let temCopia = false;
+            try { temCopia = !!localStorage.getItem("fl-aluno-cache-v1"); } catch { /* sem armazenamento */ }
+            if (temCopia) document.getElementById("gate").hidden = true;
+        }
 
         document.title = cfg.titulo;
         meta("fl-app-check", cfg.appCheck);

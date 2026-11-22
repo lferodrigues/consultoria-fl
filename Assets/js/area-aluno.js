@@ -29,12 +29,49 @@ let pix = null;
 let precoPlano = 0;
 let feedbacks = null;   // carregados ao abrir "Meu progresso"
 
+/* =================== Abertura instantânea (cópia no aparelho) =================== */
+// A última versão dos dados do aluno fica guardada no aparelho. Ao abrir, a área aparece NA HORA
+// com essa cópia, sem tela de carregamento; em paralelo o Firebase confere o acesso e atualiza tudo
+// em tempo real. Se o acesso não valer mais (saiu, venceu, outra conta), a cópia é apagada.
+const CACHE = "fl-aluno-cache-v1";
+let cache = null;
+let appIniciado = false;
+let dadosLigados = false;
+
+function lerCache() {
+    try { return JSON.parse(localStorage.getItem(CACHE) || "null"); } catch { return null; }
+}
+function salvarCache(parcial) {
+    cache = { ...(cache || {}), ...parcial, salvoEm: Date.now() };
+    try { localStorage.setItem(CACHE, JSON.stringify(cache)); } catch (e) {
+        // Aparelho sem espaço: guarda sem a foto e os e-books
+        try { localStorage.setItem(CACHE, JSON.stringify({ ...cache, foto: "", biblioteca: [] })); } catch { /* desiste */ }
+    }
+}
+function limparCache() {
+    cache = null;
+    try { localStorage.removeItem(CACHE); } catch { /* sem armazenamento */ }
+}
+const acessoValido = (c) => !!c && c.ativo !== false && !(c.vencimento && c.vencimento < hojeISO());
+
+// Chamada no fim deste arquivo (depois que tudo foi declarado)
+function abrirDoCache() {
+    const c = lerCache();
+    if (!c || !c.aluno || !acessoValido(c.cadastro)) return;
+    cache = c;
+    cadastro = c.cadastro;
+    aluno = c.aluno;
+    try { iniciarApp(); } catch (e) { console.error(e); limparCache(); location.reload(); }
+}
+
 /* =================== Acesso =================== */
 
 onAuthStateChanged(auth, async (user) => {
     if (saindo) return;
-    if (!user) return mostrarAcessoNegado({ texto: "Faça o seu login para entrar." });
-    if (ehAdmin(user)) return window.location.replace(PAGINAS.admin);
+    if (!user) { limparCache(); return mostrarAcessoNegado({ texto: "Faça o seu login para entrar." }); }
+    if (ehAdmin(user)) { limparCache(); return window.location.replace(PAGINAS.admin); }
+    // A cópia do aparelho é de outra conta: começa do zero
+    if (appIniciado && aluno?.uid !== user.uid) { limparCache(); return location.reload(); }
 
     try {
         const snap = await get(ref(db, "emails/" + chaveEmail(user.email)));
@@ -43,9 +80,11 @@ onAuthStateChanged(auth, async (user) => {
         if (!cadastro) {
             // Mandou a ficha de inscrição e o personal ainda não aprovou: tela de espera
             const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
+            limparCache();
             if (ins && ins.exists()) return mostrarEspera(user, ins.val(), null);
             return mostrarAcessoNegado({ texto: "O e-mail " + (user.email || "") + " não está cadastrado. Escolha um plano e preencha a ficha de inscrição.", botao: "Ver planos", link: PAGINAS.planos });
         }
+        if (!acessoValido(cadastro)) limparCache();
         if (cadastro.ativo === false) {
             return mostrarAcessoNegado({ texto: "Seu acesso está desativado. Fale com o personal para liberar.", botao: "Voltar ao login" });
         }
@@ -57,17 +96,47 @@ onAuthStateChanged(auth, async (user) => {
         // A área só é liberada depois que o personal cadastra a primeira ficha de treino
         const temFicha = await get(query(ref(db, "fichas/" + cadastro.aluno), limitToFirst(1)));
         if (!temFicha.exists()) {
+            limparCache();
             const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
             return mostrarEspera(user, ins && ins.exists() ? ins.val() : { nome }, cadastro.aluno);
         }
-        iniciarApp();
+        salvarCache({ cadastro, aluno });
+        if (appIniciado) atualizarCabecalho(); else iniciarApp();
+        ligarDados();
     } catch (e) {
         console.error(e);
+        // Sem internet com a área já aberta pela cópia: continua mostrando a cópia
+        if (appIniciado) return aviso("Sem conexão. Mostrando os dados salvos no aparelho.", "error");
         mostrarAcessoNegado({ texto: "Não foi possível verificar o seu acesso. Faça o login de novo.", botao: "Fazer login" });
     }
 });
 
+// Monta a área com o que já se sabe (cópia do aparelho ou dados recém-conferidos). Roda uma vez.
 function iniciarApp() {
+    if (appIniciado) return;
+    appIniciado = true;
+    atualizarCabecalho();
+    if (cache?.fichas !== undefined) aplicarFichas(cache.fichas);
+    if (cache?.biblioteca) { ebooks = cache.biblioteca; desenharArquivos(); }
+    if (cache?.pix !== undefined) { pix = cache.pix; precoPlano = cache.precoPlano || 0; desenharPix(); }
+    window.addEventListener("hashchange", rotear);
+    rotear();
+    $("gate").hidden = true;
+    desenharInicio();
+    atualizarSino();
+}
+
+// Liga os dados em tempo real (depois que o login foi conferido). Roda uma vez.
+function ligarDados() {
+    if (dadosLigados) return;
+    dadosLigados = true;
+    carregarPerfil();
+    escutarFicha();
+    escutarArquivos();
+    carregarPix();
+}
+
+function atualizarCabecalho() {
     const primeiro = aluno.nome.split(" ")[0];
     const h = new Date().getHours();
     $("al-saudacao").textContent = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
@@ -76,17 +145,10 @@ function iniciarApp() {
     $("al-sheet-email").textContent = aluno.email;
     $("al-iniciais").textContent = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
     $("nav-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ".");
-
-    iniciarPerfil();
-
+    $("al-hero-nome").textContent = aluno.nome;
+    $("al-hero-sub").textContent = cadastro?.plano ? "Plano " + cadastro.plano : "Aluno da consultoria";
+    mostrarFoto(cache?.foto || aluno.fotoGoogle || "");
     desenharFaturas();
-    escutarFicha();
-    escutarArquivos();
-    carregarPix();
-
-    window.addEventListener("hashchange", rotear);
-    rotear();
-    $("gate").hidden = true;
 }
 
 /* =================== Perfil: foto, nome e tema =================== */
@@ -112,10 +174,7 @@ function mostrarFoto(src) {
     }
 }
 
-async function iniciarPerfil() {
-    $("al-hero-nome").textContent = aluno.nome;
-    $("al-hero-sub").textContent = cadastro?.plano ? "Plano " + cadastro.plano : "Aluno da consultoria";
-    mostrarFoto(aluno.fotoGoogle || "");
+async function carregarPerfil() {
     try {
         const [perfil, insFoto] = await Promise.all([
             get(ref(db, "perfis/" + aluno.uid)).then((s) => s.val() || {}).catch(() => ({})),
@@ -124,6 +183,7 @@ async function iniciarPerfil() {
         if (perfil.tema === "claro" || perfil.tema === "escuro") aplicarTema(perfil.tema, false);
         const foto = fotoValida(perfil.foto) ? perfil.foto : fotoValida(insFoto) ? insFoto : aluno.fotoGoogle || "";
         mostrarFoto(foto);
+        salvarCache({ foto });
     } catch (e) {
         console.warn(e);
     }
@@ -170,6 +230,7 @@ $("al-foto-input").addEventListener("change", async (ev) => {
         const foto = await reduzirFoto(arq);
         await update(ref(db), { ["perfis/" + aluno.uid + "/foto"]: foto });
         mostrarFoto(foto);
+        salvarCache({ foto });
         msgFoto("Foto atualizada!", "ok");
         setTimeout(() => msgFoto(""), 3000);
     } catch (e) {
@@ -220,6 +281,7 @@ $("esp-sair").addEventListener("click", () => sair());
 
 async function sair() {
     saindo = true;
+    limparCache();
     await signOut(auth);
     navegar(PAGINAS.login, { substituir: true });
 }
@@ -352,7 +414,20 @@ document.addEventListener("click", (e) => { if (!e.target.closest("#al-notifs") 
 
 function escutarFicha() {
     onValue(ref(db, "fichas/" + aluno.id), (snap) => {
-        const lista = Object.entries(snap.val() || {}).map(([id, f]) => ({ id, ...f }));
+        const val = snap.val() || {};
+        salvarCache({ fichas: val });
+        aplicarFichas(val);
+    }, (erro) => {
+        console.error(erro);
+        if (cache?.fichas) return; // fica com a cópia do aparelho
+        $("treino-vazio").hidden = false;
+        $("treino-vazio").querySelector("p").textContent = "Não foi possível carregar a sua ficha agora. Tente novamente em instantes.";
+    });
+}
+
+function aplicarFichas(val) {
+    {
+        const lista = Object.entries(val || {}).map(([id, f]) => ({ id, ...f }));
         ficha = fichaAtual(lista);
         if (!ficha || !diasDaFicha(ficha).length) {
             ficha = null;
@@ -367,11 +442,7 @@ function escutarFicha() {
         }
         desenharInicio();
         atualizarSino();
-    }, (erro) => {
-        console.error(erro);
-        $("treino-vazio").hidden = false;
-        $("treino-vazio").querySelector("p").textContent = "Não foi possível carregar a sua ficha agora. Tente novamente em instantes.";
-    });
+    }
 }
 
 const diaAtual = () => diasDaFicha(ficha).find((d) => d.id === diaSel);
@@ -493,14 +564,21 @@ async function carregarProgresso() {
             <b>${d.letra}</b><i class="fa-solid ${d.feito ? "fa-check" : d.treina ? (d.futuro ? "fa-dumbbell" : "fa-xmark") : "fa-bed"}"></i>
         </div>`).join("");
 
-    $("pg-lista").innerHTML = '<li class="pg-vazio">Carregando...</li>';
+    if (cache?.feedbacks) desenharFeedbacks(cache.feedbacks);
+    else $("pg-lista").innerHTML = '<li class="pg-vazio">Carregando...</li>';
     try {
         const snap = await get(query(ref(db, "feedbacks"), orderByChild("alunoId"), equalTo(aluno.id)));
         feedbacks = Object.entries(snap.val() || {}).map(([id, f]) => ({ id, ...f })).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        salvarCache({ feedbacks: feedbacks.slice(0, 20) });
     } catch (e) {
         console.error(e);
         feedbacks = null;
+        if (cache?.feedbacks) return;
     }
+    desenharFeedbacks(feedbacks);
+}
+
+function desenharFeedbacks(feedbacks) {
     if (!feedbacks) {
         $("pg-lista").innerHTML = '<li class="pg-vazio">Não foi possível carregar seus feedbacks agora.</li>';
         return;
@@ -527,11 +605,13 @@ function escutarArquivos() {
         ebooks = Object.entries(snap.val() || {}).map(([id, e]) => ({ id, ...e }))
             .filter((e) => e.para !== "selecionados" || (e.alunos && e.alunos[aluno.id]))
             .sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        salvarCache({ biblioteca: ebooks });
         desenharArquivos();
         desenharInicio();
         atualizarSino();
     }, (e) => {
         console.warn("Arquivos indisponíveis:", e);
+        if (cache?.biblioteca) return;
         ebooks = [];
         desenharArquivos();
     });
@@ -672,10 +752,16 @@ async function carregarPix() {
         const nomePlano = String(cadastro.plano || "").toLowerCase();
         const plano = Object.values(snapPlanos.val() || {}).find((p) => String(p.nome || "").toLowerCase() === nomePlano);
         precoPlano = cadastro.valor || plano?.preco || 0;
+        salvarCache({ pix, precoPlano });
     } catch (e) {
         console.warn("Pix indisponível:", e);
+        if (cache?.pix !== undefined) return;
         pix = null;
     }
+    desenharPix();
+}
+
+function desenharPix() {
     const tem = !!pix?.chave;
     $("pix-bloco").hidden = !tem;
     $("pix-vazio").hidden = tem;
@@ -817,3 +903,6 @@ function aviso(texto, tipo = "ok") {
     clearTimeout(timerAviso);
     timerAviso = setTimeout(() => { t.className = "toast " + tipo; }, 4000);
 }
+
+// Abre na hora com a cópia do aparelho (se houver); o login é conferido em paralelo
+abrirDoCache();
