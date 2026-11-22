@@ -1,5 +1,5 @@
 /* Aviso de cookies (LGPD) — usado em todas as páginas públicas */
-.ck-banner, .ck-fab, .ck-modal { --ck-bg: #0d0f14; --ck-card: #12151c; --ck-line: rgba(255, 255, 255, .1); --ck-txt: #d1d5db; --ck-muted: #9ca3af; --ck-red: #e3202b; --ck-red-2: #ff3b45; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+.ck-banner, .ck-modal { --ck-bg: #0d0f14; --ck-card: #12151c; --ck-line: rgba(255, 255, 255, .1); --ck-txt: #d1d5db; --ck-muted: #9ca3af; --ck-red: #e3202b; --ck-red-2: #ff3b45; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
 
 .ck-banner {
     position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 9998; margin: 0 auto; max-width: 980px;
@@ -8,7 +8,7 @@
     color: var(--ck-txt); font-size: .88rem; line-height: 1.5; backdrop-filter: blur(10px);
     animation: ck-sobe .35s ease;
 }
-.ck-banner[hidden], .ck-fab[hidden], .ck-modal[hidden] { display: none !important; }
+.ck-banner[hidden], .ck-modal[hidden] { display: none !important; }
 .ck-ico { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: rgba(227, 32, 43, .14); font-size: 1.35rem; }
 .ck-txt { flex: 1; min-width: 0; }
 .ck-txt strong { display: block; color: #fff; font-size: .95rem; margin-bottom: 2px; }
@@ -22,16 +22,8 @@
 .ck-btn.ck-prim { background: linear-gradient(135deg, var(--ck-red), var(--ck-red-2)); border-color: transparent; }
 .ck-btn.ck-prim:hover { filter: brightness(1.08); }
 .ck-btn.ck-link { border-color: transparent; color: var(--ck-txt); text-decoration: underline; padding-inline: 8px; }
-.ck-btn:focus-visible, .ck-fab:focus-visible, .ck-sw input:focus-visible + span { outline: 2px solid var(--ck-red-2); outline-offset: 2px; }
+.ck-btn:focus-visible, .ck-sw input:focus-visible + span { outline: 2px solid var(--ck-red-2); outline-offset: 2px; }
 
-/* Botão flutuante para rever a escolha */
-.ck-fab {
-    position: fixed; left: 16px; bottom: 16px; z-index: 9997; width: 46px; height: 46px; border-radius: 50%;
-    display: grid; place-items: center; cursor: pointer; font-size: 1.3rem; padding: 0;
-    background: rgba(13, 15, 20, .92); border: 1px solid var(--ck-line); box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
-    transition: transform .2s;
-}
-.ck-fab:hover { transform: scale(1.08); }
 
 /* Preferências */
 .ck-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, .7); display: grid; place-items: center; padding: 16px; }
@@ -68,4 +60,4 @@
     .ck-btns { justify-content: stretch; }
     .ck-banner .ck-btn { flex: 1; }
 }
-@media print { .ck-banner, .ck-fab, .ck-modal { display: none !important; } }
+@media print { .ck-banner, .ck-modal { display: none !important; } }

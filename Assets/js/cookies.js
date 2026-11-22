@@ -4,7 +4,8 @@
 //   necessarios  sempre ligados (login do Firebase, esta escolha)
 //   midia        vídeos do YouTube incorporados no site (o YouTube pode gravar cookies próprios)
 //
-// A escolha fica no próprio navegador (localStorage "fl-cookies") e pode ser revista pelo botão 🍪.
+// A escolha fica no próprio navegador (localStorage "fl-cookies") e pode ser revista pelo link "Cookies" do rodapé
+// e pela política de privacidade (window.FLCookies.abrir()).
 // Iframes com data-consent="midia" só recebem o src (guardado em data-src) depois do aceite.
 // Outros scripts usam: window.FLCookies.permitido("midia"), .aplicar(), .abrir()
 (function () {
@@ -29,7 +30,7 @@
     }
 
     var escolha = ler();
-    var banner, fab, modal;
+    var banner, modal;
 
     function permitido(cat) {
         if (cat === "necessarios") return true;
@@ -94,12 +95,10 @@
             '<button type="button" class="ck-btn ck-prim" data-ck="aceitar">Aceitar todos</button>' +
             '</div></section>');
 
-        fab = el('<button type="button" class="ck-fab" aria-label="Preferências de cookies" title="Preferências de cookies" hidden>🍪</button>');
-
         modal = el(
             '<div class="ck-modal" hidden><div class="ck-box" role="dialog" aria-modal="true" aria-labelledby="ck-titulo">' +
             '<h2 id="ck-titulo">Preferências de cookies</h2>' +
-            '<p>Escolha o que pode ser usado no seu navegador. Você pode mudar quando quiser pelo botão 🍪 no canto da tela. ' +
+            '<p>Escolha o que pode ser usado no seu navegador. Você pode mudar quando quiser pelo link “Cookies” no rodapé do site. ' +
             'Saiba mais na <a href="' + POLITICA + '">política de privacidade</a>.</p>' +
             '<div class="ck-cat"><div class="ck-cat-top"><strong>Necessários</strong><span class="ck-fixo">Sempre ativos</span></div>' +
             '<p>Mantêm o login da área do aluno (Google Firebase) e guardam esta escolha. Sem eles o site não funciona.</p></div>' +
@@ -113,7 +112,6 @@
         modal.querySelector(".ck-sw input").setAttribute("aria-label", "Permitir vídeos do YouTube");
 
         document.body.appendChild(banner);
-        document.body.appendChild(fab);
         document.body.appendChild(modal);
 
         document.addEventListener("click", function (e) {
@@ -129,29 +127,25 @@
                 fecharModal();
             }
         });
-        fab.addEventListener("click", abrir);
         document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) fecharModal(); });
 
-        if (escolha) fab.hidden = false;
-        else banner.hidden = false;
+        if (!escolha) banner.hidden = false;
     }
 
     function abrir() {
         document.getElementById("ck-midia").checked = permitido("midia");
         modal.hidden = false;
         banner.hidden = true;
-        fab.hidden = true;
         setTimeout(function () { modal.querySelector(".ck-btn.ck-prim").focus(); }, 30);
     }
     function fecharModal() {
         modal.hidden = true;
-        if (escolha) fab.hidden = false; else banner.hidden = false;
+        if (!escolha) banner.hidden = false;
     }
     function fecharTudo() {
         if (!banner) return;
         banner.hidden = true;
         modal.hidden = true;
-        fab.hidden = false;
     }
 
     window.FLCookies = { permitido: permitido, aplicar: aplicar, abrir: abrir };
