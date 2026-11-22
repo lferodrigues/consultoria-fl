@@ -20,6 +20,44 @@ import {
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 
+/* ---------- "Não sou um robô" (Cloudflare Turnstile) ----------
+   A chave abaixo é a Site Key (pública). A Secret Key NUNCA vai no site.
+   Observação: sem um servidor que confira o token (Siteverify), esta verificação
+   barra robôs que usam a tela de login, mas não quem chama o Firebase direto. */
+const TURNSTILE_SITEKEY = "0x4AAAAAAGNTPIYBtbz6t-xS";
+let roboWidget = null;
+let roboToken = "";
+
+function montarRobo() {
+    if (roboWidget !== null || !window.turnstile) return;
+    roboWidget = window.turnstile.render("#robo", {
+        sitekey: TURNSTILE_SITEKEY,
+        theme: "dark",
+        language: "pt-br",
+        size: "flexible",
+        action: "login",
+        callback: (token) => { roboToken = token; if (message.dataset.robo) mostrar("", ""); },
+        "expired-callback": () => { roboToken = ""; },
+        "timeout-callback": () => { roboToken = ""; },
+        "error-callback": () => { roboToken = ""; mostrar("Não foi possível carregar a verificação de segurança. Recarregue a página."); return true; }
+    });
+}
+if (window.flTurnstilePronto) setTimeout(montarRobo);
+else document.addEventListener("fl-turnstile", montarRobo, { once: true });
+
+// Só deixa seguir com a verificação resolvida; depois de usada, gera outra (o token vale uma vez)
+function confirmouRobo() {
+    if (roboToken) return true;
+    mostrar(window.turnstile ? "Confirme que você não é um robô." : "A verificação de segurança ainda está carregando. Aguarde um instante.");
+    message.dataset.robo = "1";
+    return false;
+}
+function renovarRobo() {
+    roboToken = "";
+    delete message.dataset.robo;
+    if (roboWidget !== null && window.turnstile) window.turnstile.reset(roboWidget);
+}
+
 const google = new GoogleAuthProvider();
 const apple = new OAuthProvider("apple.com");
 apple.addScope("email");
@@ -162,6 +200,7 @@ form.addEventListener("submit", async (ev) => {
     const email = emailInput.value.trim();
     const senha = passInput.value;
     if (!email || !senha) return mostrar("Preencha e-mail e senha.");
+    if (!confirmouRobo()) return;
 
     mostrar("", "");
     carregando(true);
@@ -170,11 +209,14 @@ form.addEventListener("submit", async (ev) => {
     } catch (e) {
         tratarErro(e);
         carregando(false);
+    } finally {
+        renovarRobo();
     }
 });
 
 // Entrar com Google ou Apple
 async function entrarComProvedor(provedor) {
+    if (!confirmouRobo()) return;
     mostrar("", "");
     carregando(true);
     aguardandoPopup = true;
@@ -187,6 +229,8 @@ async function entrarComProvedor(provedor) {
         aguardandoPopup = false;
         tratarErro(e);
         carregando(false);
+    } finally {
+        renovarRobo();
     }
 }
 
@@ -197,6 +241,7 @@ appleBtn.addEventListener("click", () => entrarComProvedor(apple));
 forgotBtn.addEventListener("click", async () => {
     const email = emailInput.value.trim();
     if (!email) return mostrar("Digite o seu e-mail acima para receber o link.");
+    if (!confirmouRobo()) return;
     carregando(true);
     try {
         await sendPasswordResetEmail(auth, email);
@@ -205,6 +250,7 @@ forgotBtn.addEventListener("click", async () => {
         tratarErro(e);
     } finally {
         carregando(false);
+        renovarRobo();
     }
 });
 

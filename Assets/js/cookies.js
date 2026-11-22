@@ -101,7 +101,7 @@
             '<p>Escolha o que pode ser usado no seu navegador. Você pode mudar quando quiser pelo link “Cookies” no rodapé do site. ' +
             'Saiba mais na <a href="' + POLITICA + '">política de privacidade</a>.</p>' +
             '<div class="ck-cat"><div class="ck-cat-top"><strong>Necessários</strong><span class="ck-fixo">Sempre ativos</span></div>' +
-            '<p>Mantêm o login da área do aluno (Google Firebase) e guardam esta escolha. Sem eles o site não funciona.</p></div>' +
+            '<p>Mantêm o login da área do aluno (Google Firebase), fazem a verificação “Não sou um robô” na tela de login (Cloudflare) e guardam esta escolha. Sem eles o site não funciona.</p></div>' +
             '<div class="ck-cat"><div class="ck-cat-top"><strong>Vídeos do YouTube</strong>' +
             '<label class="ck-sw"><input type="checkbox" id="ck-midia"><span aria-hidden="true"></span></label></div>' +
             '<p>Mostra o vídeo de apresentação dentro do site. O YouTube (Google) pode gravar cookies e saber que você assistiu, conforme a política de privacidade do Google.</p></div>' +

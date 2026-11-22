@@ -209,3 +209,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .g2 { animation: none; }
 }
+
+/* Verificação "Não sou um robô" (Cloudflare Turnstile) */
+.robo { min-height: 65px; margin: 4px 0 14px; display: flex; justify-content: center; }
+.robo:empty { min-height: 0; margin: 0; }
+.robo iframe { max-width: 100%; }
