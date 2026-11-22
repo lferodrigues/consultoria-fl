@@ -17,7 +17,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const wa = (texto) => "https://wa.me/" + WHATSAPP + (texto ? "?text=" + encodeURIComponent(texto) : "");
 
-const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebooks: "E-books", avaliacao: "Avaliação por foto", depoimentos: "Depoimentos", faturas: "Faturas" };
+const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebooks: "E-books", avaliacao: "Avaliação por foto", dados: "Meus dados", depoimentos: "Depoimentos", faturas: "Faturas" };
 
 let saindo = false;
 let aluno = null;       // { id, nome, email }
@@ -383,6 +383,116 @@ $("tr-pdf").addEventListener("click", async () => {
     }
 });
 
+/* =================== Meus dados =================== */
+// O aluno edita o que informou na ficha de inscrição (inscricoes/{uid}): contato, endereço, corpo, treino e saúde.
+// CPF, e-mail e nome não mudam por aqui. Quem foi cadastrado direto pelo Fagner (sem inscrição) fala com ele.
+const soDig = (t) => String(t || "").replace(/\D/g, "");
+const foneMasc = (d) => (d = d.slice(0, 11), d.length <= 2 ? d : d.length <= 6 ? `(${d.slice(0, 2)}) ${d.slice(2)}` : d.length <= 10 ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}` : `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`);
+const cepMasc = (d) => (d = d.slice(0, 8), d.length > 5 ? d.slice(0, 5) + "-" + d.slice(5) : d);
+let dadosOriginais = null;
+
+async function carregarDados() {
+    $("dd-carregando").hidden = false;
+    $("dd-campos").hidden = true;
+    $("dd-sem").hidden = true;
+    $("dd-msg").textContent = "";
+    if (!auth.currentUser) { $("dd-carregando").textContent = "Sem conexão. Tente de novo em instantes."; return; }
+    try {
+        const ins = (await get(ref(db, "inscricoes/" + aluno.uid))).val();
+        $("dd-carregando").hidden = true;
+        if (!ins) {
+            $("dd-sem").hidden = false;
+            $("dd-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ". Quero atualizar os meus dados cadastrados: ");
+            return;
+        }
+        dadosOriginais = ins;
+        const e = ins.endereco || {};
+        $("dd-nome").value = ins.nome || aluno.nome;
+        $("dd-whats-num").value = foneMasc(soDig(ins.whatsapp));
+        $("dd-cep").value = cepMasc(soDig(e.cep));
+        $("dd-rua").value = e.rua || "";
+        $("dd-numero").value = e.numero || "";
+        $("dd-complemento").value = e.complemento || "";
+        $("dd-bairro").value = e.bairro || "";
+        $("dd-cidade").value = e.cidade || "";
+        $("dd-uf").value = e.uf || "";
+        $("dd-peso").value = ins.peso || "";
+        $("dd-altura").value = ins.altura || "";
+        $("dd-objetivo").value = ins.objetivo || "";
+        $("dd-dias").value = String(ins.diasTreino || 3);
+        if (ins.tempoDia && ![...$("dd-tempo").options].some((o) => o.value === ins.tempoDia)) $("dd-tempo").add(new Option(ins.tempoDia, ins.tempoDia));
+        $("dd-tempo").value = ins.tempoDia || "1 hora";
+        $("dd-lesao").value = ins.lesao?.tem ? ins.lesao.qual || "" : "";
+        $("dd-saude").value = ins.saude?.tem ? ins.saude.qual || "" : "";
+        $("dd-medicamento").value = ins.medicamento?.tem ? ins.medicamento.qual || "" : "";
+        $("dd-campos").hidden = false;
+    } catch (e) {
+        console.error(e);
+        $("dd-carregando").textContent = "Não foi possível carregar os seus dados agora.";
+    }
+}
+
+$("dd-whats-num").addEventListener("input", (ev) => { ev.target.value = foneMasc(soDig(ev.target.value)); });
+$("dd-cep").addEventListener("input", async (ev) => {
+    const cep = soDig(ev.target.value);
+    ev.target.value = cepMasc(cep);
+    if (cep.length !== 8) return;
+    $("dd-cep-info").textContent = "Buscando o endereço...";
+    try {
+        const r = await (await fetch("https://viacep.com.br/ws/" + cep + "/json/")).json();
+        if (r.erro) throw new Error("CEP não encontrado");
+        $("dd-rua").value = r.logradouro || $("dd-rua").value;
+        $("dd-bairro").value = r.bairro || $("dd-bairro").value;
+        $("dd-cidade").value = r.localidade || "";
+        $("dd-uf").value = r.uf || "";
+        $("dd-cep-info").textContent = "";
+        $("dd-numero").focus();
+    } catch { $("dd-cep-info").textContent = "CEP não encontrado. Preencha o endereço."; }
+});
+
+$("dd-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const msg = $("dd-msg");
+    msg.textContent = "";
+    const zap = soDig($("dd-whats-num").value);
+    const cep = soDig($("dd-cep").value);
+    const uf = $("dd-uf").value.trim().toUpperCase();
+    const peso = Number(String($("dd-peso").value).replace(",", "."));
+    const altura = Math.round(Number($("dd-altura").value));
+    const vazio = (id) => !$(id).value.trim();
+    if (zap.length < 10 || zap.length > 11) return (msg.textContent = "Confira o WhatsApp com DDD.");
+    if (cep.length !== 8) return (msg.textContent = "Confira o CEP (8 números).");
+    if (["dd-rua", "dd-numero", "dd-bairro", "dd-cidade"].some(vazio)) return (msg.textContent = "Preencha rua, número, bairro e cidade.");
+    if (!/^[A-Z]{2}$/.test(uf)) return (msg.textContent = "Digite a UF com 2 letras (ex.: MG).");
+    if (!(peso >= 20 && peso <= 400)) return (msg.textContent = "Confira o peso (em kg).");
+    if (!(altura >= 100 && altura <= 250)) return (msg.textContent = "Confira a altura (em cm, ex.: 172).");
+    if (vazio("dd-objetivo")) return (msg.textContent = "Escreva o seu objetivo.");
+    const saude = (id) => { const t = $(id).value.trim(); return t ? { tem: true, qual: t } : { tem: false }; };
+    const endereco = { cep, rua: $("dd-rua").value.trim(), numero: $("dd-numero").value.trim(), bairro: $("dd-bairro").value.trim(), cidade: $("dd-cidade").value.trim(), uf };
+    if ($("dd-complemento").value.trim()) endereco.complemento = $("dd-complemento").value.trim();
+    const base = "inscricoes/" + aluno.uid + "/";
+    const mudancas = {
+        [base + "whatsapp"]: zap, [base + "endereco"]: endereco, [base + "peso"]: Math.round(peso * 10) / 10, [base + "altura"]: altura,
+        [base + "objetivo"]: $("dd-objetivo").value.trim(), [base + "diasTreino"]: Number($("dd-dias").value), [base + "tempoDia"]: $("dd-tempo").value,
+        [base + "lesao"]: saude("dd-lesao"), [base + "saude"]: saude("dd-saude"), [base + "medicamento"]: saude("dd-medicamento"),
+        [base + "editadoEm"]: Date.now()
+    };
+    const botao = $("dd-salvar");
+    botao.disabled = true;
+    botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+    try {
+        await update(ref(db), mudancas);
+        aviso("Dados atualizados! O Fagner já vê as mudanças.", "ok");
+        salvarCache({ inscricaoPdf: { idade: dadosOriginais?.idade, altura, peso: Math.round(peso * 10) / 10, objetivo: $("dd-objetivo").value.trim() } });
+    } catch (e) {
+        console.error(e);
+        msg.textContent = /permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar. Avise o Fagner para liberar a edição." : "Não foi possível salvar agora. Verifique a sua internet.";
+    } finally {
+        botao.disabled = false;
+        botao.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar meus dados';
+    }
+});
+
 /* =================== Avaliação por foto =================== */
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }   (dados)
 //   avaliacoesFotos/{id} -> "data:image/webp;base64,..."                         (a foto, separada para a lista do painel ser leve)
@@ -573,6 +683,7 @@ function rotear() {
     window.scrollTo(0, 0);
     if (atual === "progresso") carregarProgresso();
     if (atual === "depoimentos") carregarDepoimentos();
+    if (atual === "dados") carregarDados();
 }
 
 /* =================== Menu (botão de baixo) =================== */

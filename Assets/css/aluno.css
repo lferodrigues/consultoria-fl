@@ -535,3 +535,13 @@ body.modal-aberto { overflow: hidden; }
 @media (min-width: 900px) and (max-width: 1180px) {
     .al-marca span, .al-marca strong { display: none; }
 }
+
+/* Meus dados */
+.al-editar-dados { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 7px 14px; border-radius: 999px; font-size: .78rem; font-weight: 600;
+    background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16); position: relative; z-index: 1; }
+.al-editar-dados:hover { background: rgba(var(--red-rgb), .25); border-color: rgba(var(--red-2-rgb), .5); }
+.dados-form .dd-sub { font-size: .92rem; margin: 20px 0 10px; color: var(--red-2); }
+.dados-form .grid-2 { margin-bottom: 4px; }
+.dados-form input:disabled { opacity: .6; cursor: not-allowed; }
+.dd-carregando { color: var(--muted); padding: 18px 0; }
+@media (max-width: 600px) { .dados-form .grid-2 { grid-template-columns: 1fr; } }

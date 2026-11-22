@@ -35,15 +35,15 @@
     <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
     <link rel="prefetch" as="style" href="./Assets/css/login.css?v=5">
     <link rel="prefetch" as="style" href="./Assets/css/admin.css?v=7">
-    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=20">
-    <link rel="prefetch" as="style" href="./Assets/css/aluno-claro.css?v=4">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=21">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno-claro.css?v=5">
     <link rel="prefetch" as="style" href="./Assets/css/aluno-cores.css?v=4">
     <link rel="modulepreload" href="./Assets/js/login-aluno.js?v=13">
     <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=21">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=22">
 </head>
 
 <body>
@@ -602,6 +602,7 @@
                 <input type="file" id="al-foto-input" accept="image/*" hidden>
                 <strong class="al-nome-personal" id="al-hero-nome">Aluno</strong>
                 <small class="al-cref" id="al-hero-sub">Aluno da consultoria</small>
+                <a href="#/dados" class="al-editar-dados"><i class="fa-solid fa-user-pen"></i> Editar meus dados</a>
                 <small class="al-foto-msg" id="al-foto-msg" role="status"></small>
             </div>
             <h1 class="al-saudacao"><span id="al-saudacao">Olá</span>, <span id="aluno-nome">aluno</span>!</h1>
@@ -706,6 +707,53 @@
         </section>
 
         <!-- ===== Depoimentos ===== -->
+        <!-- ===== Meus dados (o aluno edita o que informou na inscrição) ===== -->
+        <section class="al-view" id="view-dados" hidden>
+            <form class="al-bloco dados-form" id="dd-form" novalidate>
+                <h2><i class="fa-solid fa-user-pen"></i> Meus dados</h2>
+                <p class="dep-intro" id="dd-intro">Mantenha os seus dados em dia. O Fagner usa estas informações para montar e ajustar os seus treinos.</p>
+                <div class="dd-carregando" id="dd-carregando"><i class="fa-solid fa-spinner fa-spin"></i> Carregando os seus dados...</div>
+                <div id="dd-sem" hidden>
+                    <p class="dep-intro">O seu cadastro foi feito direto pelo Fagner, então ele é quem altera os seus dados. Mande uma mensagem com o que mudou.</p>
+                    <a class="btn btn-primary dep-enviar" id="dd-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar com o Fagner</a>
+                </div>
+                <div id="dd-campos" hidden>
+                    <h3 class="dd-sub">Contato e endereço</h3>
+                    <div class="grid-2">
+                        <label class="full">Nome<input type="text" id="dd-nome" disabled><small>Para mudar o nome, fale com o Fagner.</small></label>
+                        <label>WhatsApp<input type="tel" id="dd-whats-num" inputmode="numeric" autocomplete="tel" placeholder="(32) 99999-9999"></label>
+                        <label>CEP<input type="text" id="dd-cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"><small id="dd-cep-info"></small></label>
+                        <label class="full">Rua<input type="text" id="dd-rua" maxlength="150" autocomplete="address-line1"></label>
+                        <label>Número<input type="text" id="dd-numero" maxlength="10"></label>
+                        <label>Complemento<input type="text" id="dd-complemento" maxlength="80" placeholder="Opcional"></label>
+                        <label>Bairro<input type="text" id="dd-bairro" maxlength="80"></label>
+                        <label>Cidade<input type="text" id="dd-cidade" maxlength="80"></label>
+                        <label>UF<input type="text" id="dd-uf" maxlength="2" placeholder="MG"></label>
+                    </div>
+                    <h3 class="dd-sub">Corpo e treino</h3>
+                    <div class="grid-2">
+                        <label>Peso (kg)<input type="number" id="dd-peso" min="20" max="400" step="0.1"></label>
+                        <label>Altura (cm)<input type="number" id="dd-altura" min="100" max="250" step="1"></label>
+                        <label class="full">Objetivo<input type="text" id="dd-objetivo" maxlength="200"></label>
+                        <label>Dias de treino por semana
+                            <select id="dd-dias"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>
+                        </label>
+                        <label>Tempo por dia
+                            <select id="dd-tempo"><option>30 minutos</option><option>45 minutos</option><option>1 hora</option><option>1 hora e 30 minutos</option><option>2 horas</option></select>
+                        </label>
+                    </div>
+                    <h3 class="dd-sub">Saúde</h3>
+                    <div class="grid-2">
+                        <label class="full">Lesão<textarea id="dd-lesao" rows="2" maxlength="500" placeholder="Deixe em branco se não tiver"></textarea></label>
+                        <label class="full">Problema de saúde<textarea id="dd-saude" rows="2" maxlength="500" placeholder="Deixe em branco se não tiver"></textarea></label>
+                        <label class="full">Medicamento de uso contínuo<textarea id="dd-medicamento" rows="2" maxlength="500" placeholder="Deixe em branco se não usar"></textarea></label>
+                    </div>
+                    <p class="form-msg" id="dd-msg" role="alert"></p>
+                    <button type="submit" class="btn btn-primary dep-enviar" id="dd-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar meus dados</button>
+                </div>
+            </form>
+        </section>
+
         <section class="al-view" id="view-depoimentos" hidden>
             <form class="al-bloco dep-form" id="dep-form" novalidate>
                 <h2><i class="fa-solid fa-comment-dots"></i> Deixe seu depoimento</h2>
@@ -807,6 +855,7 @@
         <a href="#/avaliacao"><i class="fa-solid fa-camera"></i> Avaliação por foto</a>
         <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
         <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
+        <a href="#/dados"><i class="fa-solid fa-user-pen"></i> Meus dados</a>
         <button type="button" id="al-foto-trocar"><i class="fa-solid fa-camera"></i> Trocar foto de perfil</button>
         <button type="button" id="al-capa-trocar"><i class="fa-solid fa-image"></i> Trocar foto de capa</button>
         <button type="button" id="al-capa-remover" hidden><i class="fa-solid fa-eraser"></i> Remover foto de capa</button>
@@ -891,7 +940,7 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=15"></script>
+    <script src="./Assets/js/spa-aluno.js?v=16"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

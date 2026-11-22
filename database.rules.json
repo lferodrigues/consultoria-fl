@@ -29,7 +29,8 @@
           ".validate": "newData.isString() && newData.val().matches(/^[0-9]{11}$/)"
         },
         "whatsapp": {
-          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{10,11}$/)"
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{10,11}$/)",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "sexo": {
           ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 30"
@@ -62,19 +63,23 @@
           },
           "$outro": {
             ".validate": false
-          }
+          },
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "foto": {
           ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 400000"
         },
         "peso": {
-          ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400"
+          ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "altura": {
-          ".validate": "newData.isNumber() && newData.val() >= 100 && newData.val() <= 250"
+          ".validate": "newData.isNumber() && newData.val() >= 100 && newData.val() <= 250",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "objetivo": {
-          ".validate": "newData.isString() && newData.val().length <= 200"
+          ".validate": "newData.isString() && newData.val().length <= 200",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "lesao": {
           ".validate": "newData.hasChildren(['tem'])",
@@ -86,7 +91,8 @@
           },
           "$outro": {
             ".validate": false
-          }
+          },
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "saude": {
           ".validate": "newData.hasChildren(['tem'])",
@@ -98,7 +104,8 @@
           },
           "$outro": {
             ".validate": false
-          }
+          },
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "medicamento": {
           ".validate": "newData.hasChildren(['tem'])",
@@ -110,13 +117,16 @@
           },
           "$outro": {
             ".validate": false
-          }
+          },
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "diasTreino": {
-          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 7"
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 7",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "tempoDia": {
-          ".validate": "newData.isString() && newData.val().length <= 40"
+          ".validate": "newData.isString() && newData.val().length <= 40",
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()"
         },
         "planoId": {
           ".validate": "newData.isString() && newData.val().length <= 60"
@@ -164,6 +174,10 @@
           ".validate": "newData.isNumber()"
         },
         "primeiraFichaEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "editadoEm": {
+          ".write": "auth != null && auth.uid == $uid && root.child('inscricoes').child($uid).exists()",
           ".validate": "newData.isNumber()"
         },
         "$outro": {

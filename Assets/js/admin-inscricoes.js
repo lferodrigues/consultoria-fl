@@ -174,7 +174,7 @@ function desenharDetalhe() {
             <div class="in-cab-txt">
                 <span class="badge ${st.classe}">${st.nome}</span>
                 <h1>${esc(i.nome)}</h1>
-                <p>${esc(i.sexo || "")} · ${i.idade || "?"} anos · inscrito em ${quando(i.criadoEm)}</p>
+                <p>${esc(i.sexo || "")} · ${i.idade || "?"} anos · inscrito em ${quando(i.criadoEm)}${i.editadoEm ? ` · <span class="badge warn"><i class="fa-solid fa-user-pen"></i> dados atualizados pelo aluno em ${quando(i.editadoEm)}</span>` : ""}</p>
             </div>
             <div class="in-cab-acoes">
                 ${acoes}
