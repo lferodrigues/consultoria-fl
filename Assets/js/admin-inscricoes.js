@@ -8,6 +8,7 @@ import { ref, get, push, update } from "https://www.gstatic.com/firebasejs/11.1.
 import { db, chaveEmail, hojeISO } from "./firebase-app.js?v=2";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 import { dataBR, moeda, somarMeses, MESES_POR_PLANO } from "./alunos-util.js?v=2";
+import { preencherPlanos, dadosDoPlano, idDoPlano } from "./admin-planos-util.js?v=1";
 
 // Inscrição feita pelo link direto (cadastro.html?direto=1): plano e valor a combinar
 const semPlano = (i) => i.planoId === "a-definir";
@@ -236,12 +237,11 @@ export function mesesDoPlano(nome, duracao) {
 }
 
 function abrirAprovar(i) {
-    const plano = estado.planos.find((p) => p.id === i.planoId);
-    const chave = norm(i.planoNome).trim();
     $("ap-nome").textContent = i.nome;
-    $("ap-plano").value = MESES_POR_PLANO[chave] ? chave : "semestral";
-    $("ap-plano").dataset.meses = mesesDoPlano(i.planoNome, plano?.duracao || "");
-    $("ap-plano-nome").textContent = semPlano(i) ? "Nenhum (link direto) · escolha o tipo de plano abaixo" : (i.planoNome || "Plano") + " · " + moeda(i.valor);
+    // Plano: o que o aluno escolheu no site; no cadastro livre, o Fagner escolhe aqui
+    preencherPlanos($("ap-plano"), semPlano(i) ? "" : idDoPlano({ planoId: i.planoId, planoNome: i.planoNome }), { vazio: semPlano(i) ? "— Escolha o plano —" : "" });
+    $("ap-plano-nome").textContent = semPlano(i) ? "Nenhum (cadastro livre) · escolha o plano abaixo" : (i.planoNome || "Plano") + " · " + moeda(i.valor);
+    $("ap-plano-info").textContent = "";
     $("ap-inicio").value = hojeISO();
     $("ap-msg").textContent = "";
     $("aprovar-form").dataset.uid = i.id;
@@ -249,10 +249,10 @@ function abrirAprovar(i) {
     abrirModal("modal-aprovar", "ap-inicio");
 }
 
-function recalcularVenc(primeiraVez) {
-    const plano = $("ap-plano");
-    const meses = primeiraVez === true ? Number(plano.dataset.meses) : MESES_POR_PLANO[plano.value];
-    if ($("ap-inicio").value) $("ap-venc").value = somarMeses($("ap-inicio").value, meses || 6);
+function recalcularVenc() {
+    const p = dadosDoPlano($("ap-plano").value);
+    if ($("ap-inicio").value && p) $("ap-venc").value = somarMeses($("ap-inicio").value, p.meses || 6);
+    $("ap-plano-info").textContent = p?.valor ? "Valor: " + moeda(p.valor) : "";
 }
 
 async function aprovar(ev) {
@@ -262,6 +262,8 @@ async function aprovar(ev) {
     const inicio = $("ap-inicio").value, vencimento = $("ap-venc").value;
     if (!inicio || !vencimento) return ($("ap-msg").textContent = "Preencha início e vencimento.");
     if (vencimento < inicio) return ($("ap-msg").textContent = "O vencimento não pode ser antes do início.");
+    const escolhido = dadosDoPlano($("ap-plano").value);
+    if (!escolhido) return ($("ap-msg").textContent = "Escolha o plano do aluno.");
 
     const botao = $("ap-salvar");
     ocupado(botao, true);
@@ -273,18 +275,23 @@ async function aprovar(ev) {
         const id = existe.exists() && existe.val().aluno ? existe.val().aluno : push(ref(db, "alunos")).key;
         const antigo = estado.alunos.find((a) => a.id === id);
         const agora = Date.now();
-        const plano = $("ap-plano").value;
+        const plano = escolhido.plano;
+        const valor = escolhido.valor || i.valor || null;
         const aluno = {
             ...(antigo || {}),
-            nome: i.nome, email, telefone: foneBR(i.whatsapp), plano, inicio, vencimento, ativo: true,
+            nome: i.nome, email, telefone: foneBR(i.whatsapp), planoId: escolhido.planoId, plano, inicio, vencimento, ativo: true,
             obs: antigo?.obs || "", uid: i.uid, inscricao: i.id,
-            diaFatura: i.diaVencimento || null, primeiraFatura: i.primeiroVencimento || null, valor: i.valor || null,
+            diaFatura: i.diaVencimento || null, primeiraFatura: i.primeiroVencimento || null, valor,
             criadoEm: antigo?.criadoEm || agora, atualizadoEm: agora
         };
         delete aluno.id;
         await update(ref(db), {
             ["alunos/" + id]: aluno,
-            ["emails/" + chave]: { aluno: id, ativo: true, vencimento, nome: i.nome, plano, diaFatura: i.diaVencimento || null, valor: i.valor || null },
+            ["emails/" + chave]: { aluno: id, ativo: true, vencimento, nome: i.nome, plano, diaFatura: i.diaVencimento || null, valor },
+            // A inscrição passa a registrar o plano escolhido (no cadastro livre ela estava "a combinar")
+            ["inscricoes/" + i.id + "/planoId"]: escolhido.planoId,
+            ["inscricoes/" + i.id + "/planoNome"]: escolhido.planoNome.slice(0, 60),
+            ["inscricoes/" + i.id + "/valor"]: valor || 0,
             ["inscricoes/" + i.id + "/status"]: "aprovada",
             ["inscricoes/" + i.id + "/alunoId"]: id,
             ["inscricoes/" + i.id + "/aprovadoEm"]: agora,

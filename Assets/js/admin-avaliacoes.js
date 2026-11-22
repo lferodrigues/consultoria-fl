@@ -6,7 +6,7 @@
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
 import { $, estado, aoMudar, esc, aviso, confirmar, mensagemErro } from "./admin-core.js?v=1";
-import { foneWhats } from "./admin-inscricoes.js?v=3";
+import { foneWhats } from "./admin-inscricoes.js?v=4";
 
 const DIA = 86400000;
 let atual = null;            // id aberto no detalhe
