@@ -37,16 +37,17 @@
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-pix.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-depoimentos.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/admin-avaliacoes.js?v=1">
     <link rel="modulepreload" href="./Assets/js/vitrine-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/admin-vitrine.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=16">
+    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=17">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="./Assets/css/admin.css?v=4">
     <link rel="stylesheet" href="./Assets/css/painel.css?v=13">
 </head>
 
@@ -116,6 +117,9 @@
                 <ul id="menu">
                     <li class="menu-item" data-rota="inicio">
                         <a href="#/inicio" class="menu-link"><i class="fa-solid fa-house"></i><span>Início</span></a>
+                    </li>
+                    <li class="menu-item" data-rota="avaliacoes">
+                        <a href="#/avaliacoes" class="menu-link"><i class="fa-solid fa-camera"></i><span>Avaliações por foto</span><span class="menu-badge" id="menu-av-n" hidden>0</span></a>
                     </li>
                     <li class="menu-item" data-rota="inscricoes">
                         <a href="#/inscricoes" class="menu-link"><i class="fa-solid fa-file-signature"></i><span>Inscrições</span><span class="menu-badge" id="menu-ins-n" hidden>0</span></a>
@@ -346,6 +350,22 @@
                         <button type="button" class="btn btn-primary btn-sm" id="pl-importar">Importar planos atuais</button>
                     </div>
                     <div class="cards plan-cards" id="pl-lista"></div>
+                </section>
+
+                <!-- ============ AVALIAÇÕES POR FOTO ============ -->
+                <section class="view" id="view-avaliacoes" hidden>
+                    <div id="av-lista-wrap">
+                        <div class="page-head">
+                            <div>
+                                <span class="eyebrow">Alunos</span>
+                                <h1>Avaliações por foto</h1>
+                                <p class="page-sub">Fotos que os alunos mandaram para você avaliar. Cada foto fica disponível por 15 dias e depois é apagada sozinha.</p>
+                            </div>
+                        </div>
+                        <div class="av-lista" id="av-lista"></div>
+                        <div class="empty card-empty" id="av-vazio" hidden><i class="fa-solid fa-camera"></i><p>Nenhuma foto para avaliar. Os alunos enviam pela área do aluno, em "Avaliação".</p></div>
+                    </div>
+                    <div id="av-detalhe" hidden></div>
                 </section>
 
                 <!-- ============ DEPOIMENTOS ============ -->
@@ -864,7 +884,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=16"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=17"></script>
     <script src="./Assets/js/supino-pct.js?v=2" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>

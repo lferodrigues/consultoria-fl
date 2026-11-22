@@ -43,5 +43,11 @@
   ],
   "regions": [
     "gru1"
+  ],
+  "crons": [
+    {
+      "path": "/api/limpar-avaliacoes",
+      "schedule": "0 7 * * *"
+    }
   ]
 }

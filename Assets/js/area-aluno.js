@@ -16,7 +16,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const wa = (texto) => "https://wa.me/" + WHATSAPP + (texto ? "?text=" + encodeURIComponent(texto) : "");
 
-const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebooks: "E-books", depoimentos: "Depoimentos", faturas: "Faturas" };
+const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebooks: "E-books", avaliacao: "Avaliação por foto", depoimentos: "Depoimentos", faturas: "Faturas" };
 
 let saindo = false;
 let aluno = null;       // { id, nome, email }
@@ -254,6 +254,114 @@ function aplicarTema(tema, salvar = true) {
 }
 document.querySelectorAll(".al-tema-op button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
 aplicarTema(document.documentElement.dataset.tema === "claro" ? "claro" : "escuro", false);
+
+/* =================== Avaliação por foto =================== */
+//   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }   (dados)
+//   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."                         (a foto, separada para a lista do painel ser leve)
+// Fica 15 dias: depois some (regras do banco + limpeza diária em /api/limpar-avaliacoes e no painel).
+const DIAS_AVALIACAO = 15;
+let fotoAvaliacao = "";
+
+// Foto de avaliação: lado maior com até 1280 px, em JPEG (boa para ver detalhes e ainda leve)
+function reduzirFotoAvaliacao(arquivo, maximo = 1280) {
+    return new Promise((ok, falha) => {
+        const url = URL.createObjectURL(arquivo);
+        const img = new Image();
+        img.onload = () => {
+            const escala = Math.min(1, maximo / Math.max(img.width, img.height));
+            const c = document.createElement("canvas");
+            c.width = Math.round(img.width * escala);
+            c.height = Math.round(img.height * escala);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            let q = 0.82, dados = c.toDataURL("image/jpeg", q);
+            while (dados.length > 1400000 && q > 0.4) { q -= 0.1; dados = c.toDataURL("image/jpeg", q); }
+            ok(dados);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
+        img.src = url;
+    });
+}
+
+$("av-arquivo").addEventListener("change", async (ev) => {
+    const arq = ev.target.files[0];
+    $("av-msg").textContent = "";
+    $("av-foto-area").classList.remove("erro");
+    if (!arq) return;
+    if (!arq.type.startsWith("image/")) { $("av-msg").textContent = "Escolha um arquivo de imagem."; return; }
+    try {
+        fotoAvaliacao = await reduzirFotoAvaliacao(arq);
+        $("av-previa").src = fotoAvaliacao;
+        $("av-previa").hidden = false;
+        $("av-foto-vazia").hidden = true;
+    } catch (e) {
+        fotoAvaliacao = "";
+        $("av-msg").textContent = "Não foi possível abrir essa imagem. Tente outra.";
+    }
+});
+
+function linkAvaliacao(id) {
+    return new URL(PAGINAS.admin + "#/avaliacoes/" + id, location.href).href.replace(/\.html(#|$)/, "$1");
+}
+
+$("av-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const msg = $("av-msg");
+    msg.textContent = "";
+    if (!fotoAvaliacao) {
+        $("av-foto-area").classList.add("erro");
+        msg.textContent = "Escolha a foto que você quer enviar.";
+        return;
+    }
+    if (!auth.currentUser) { msg.textContent = "Sua sessão expirou. Entre de novo para enviar."; return; }
+
+    // O WhatsApp precisa ser aberto no clique (senão o navegador bloqueia); o endereço entra depois de salvar
+    let janela = null;
+    try { janela = window.open("", "_blank"); } catch { janela = null; }
+
+    const botao = $("av-enviar");
+    botao.disabled = true;
+    botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando a foto...';
+    try {
+        const id = push(ref(db, "avaliacoes")).key;
+        const agora = Date.now();
+        const obs = $("av-obs").value.trim();
+        await update(ref(db), {
+            ["avaliacoes/" + id]: {
+                uid: auth.currentUser.uid, alunoId: aluno.id, nome: aluno.nome, obs,
+                criadoEm: agora, expiraEm: agora + DIAS_AVALIACAO * 86400000, visto: false
+            },
+            ["avaliacoesFotos/" + id]: fotoAvaliacao
+        });
+        const texto = [
+            "Olá, Fagner! Enviei uma foto para você avaliar.",
+            "",
+            "Aluno: " + aluno.nome,
+            obs ? "O que avaliar: " + obs : "",
+            "",
+            "Ver a foto: " + linkAvaliacao(id),
+            "(a foto fica disponível por " + DIAS_AVALIACAO + " dias)"
+        ].filter((l, i, a) => l || a[i - 1]).join("\n");
+        const link = wa(texto);
+        if (janela) { janela.opener = null; janela.location.href = link; }
+        else location.href = link;
+
+        fotoAvaliacao = "";
+        $("av-form").reset();
+        $("av-previa").hidden = true;
+        $("av-foto-vazia").hidden = false;
+        aviso("Foto enviada! Agora é só mandar a mensagem no WhatsApp.", "ok");
+    } catch (e) {
+        console.error(e);
+        if (janela) janela.close();
+        msg.textContent = /permission/i.test(String(e?.code || e?.message))
+            ? "O envio foi recusado. Avise o personal para liberar o envio de fotos."
+            : "Não foi possível enviar agora. Verifique a sua internet e tente de novo.";
+    } finally {
+        botao.disabled = false;
+        botao.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Enviar para o Fagner';
+    }
+});
 
 /* =================== Espera pela primeira ficha =================== */
 

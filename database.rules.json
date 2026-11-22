@@ -312,6 +312,50 @@
           ".validate": false
         }
       }
+    },
+    "avaliacoes": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".indexOn": [
+        "expiraEm",
+        "criadoEm"
+      ],
+      "$id": {
+        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('uid').val() == auth.uid && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == newData.child('alunoId').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && newData.child('visto').val() == false && newData.child('criadoEm').val() <= now + 60000 && newData.child('criadoEm').val() >= now - 600000 && newData.child('expiraEm').val() == newData.child('criadoEm').val() + 1296000000",
+        ".validate": "newData.hasChildren(['uid', 'alunoId', 'nome', 'criadoEm', 'expiraEm', 'visto'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "alunoId": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "nome": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "obs": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "criadoEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "expiraEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "visto": {
+          ".validate": "newData.isBoolean()"
+        },
+        "$outro": {
+          ".validate": false
+        }
+      }
+    },
+    "avaliacoesFotos": {
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "$id": {
+        ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' && root.child('avaliacoes').child($id).child('expiraEm').val() > now",
+        ".write": "!data.exists() && auth != null && newData.parent().parent().child('avaliacoes').child($id).child('uid').val() == auth.uid",
+        ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 1500000"
+      }
     }
   }
 }

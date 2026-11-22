@@ -26,15 +26,15 @@
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=12">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=13">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="./Assets/css/admin.css?v=3" data-vista="area">
-    <link rel="stylesheet" href="./Assets/css/aluno.css?v=12" data-vista="area">
+    <link rel="stylesheet" href="./Assets/css/admin.css?v=4" data-vista="area">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=13" data-vista="area">
     <link rel="stylesheet" href="./Assets/css/aluno-claro.css?v=1" data-vista="area">
     <link rel="stylesheet" href="./Assets/css/cookies.css?v=1">
     <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
@@ -600,6 +600,10 @@
                     <span class="al-tile-ico"><i class="fa-solid fa-dollar-sign"></i></span>
                     <span class="al-tile-txt"><strong>Faturas</strong><small id="tile-faturas">Plano e pagamento</small></span>
                 </a>
+                <a href="#/avaliacao" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-camera"></i></span>
+                    <span class="al-tile-txt"><strong>Avaliação</strong><small>Envie uma foto ao personal</small></span>
+                </a>
                 <a href="#/depoimentos" class="al-tile">
                     <span class="al-tile-ico"><i class="fa-solid fa-comment-dots"></i></span>
                     <span class="al-tile-txt"><strong>Depoimentos</strong><small id="tile-depoimentos">Conte sua experiência</small></span>
@@ -712,6 +716,25 @@
             </div>
         </section>
 
+        <!-- ===== Avaliação por foto ===== -->
+        <section class="al-view" id="view-avaliacao" hidden>
+            <form class="al-bloco dep-form av-form" id="av-form" novalidate>
+                <h2><i class="fa-solid fa-camera"></i> Enviar foto para avaliação</h2>
+                <p class="dep-intro">Mande uma foto para o Fagner avaliar (postura, execução de um exercício, evolução física). Ele recebe um aviso no WhatsApp com o link da foto.</p>
+                <label class="av-foto" id="av-foto-area">
+                    <input type="file" id="av-arquivo" accept="image/*">
+                    <span class="av-foto-vazia" id="av-foto-vazia"><i class="fa-solid fa-image"></i><b>Toque para escolher a foto</b><small>Da galeria ou tire uma agora</small></span>
+                    <img id="av-previa" alt="Prévia da foto" hidden>
+                </label>
+                <label class="fb-coment">O que você quer que o Fagner avalie? <small class="dep-cont">(opcional)</small>
+                    <textarea id="av-obs" rows="3" maxlength="500" placeholder="Ex.: Minha postura no agachamento está certa?"></textarea>
+                </label>
+                <p class="av-aviso"><i class="fa-regular fa-clock"></i> A foto fica guardada por <b>15 dias</b> e depois é apagada automaticamente. Só o Fagner tem acesso.</p>
+                <p class="form-msg" id="av-msg" role="alert"></p>
+                <button type="submit" class="btn btn-primary dep-enviar" id="av-enviar"><i class="fa-brands fa-whatsapp"></i> Enviar para o Fagner</button>
+            </form>
+        </section>
+
         <!-- ===== Faturas ===== -->
         <section class="al-view" id="view-faturas" hidden>
             <div class="al-bloco plano-bloco">
@@ -757,6 +780,7 @@
         <a href="#/treino"><i class="fa-solid fa-dumbbell"></i> Treinos</a>
         <a href="#/progresso"><i class="fa-solid fa-clipboard-check"></i> Meu progresso</a>
         <a href="#/ebooks"><i class="fa-solid fa-book-open"></i> E-books</a>
+        <a href="#/avaliacao"><i class="fa-solid fa-camera"></i> Avaliação por foto</a>
         <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
         <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
         <button type="button" id="al-foto-trocar"><i class="fa-solid fa-camera"></i> Trocar foto de perfil</button>
@@ -830,7 +854,7 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=3"></script>
+    <script src="./Assets/js/spa-aluno.js?v=4"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

@@ -20,13 +20,14 @@ import * as Pix from "./admin-pix.js?v=1";
 import * as Depoimentos from "./admin-depoimentos.js?v=1";
 import * as Inscricoes from "./admin-inscricoes.js?v=3";
 import * as Vitrine from "./admin-vitrine.js?v=2";
+import * as Avaliacoes from "./admin-avaliacoes.js?v=1";
 
-const TELAS = ["inicio", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "vitrine", "depoimentos"];
+const TELAS = ["inicio", "avaliacoes", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "vitrine", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu
 const GRUPO = { exercicios: "treinos" };
-const TITULOS = { inicio: "Início", inscricoes: "Inscrições", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", vitrine: "Vitrine", depoimentos: "Depoimentos" };
-const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos, inscricoes: Inscricoes };
-const NOS = ["inscricoes", "alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
+const TITULOS = { inicio: "Início", avaliacoes: "Avaliações por foto", inscricoes: "Inscrições", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", vitrine: "Vitrine", depoimentos: "Depoimentos" };
+const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos, inscricoes: Inscricoes, avaliacoes: Avaliacoes };
+const NOS = ["avaliacoes", "inscricoes", "alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 
 let saindo = false;
 let iniciado = false;
@@ -115,6 +116,9 @@ function rotear() {
     }
 
     if (tela === "depoimentos") Depoimentos.marcarVistos();
+
+    // #/avaliacoes/<id> abre a foto (link que chega no WhatsApp do Fagner)
+    if (tela === "avaliacoes") { if (acao) Avaliacoes.abrir(acao); else Avaliacoes.mostrarLista(); }
 
     // #/inscricoes/<uid> abre a ficha de inscrição (link que chega no WhatsApp do Fagner)
     if (tela === "inscricoes") { if (acao) Inscricoes.abrir(acao); else Inscricoes.mostrarLista(); }
