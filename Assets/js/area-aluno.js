@@ -141,6 +141,8 @@ function ligarDados() {
     escutarFicha();
     escutarArquivos();
     carregarPix();
+    // Deixa "Meus dados" pronto antes de o aluno abrir
+    buscarMeusDados().catch((e) => console.warn("Meus dados (pré-carga):", e));
 }
 
 function atualizarCabecalho() {
@@ -392,52 +394,91 @@ const foneMasc = (d) => (d = d.slice(0, 11), d.length <= 2 ? d : d.length <= 6 ?
 const cepMasc = (d) => (d = d.slice(0, 8), d.length > 5 ? d.slice(0, 5) + "-" + d.slice(5) : d);
 let dadosOriginais = null;
 
-async function carregarDados() {
-    $("dd-carregando").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando os seus dados...';
-    $("dd-carregando").hidden = false;
-    $("dd-campos").hidden = true;
-    $("dd-sem").hidden = true;
-    $("dd-msg").textContent = "";
-    // A área abre na hora pela cópia do aparelho, antes do login terminar de carregar: espera o login
-    try { await auth.authStateReady(); } catch { /* segue */ }
-    if (!auth.currentUser) {
-        $("dd-carregando").innerHTML = 'Sua sessão expirou. <a href="./login.html">Entre de novo</a> para editar os seus dados.';
+// Os dados aparecem NA HORA a partir da cópia do aparelho (cache.meusDados); a versão do servidor
+// é buscada em segundo plano (já ao abrir a área, em ligarDados) e atualiza a tela se o aluno ainda não mexeu.
+const CAMPOS_DADOS = ["nome", "whatsapp", "endereco", "peso", "altura", "objetivo", "diasTreino", "tempoDia", "lesao", "saude", "medicamento", "idade"];
+let dadosMexidos = false;
+let buscandoDados = null;
+const semTempo = (promessa, ms) => Promise.race([promessa, new Promise((_, nao) => setTimeout(() => nao(new Error("tempo esgotado")), ms))]);
+
+// Busca só os campos editáveis (sem a foto da inscrição, que é pesada) e guarda a cópia
+function buscarMeusDados() {
+    if (buscandoDados) return buscandoDados;
+    buscandoDados = (async () => {
+        try { await semTempo(auth.authStateReady(), 8000); } catch { /* segue */ }
+        if (!auth.currentUser) throw new Error("sem login");
+        const base = "inscricoes/" + aluno.uid + "/";
+        const existe = await semTempo(get(ref(db, base + "criadoEm")), 12000);
+        if (!existe.exists()) { salvarCache({ meusDados: { semInscricao: true } }); return { semInscricao: true }; }
+        const vals = await semTempo(Promise.all(CAMPOS_DADOS.map((c) => get(ref(db, base + c)).then((x) => x.val()))), 12000);
+        const dados = {};
+        CAMPOS_DADOS.forEach((c, k) => { if (vals[k] !== null) dados[c] = vals[k]; });
+        salvarCache({ meusDados: dados });
+        return dados;
+    })().finally(() => { buscandoDados = null; });
+    return buscandoDados;
+}
+
+function preencherDados(ins) {
+    if (ins.semInscricao) {
+        $("dd-campos").hidden = true;
+        $("dd-sem").hidden = false;
+        $("dd-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ". Quero atualizar os meus dados cadastrados: ");
         return;
     }
-    try {
-        const ins = (await get(ref(db, "inscricoes/" + aluno.uid))).val();
+    dadosOriginais = ins;
+    const e = ins.endereco || {};
+    $("dd-nome").value = ins.nome || aluno.nome;
+    $("dd-whats-num").value = foneMasc(soDig(ins.whatsapp));
+    $("dd-cep").value = cepMasc(soDig(e.cep));
+    $("dd-rua").value = e.rua || "";
+    $("dd-numero").value = e.numero || "";
+    $("dd-complemento").value = e.complemento || "";
+    $("dd-bairro").value = e.bairro || "";
+    $("dd-cidade").value = e.cidade || "";
+    $("dd-uf").value = e.uf || "";
+    $("dd-peso").value = ins.peso || "";
+    $("dd-altura").value = ins.altura || "";
+    $("dd-objetivo").value = ins.objetivo || "";
+    $("dd-dias").value = String(ins.diasTreino || 3);
+    if (ins.tempoDia && ![...$("dd-tempo").options].some((o) => o.value === ins.tempoDia)) $("dd-tempo").add(new Option(ins.tempoDia, ins.tempoDia));
+    $("dd-tempo").value = ins.tempoDia || "1 hora";
+    $("dd-lesao").value = ins.lesao?.tem ? ins.lesao.qual || "" : "";
+    $("dd-saude").value = ins.saude?.tem ? ins.saude.qual || "" : "";
+    $("dd-medicamento").value = ins.medicamento?.tem ? ins.medicamento.qual || "" : "";
+    $("dd-sem").hidden = true;
+    $("dd-campos").hidden = false;
+}
+
+async function carregarDados() {
+    $("dd-msg").textContent = "";
+    dadosMexidos = false;
+    const copia = cache?.meusDados;
+    if (copia) {
+        // Na hora, com a cópia do aparelho
         $("dd-carregando").hidden = true;
-        if (!ins) {
-            $("dd-sem").hidden = false;
-            $("dd-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ". Quero atualizar os meus dados cadastrados: ");
-            return;
-        }
-        dadosOriginais = ins;
-        const e = ins.endereco || {};
-        $("dd-nome").value = ins.nome || aluno.nome;
-        $("dd-whats-num").value = foneMasc(soDig(ins.whatsapp));
-        $("dd-cep").value = cepMasc(soDig(e.cep));
-        $("dd-rua").value = e.rua || "";
-        $("dd-numero").value = e.numero || "";
-        $("dd-complemento").value = e.complemento || "";
-        $("dd-bairro").value = e.bairro || "";
-        $("dd-cidade").value = e.cidade || "";
-        $("dd-uf").value = e.uf || "";
-        $("dd-peso").value = ins.peso || "";
-        $("dd-altura").value = ins.altura || "";
-        $("dd-objetivo").value = ins.objetivo || "";
-        $("dd-dias").value = String(ins.diasTreino || 3);
-        if (ins.tempoDia && ![...$("dd-tempo").options].some((o) => o.value === ins.tempoDia)) $("dd-tempo").add(new Option(ins.tempoDia, ins.tempoDia));
-        $("dd-tempo").value = ins.tempoDia || "1 hora";
-        $("dd-lesao").value = ins.lesao?.tem ? ins.lesao.qual || "" : "";
-        $("dd-saude").value = ins.saude?.tem ? ins.saude.qual || "" : "";
-        $("dd-medicamento").value = ins.medicamento?.tem ? ins.medicamento.qual || "" : "";
-        $("dd-campos").hidden = false;
+        preencherDados(copia);
+    } else {
+        $("dd-carregando").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando os seus dados...';
+        $("dd-carregando").hidden = false;
+        $("dd-campos").hidden = true;
+        $("dd-sem").hidden = true;
+    }
+    try {
+        const dados = await buscarMeusDados();
+        if (location.hash !== "#/dados") return;
+        $("dd-carregando").hidden = true;
+        if (!dadosMexidos) preencherDados(dados);
     } catch (e) {
-        console.error(e);
-        $("dd-carregando").textContent = "Não foi possível carregar os seus dados agora.";
+        console.error("Meus dados:", e);
+        if (copia) return; // fica com a cópia
+        $("dd-carregando").innerHTML = (String(e?.message) === "sem login"
+            ? 'Sua sessão expirou. <a href="./login.html">Entre de novo</a> para editar os seus dados.'
+            : 'Não foi possível carregar os seus dados agora. ') + ' <button type="button" class="al-link" id="dd-tentar">Tentar de novo</button>';
+        $("dd-tentar").addEventListener("click", carregarDados);
     }
 }
+$("dd-campos").addEventListener("input", () => { dadosMexidos = true; });
 
 $("dd-whats-num").addEventListener("input", (ev) => { ev.target.value = foneMasc(soDig(ev.target.value)); });
 $("dd-cep").addEventListener("input", async (ev) => {
@@ -488,12 +529,18 @@ $("dd-form").addEventListener("submit", async (ev) => {
     botao.disabled = true;
     botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
     try {
-        await update(ref(db), mudancas);
+        await semTempo(update(ref(db), mudancas), 15000);
         aviso("Dados atualizados! O Fagner já vê as mudanças.", "ok");
+        dadosMexidos = false;
+        salvarCache({ meusDados: { ...(cache?.meusDados || {}), nome: $("dd-nome").value, whatsapp: zap, endereco, peso: Math.round(peso * 10) / 10, altura,
+            objetivo: $("dd-objetivo").value.trim(), diasTreino: Number($("dd-dias").value), tempoDia: $("dd-tempo").value,
+            lesao: saude("dd-lesao"), saude: saude("dd-saude"), medicamento: saude("dd-medicamento") } });
         salvarCache({ inscricaoPdf: { idade: dadosOriginais?.idade, altura, peso: Math.round(peso * 10) / 10, objetivo: $("dd-objetivo").value.trim() } });
     } catch (e) {
         console.error(e);
-        msg.textContent = /permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar. Avise o Fagner para liberar a edição." : "Não foi possível salvar agora. Verifique a sua internet.";
+        msg.textContent = /permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar. Avise o Fagner para liberar a edição."
+            : /tempo esgotado/.test(String(e?.message)) ? "O servidor está demorando para responder. Os dados serão enviados assim que a conexão voltar; confira em instantes."
+            : "Não foi possível salvar agora. Verifique a sua internet.";
     } finally {
         botao.disabled = false;
         botao.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar meus dados';
