@@ -120,11 +120,21 @@ const CENA = `
       <path d="M300 196 L300 204" stroke="#f3f4f6" stroke-width="2"/>
       <rect x="292" y="203" width="18" height="10" rx="5" fill="#cbd5e1"/>
     </g>
-    <!-- Braço direito levantado, apontando (balança) -->
+    <!-- Braço direito levantado com a mão aberta, sinal de "pare" (balança) -->
     <g class="an-braco">
       <path d="M346 178 C 372 160, 382 130, 378 98" fill="none" stroke="#c98d60" stroke-width="18" stroke-linecap="round"/>
-      <circle cx="378" cy="94" r="11" fill="#c98d60"/>
-      <rect x="374" y="62" width="8" height="30" rx="4" fill="#c98d60"/>
+      <!-- Mão aberta, palma para a frente: sinal de "pare" (todos os dedos levantados) -->
+      <g fill="#c98d60">
+        <rect x="363" y="78" width="30" height="26" rx="9"/>
+        <rect x="363" y="58" width="6.5" height="28" rx="3.25"/>
+        <rect x="370.5" y="52" width="6.5" height="32" rx="3.25"/>
+        <rect x="378" y="53" width="6.5" height="31" rx="3.25"/>
+        <rect x="385.5" y="59" width="6.5" height="26" rx="3.25"/>
+      </g>
+      <line x1="362" y1="97" x2="352" y2="83" stroke="#c98d60" stroke-width="7" stroke-linecap="round"/>
+      <g stroke="#a8724c" stroke-width="1.2" stroke-linecap="round">
+        <line x1="369.8" y1="80" x2="369.8" y2="86"/><line x1="377.3" y1="80" x2="377.3" y2="86"/><line x1="384.8" y1="80" x2="384.8" y2="86"/>
+      </g>
     </g>
     <!-- Cabeça -->
     <g class="an-cabeca">
@@ -160,7 +170,7 @@ const CENA = `
 
   <!-- Linhas de grito -->
   <g class="an-grito" stroke="#ff3b45" stroke-width="4" stroke-linecap="round">
-    <line x1="400" y1="118" x2="420" y2="110"/><line x1="402" y1="134" x2="424" y2="134"/><line x1="400" y1="150" x2="420" y2="158"/>
+    <line x1="410" y1="112" x2="430" y2="104"/><line x1="412" y1="128" x2="434" y2="128"/><line x1="410" y1="144" x2="430" y2="152"/>
   </g>
 
   <!-- ===== Aluno (assustado) ===== -->
