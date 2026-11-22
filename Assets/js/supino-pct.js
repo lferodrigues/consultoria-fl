@@ -62,6 +62,8 @@
     }
 
     function iniciar() { document.querySelectorAll(".supino").forEach(preparar); }
+    // O app do aluno (spa-aluno.js) chama de novo quando troca de tela
+    window.flPrepararSupinos = iniciar;
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
     else iniciar();
 })();

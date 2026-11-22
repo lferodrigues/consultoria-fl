@@ -7,6 +7,7 @@ import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-uti
 import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO } from "./fichas-util.js?v=1";
 import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
+import { navegar } from "./spa-nav.js?v=1";
 
 // WhatsApp do personal (55 = Brasil, 32 = DDD)
 const WHATSAPP = "5532998528266";
@@ -122,7 +123,7 @@ $("esp-sair").addEventListener("click", () => sair());
 async function sair() {
     saindo = true;
     await signOut(auth);
-    window.location.replace(PAGINAS.login);
+    navegar(PAGINAS.login, { substituir: true });
 }
 $("logout-btn").addEventListener("click", sair);
 

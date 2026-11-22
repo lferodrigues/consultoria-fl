@@ -20,6 +20,7 @@ import {
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 import { prepararAppCheck } from "./app-check.js?v=4";
+import { navegar } from "./spa-nav.js?v=1";
 
 /* ---------- "Não sou um robô" (Cloudflare Turnstile) ----------
    A chave abaixo é a Site Key (pública). A Secret Key NUNCA vai no site.
@@ -43,7 +44,7 @@ function montarRobo() {
         "error-callback": () => { roboToken = ""; mostrar("Não foi possível carregar a verificação de segurança. Recarregue a página."); return true; }
     });
 }
-if (window.flTurnstilePronto) setTimeout(montarRobo);
+if (window.flTurnstilePronto || window.turnstile) setTimeout(montarRobo);
 else document.addEventListener("fl-turnstile", montarRobo, { once: true });
 
 // Só deixa seguir com a verificação resolvida; depois de usada, gera outra (o token vale uma vez)
@@ -120,7 +121,7 @@ function tratarErro(e) {
 
 function mostrarLogado(user) {
     if (PAGINAS.aluno) {
-        window.location.href = PAGINAS.aluno;
+        navegar(PAGINAS.aluno);
         return;
     }
     $("auth-area").hidden = true;

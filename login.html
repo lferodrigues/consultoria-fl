@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- GERADO por aluno-spa/gerar.mjs — não edite aqui. Edite aluno-spa/vistas/ e rode: node aluno-spa/gerar.mjs -->
 <html lang="pt-BR">
 
 <head>
@@ -20,18 +21,32 @@
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-check.js">
     <link rel="modulepreload" href="./Assets/js/app-check.js?v=4">
     <link rel="modulepreload" href="./Assets/js/firebase-app.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/login-aluno.js?v=12">
+    <link rel="modulepreload" href="./Assets/js/spa-nav.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/login-aluno.js?v=13">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="./Assets/css/login.css?v=5">
+    <link rel="stylesheet" href="./Assets/css/login.css?v=5" data-vista="login">
     <link rel="stylesheet" href="./Assets/css/cookies.css?v=1">
+    <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
+    <link rel="prefetch" as="style" href="./Assets/css/cadastro.css?v=2">
+    <link rel="prefetch" as="style" href="./Assets/css/admin.css?v=3">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=11">
+    <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/inscricao.js?v=6">
+    <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=10">
 </head>
 
 <body>
+    <!-- ===================== Tela: login ===================== -->
+    <template id="vista-login">
     <main class="login-page">
 
         <!-- Painel visual -->
@@ -159,6 +174,639 @@
         </svg>
         <span class="supino-texto">Entrando...</span>
     </div></div>
+    </template>
+
+    <!-- ===================== Tela: ficha de inscrição ===================== -->
+    <template id="vista-cadastro">
+    <header class="cad-top">
+        <a href="./index.html" aria-label="Início"><img src="./Assets/img/banner05.png" alt="Fagner Lage Personal Trainer"></a>
+        <a href="./login.html" class="cad-top-link"><i class="fa-solid fa-user"></i> Já sou aluno</a>
+    </header>
+
+    <main class="cad-main">
+        <div class="cad-head" id="cad-head">
+            <span class="eyebrow">Ficha de inscrição</span>
+            <h1>Comece a sua <span class="accent">consultoria</span></h1>
+            <p>Leva uns 5 minutos. Com essas informações o Fagner monta o seu primeiro treino.</p>
+        </div>
+
+        <ol class="cad-passos" id="cad-passos" aria-label="Etapas da inscrição">
+            <li data-passo="1"><span>Plano e conta</span></li>
+            <li data-passo="2"><span>Seus dados</span></li>
+            <li data-passo="3"><span>Saúde</span></li>
+            <li data-passo="4"><span>Treino e fatura</span></li>
+            <li data-passo="5"><span>Termos</span></li>
+        </ol>
+
+        <form class="cad-card" id="cad-form" novalidate>
+
+            <!-- ===== 1. Plano e conta ===== -->
+            <section class="cad-etapa" data-etapa="1">
+                <h2>Plano e conta</h2>
+                <p class="sub">Escolha o plano e como você vai entrar na área do aluno.</p>
+
+                <div class="planos-esc" id="cad-planos" role="radiogroup" aria-label="Plano">
+                    <p class="dica"><i class="fa-solid fa-spinner fa-spin"></i> Carregando planos...</p>
+                </div>
+
+                <div class="cad-bloco">
+                    <h3><i class="fa-solid fa-user-lock"></i> Sua conta de acesso</h3>
+
+                    <div id="conta-off">
+                        <div class="provedores">
+                            <button type="button" class="btn-prov" id="cad-google">
+                                <svg viewBox="0 0 48 48" aria-hidden="true">
+                                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+                                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+                                </svg>
+                                Continuar com Google
+                            </button>
+                            <button type="button" class="btn-prov apple" id="cad-apple"><i class="fa-brands fa-apple"></i> Continuar com Apple</button>
+                        </div>
+                        <div class="ou">ou crie uma senha</div>
+                        <div class="grid">
+                            <label class="campo c6">E-mail<input type="email" id="c-email" autocomplete="email" placeholder="seunome@gmail.com"></label>
+                            <label class="campo c3">Senha<input type="password" id="c-senha" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></label>
+                            <label class="campo c3">Repita a senha<input type="password" id="c-senha2" autocomplete="new-password"></label>
+                        </div>
+                    </div>
+
+                    <div class="conta-on" id="conta-on" hidden>
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div><small>Conectado como</small><b id="conta-email"></b></div>
+                        <button type="button" class="link-btn" id="conta-trocar">Trocar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 2. Seus dados ===== -->
+            <section class="cad-etapa" data-etapa="2" hidden>
+                <h2>Seus dados</h2>
+                <p class="sub">Para o seu cadastro e para o Fagner falar com você.</p>
+
+                <div class="foto-campo" id="foto-campo">
+                    <div class="foto-prev" id="foto-prev"><i class="fa-solid fa-user"></i></div>
+                    <div>
+                        <label class="btn btn-ghost" for="c-foto"><i class="fa-solid fa-camera"></i> Escolher foto de perfil</label>
+                        <input type="file" id="c-foto" accept="image/*" hidden>
+                        <small>Uma foto de rosto, de frente. Ela aparece só para você e para o personal.</small>
+                    </div>
+                </div>
+
+                <div class="grid" style="margin-top:20px">
+                    <label class="campo c6">Nome completo<input type="text" id="c-nome" autocomplete="name" maxlength="120"></label>
+                    <label class="campo c3">CPF<input type="text" id="c-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></label>
+                    <label class="campo c3">WhatsApp<input type="tel" id="c-whats" inputmode="tel" autocomplete="tel-national" placeholder="(32) 99999-9999" maxlength="15"></label>
+                    <label class="campo c6">E-mail<input type="email" id="c-email-conta" readonly><small>Vem da conta que você escolheu na etapa anterior.</small></label>
+                    <label class="campo c3">Sexo
+                        <select id="c-sexo">
+                            <option value="">Selecione</option>
+                            <option>Feminino</option><option>Masculino</option><option>Outro</option><option>Prefiro não informar</option>
+                        </select>
+                    </label>
+                    <label class="campo c3">Idade<span class="com-sufixo"><input type="number" id="c-idade" inputmode="numeric" min="10" max="100"><em>anos</em></span></label>
+                </div>
+
+                <div class="cad-bloco">
+                    <h3><i class="fa-solid fa-location-dot"></i> Endereço</h3>
+                    <div class="grid">
+                        <label class="campo c2">CEP<input type="text" id="c-cep" inputmode="numeric" placeholder="00000-000" maxlength="9" autocomplete="postal-code"><small id="cep-info"></small></label>
+                        <label class="campo c4">Rua / avenida<input type="text" id="c-rua" autocomplete="address-line1" maxlength="150"></label>
+                        <label class="campo c2">Número<input type="text" id="c-numero" maxlength="10"></label>
+                        <label class="campo c4">Complemento<input type="text" id="c-compl" maxlength="80" placeholder="Opcional"></label>
+                        <label class="campo c3">Bairro<input type="text" id="c-bairro" maxlength="80"></label>
+                        <label class="campo c2">Cidade<input type="text" id="c-cidade" autocomplete="address-level2" maxlength="80"></label>
+                        <label class="campo c1">UF<input type="text" id="c-uf" maxlength="2" autocomplete="address-level1"></label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 3. Saúde ===== -->
+            <section class="cad-etapa" data-etapa="3" hidden>
+                <h2>Corpo e saúde</h2>
+                <p class="sub">Essas respostas deixam o treino mais seguro para você. Só o personal tem acesso.</p>
+
+                <div class="grid">
+                    <label class="campo c2">Peso<span class="com-sufixo"><input type="number" id="c-peso" inputmode="decimal" step="0.1" min="20" max="400"><em>kg</em></span></label>
+                    <label class="campo c2">Altura<span class="com-sufixo"><input type="number" id="c-altura" inputmode="numeric" min="100" max="250" placeholder="170"><em>cm</em></span></label>
+                    <label class="campo c2">IMC<input type="text" id="c-imc" readonly placeholder="—"></label>
+                    <div class="campo c6">Qual é o seu objetivo?
+                        <div class="pilulas" id="c-objetivo">
+                            <label><input type="radio" name="objetivo" value="Emagrecimento"><span>Emagrecimento</span></label>
+                            <label><input type="radio" name="objetivo" value="Hipertrofia"><span>Ganhar massa muscular</span></label>
+                            <label><input type="radio" name="objetivo" value="Condicionamento"><span>Condicionamento</span></label>
+                            <label><input type="radio" name="objetivo" value="Saúde e qualidade de vida"><span>Saúde e qualidade de vida</span></label>
+                            <label><input type="radio" name="objetivo" value="Força"><span>Força</span></label>
+                            <label><input type="radio" name="objetivo" value="Outro"><span>Outro</span></label>
+                        </div>
+                    </div>
+                    <label class="campo c6" id="obj-outro-wrap" hidden>Conte o seu objetivo<input type="text" id="c-obj-outro" maxlength="150"></label>
+                </div>
+
+                <div class="cad-bloco">
+                    <div class="pergunta" data-pergunta="lesao">
+                        <div class="pergunta-topo">Tem alguma lesão?
+                            <div class="pilulas"><label><input type="radio" name="lesao" value="nao"><span>Não</span></label><label><input type="radio" name="lesao" value="sim"><span>Sim</span></label></div>
+                        </div>
+                        <label class="campo" hidden>Qual lesão? Onde e há quanto tempo?<textarea id="c-lesao" maxlength="500" placeholder="Ex.: condromalácia no joelho direito, há 2 anos"></textarea></label>
+                    </div>
+                    <div class="pergunta" data-pergunta="saude">
+                        <div class="pergunta-topo">Tem algum problema de saúde?
+                            <div class="pilulas"><label><input type="radio" name="saude" value="nao"><span>Não</span></label><label><input type="radio" name="saude" value="sim"><span>Sim</span></label></div>
+                        </div>
+                        <label class="campo" hidden>Qual problema de saúde?<textarea id="c-saude" maxlength="500" placeholder="Ex.: hipertensão, diabetes, asma, problema cardíaco..."></textarea></label>
+                    </div>
+                    <div class="pergunta" data-pergunta="medicamento">
+                        <div class="pergunta-topo">Usa algum medicamento?
+                            <div class="pilulas"><label><input type="radio" name="medicamento" value="nao"><span>Não</span></label><label><input type="radio" name="medicamento" value="sim"><span>Sim</span></label></div>
+                        </div>
+                        <label class="campo" hidden>Qual medicamento?<textarea id="c-medicamento" maxlength="500" placeholder="Nome e para que serve"></textarea></label>
+                    </div>
+                    <p class="dica"><i class="fa-solid fa-stethoscope"></i> Se você tem algum problema de saúde ou usa medicamento contínuo, converse com o seu médico antes de começar.</p>
+                </div>
+            </section>
+
+            <!-- ===== 4. Treino e fatura ===== -->
+            <section class="cad-etapa" data-etapa="4" hidden>
+                <h2>Treino e fatura</h2>
+                <p class="sub">Para o treino caber na sua rotina.</p>
+
+                <div class="grid">
+                    <div class="campo c6">Quantos dias por semana você vai treinar?
+                        <div class="pilulas quadradas" id="c-dias">
+                            <label><input type="radio" name="dias" value="1"><span>1</span></label>
+                            <label><input type="radio" name="dias" value="2"><span>2</span></label>
+                            <label><input type="radio" name="dias" value="3"><span>3</span></label>
+                            <label><input type="radio" name="dias" value="4"><span>4</span></label>
+                            <label><input type="radio" name="dias" value="5"><span>5</span></label>
+                            <label><input type="radio" name="dias" value="6"><span>6</span></label>
+                            <label><input type="radio" name="dias" value="7"><span>7</span></label>
+                        </div>
+                    </div>
+                    <div class="campo c6">Quanto tempo você tem por dia?
+                        <div class="pilulas" id="c-tempo">
+                            <label><input type="radio" name="tempo" value="30 minutos"><span>30 min</span></label>
+                            <label><input type="radio" name="tempo" value="45 minutos"><span>45 min</span></label>
+                            <label><input type="radio" name="tempo" value="1 hora"><span>1 hora</span></label>
+                            <label><input type="radio" name="tempo" value="1 hora e 30 minutos"><span>1h30</span></label>
+                            <label><input type="radio" name="tempo" value="2 horas ou mais"><span>2h ou mais</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cad-bloco">
+                    <h3><i class="fa-solid fa-receipt"></i> Plano e fatura</h3>
+                    <div class="resumo-plano">
+                        <div><small>Plano escolhido</small><strong id="res-plano">—</strong> <button type="button" class="link-btn" id="res-trocar">trocar</button></div>
+                        <div><small>Valor</small><b id="res-valor">—</b></div>
+                    </div>
+                    <div class="campo" style="margin-top:16px">Dia de vencimento da fatura
+                        <div class="pilulas quadradas" id="c-venc">
+                            <label><input type="radio" name="venc" value="5"><span>5</span></label>
+                            <label><input type="radio" name="venc" value="10"><span>10</span></label>
+                            <label><input type="radio" name="venc" value="15"><span>15</span></label>
+                            <label><input type="radio" name="venc" value="20"><span>20</span></label>
+                            <label><input type="radio" name="venc" value="25"><span>25</span></label>
+                        </div>
+                    </div>
+                    <p class="dica" id="venc-info"><i class="fa-regular fa-calendar"></i> Escolha o melhor dia do mês para pagar.</p>
+                </div>
+            </section>
+
+            <!-- ===== 5. Termos ===== -->
+            <section class="cad-etapa" data-etapa="5" hidden>
+                <h2>Termos e privacidade</h2>
+                <p class="sub">Seus dados são protegidos conforme a LGPD (Lei nº 13.709/2018).</p>
+
+                <div class="lgpd-box">
+                    <strong>Resumo do que fazemos com os seus dados</strong>
+                    <ul>
+                        <li>Usamos só para montar e acompanhar o seu treino, criar o seu acesso e cobrar o plano.</li>
+                        <li>Dados de saúde são vistos apenas pelo personal e nunca aparecem no site.</li>
+                        <li>Não vendemos nem usamos seus dados para propaganda de terceiros.</li>
+                        <li>Você pode pedir acesso, correção ou exclusão quando quiser.</li>
+                    </ul>
+                    <p style="margin-top:10px"><a href="./termos-lgpd.html" target="_blank" rel="noopener"><i class="fa-solid fa-file-shield"></i> Ler os Termos de Uso e a Política de Privacidade completos</a></p>
+                </div>
+
+                <label class="aceite" id="aceite-termos-wrap">
+                    <input type="checkbox" id="c-termos">
+                    <span>Li e aceito os <a href="./termos-lgpd.html" target="_blank" rel="noopener">Termos de Uso e a Política de Privacidade</a>.</span>
+                </label>
+                <label class="aceite destaque" id="aceite-saude-wrap">
+                    <input type="checkbox" id="c-consent-saude">
+                    <span><strong>Consentimento para dados de saúde:</strong> autorizo o personal Fagner Lage a usar as informações sobre lesões, saúde e medicamentos que informei, exclusivamente para montar e acompanhar o meu treino.</span>
+                </label>
+
+                <div id="menor-wrap" hidden>
+                    <div class="cad-bloco">
+                        <h3><i class="fa-solid fa-children"></i> Responsável legal (menor de 18 anos)</h3>
+                        <div class="grid">
+                            <label class="campo c6">Nome do pai, mãe ou responsável<input type="text" id="c-resp" maxlength="120"></label>
+                        </div>
+                        <label class="aceite" id="aceite-resp-wrap">
+                            <input type="checkbox" id="c-resp-ok">
+                            <span>Sou o responsável legal e dou o meu consentimento para o tratamento dos dados do menor, nos termos do art. 14 da LGPD.</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <p class="cad-msg" id="cad-msg" role="alert"></p>
+            <div class="cad-acoes">
+                <button type="button" class="btn btn-ghost" id="cad-voltar" hidden><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                <button type="submit" class="btn btn-primary" id="cad-avancar">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </form>
+
+        <!-- Inscrição enviada -->
+        <section class="cad-card cad-fim" id="cad-fim" hidden>
+            <div class="selo"><i class="fa-solid fa-check"></i></div>
+            <h2>Inscrição enviada!</h2>
+            <p>Agora é só mandar a mensagem para o Fagner no WhatsApp. Ele vai montar o seu primeiro treino e avisar você quando estiver pronto.</p>
+            <ol class="linha-tempo">
+                <li class="feito"><i class="fa-solid fa-check"></i><span>Ficha de inscrição preenchida</span></li>
+                <li class="agora"><i class="fa-solid fa-hourglass-half"></i><span>O Fagner analisa as suas respostas e monta a primeira ficha</span></li>
+                <li><i class="fa-solid fa-mobile-screen"></i><span>Você recebe um WhatsApp e a área do aluno é liberada</span></li>
+            </ol>
+            <div class="botoes">
+                <a class="btn btn-whats" id="fim-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Avisar o Fagner no WhatsApp</a>
+                <a class="btn btn-ghost" href="./area-do-aluno.html"><i class="fa-solid fa-user"></i> Ir para a área do aluno</a>
+            </div>
+        </section>
+
+        <!-- Já tem inscrição / já é aluno -->
+        <section class="cad-card cad-fim" id="cad-ja" hidden>
+            <div class="selo aviso"><i class="fa-solid fa-clipboard-check"></i></div>
+            <h2 id="ja-titulo">Você já tem uma inscrição</h2>
+            <p id="ja-texto"></p>
+            <div class="botoes">
+                <a class="btn btn-primary" href="./area-do-aluno.html"><i class="fa-solid fa-user"></i> Ir para a área do aluno</a>
+                <button type="button" class="btn btn-ghost" id="ja-sair"><i class="fa-solid fa-right-from-bracket"></i> Usar outra conta</button>
+            </div>
+        </section>
+    </main>
+
+    <div class="cad-loading" id="cad-loading" hidden><div class="supino">
+        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
+          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
+          <!-- suporte da barra (atrás da cabeça) -->
+          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
+          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
+          <!-- banco -->
+          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
+          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
+          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
+          <!-- pernas: quadril, joelho, pé no chão -->
+          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
+          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
+          <!-- tronco e cabeça -->
+          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
+          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
+          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
+            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
+            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
+            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
+          </g>
+          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
+          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
+            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+          </polyline>
+          <circle class="supino-cabeca" r="5">
+            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
+            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          </circle>
+        </svg>
+        <span class="cad-progresso" aria-live="polite">
+            <b id="cad-pct">0%</b>
+            <span class="cad-barra-fundo"><i id="cad-barra"></i></span>
+            <span class="supino-texto" id="cad-loading-texto">Carregando...</span>
+        </span>
+    </div></div>
+    </template>
+
+    <!-- ===================== Tela: área do aluno ===================== -->
+    <template id="vista-area">
+    <!-- Verificação de acesso (some quando o aluno é confirmado) -->
+    <div class="gate" id="gate"><div class="supino">
+        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
+          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
+          <!-- suporte da barra (atrás da cabeça) -->
+          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
+          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
+          <!-- banco -->
+          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
+          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
+          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
+          <!-- pernas: quadril, joelho, pé no chão -->
+          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
+          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
+          <!-- tronco e cabeça -->
+          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
+          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
+          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
+            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
+            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
+            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
+          </g>
+          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
+          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
+            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+          </polyline>
+          <circle class="supino-cabeca" r="5">
+            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
+            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          </circle>
+        </svg>
+    </div><p>Verificando acesso...</p></div>
+
+    <!-- Inscrição enviada, aguardando a primeira ficha -->
+    <section class="al-espera" id="al-espera" hidden>
+        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <div class="esp-card">
+            <img class="esp-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
+            <h1>Quase lá<span id="esp-nome"></span>!</h1>
+            <p id="esp-texto"></p>
+            <ol class="esp-passos">
+                <li class="feito" id="esp-passo1"><i class="fa-solid fa-check"></i><span>Ficha de inscrição enviada</span></li>
+                <li id="esp-passo2"><i class="fa-solid fa-hourglass-half"></i><span>O Fagner analisa as suas respostas</span></li>
+                <li id="esp-passo3"><i class="fa-solid fa-dumbbell"></i><span>Primeira ficha de treino cadastrada — área do aluno liberada</span></li>
+            </ol>
+            <a class="btn btn-primary esp-btn" id="esp-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar com o Fagner</a>
+            <button type="button" class="btn btn-ghost esp-btn" id="esp-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </section>
+
+    <div class="app-aluno" id="app">
+
+        <!-- ===== Topo ===== -->
+        <header class="al-top">
+            <a href="#/inicio" class="al-voltar" id="al-voltar" aria-label="Voltar ao início" hidden><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="#/inicio" class="al-marca" id="al-marca"><img src="./Assets/img/banner05.png" alt=""><span>Fagner Lage</span></a>
+            <strong class="al-top-titulo" id="al-top-titulo" hidden></strong>
+            <div class="al-top-dir">
+                <button type="button" class="al-bell" id="al-bell" aria-label="Notificações" aria-expanded="false">
+                    <i class="fa-regular fa-bell"></i><span class="al-bell-n" id="al-bell-n" hidden>0</span>
+                </button>
+            </div>
+            <div class="al-notifs" id="al-notifs" hidden role="dialog" aria-label="Notificações">
+                <div class="al-notifs-head"><strong>Notificações</strong><button type="button" class="al-link" id="al-notifs-fechar">Fechar</button></div>
+                <div id="al-notifs-lista"></div>
+            </div>
+        </header>
+
+        <!-- ===== Início ===== -->
+        <section class="al-view" id="view-inicio" hidden>
+            <div class="al-hero">
+                <img class="al-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
+                <strong class="al-nome-personal">Fagner Lage</strong>
+                <small class="al-cref">Personal Trainer</small>
+            </div>
+            <h1 class="al-saudacao"><span id="al-saudacao">Olá</span>, <span id="aluno-nome">aluno</span>!</h1>
+            <div class="al-tiles">
+                <a href="#/treino" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dumbbell"></i></span>
+                    <span class="al-tile-txt"><strong>Treinos</strong><small id="tile-treino">Sua ficha de treino</small></span>
+                </a>
+                <a href="#/progresso" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-clipboard-check"></i></span>
+                    <span class="al-tile-txt"><strong>Meu progresso</strong><small id="tile-progresso">Treinos e feedbacks</small></span>
+                </a>
+                <a href="#/ebooks" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-book-open"></i></span>
+                    <span class="al-tile-txt"><strong>E-books</strong><small id="tile-arquivos">Materiais do personal</small></span>
+                </a>
+                <a href="#/faturas" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dollar-sign"></i></span>
+                    <span class="al-tile-txt"><strong>Faturas</strong><small id="tile-faturas">Plano e pagamento</small></span>
+                </a>
+                <a href="#/depoimentos" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-comment-dots"></i></span>
+                    <span class="al-tile-txt"><strong>Depoimentos</strong><small id="tile-depoimentos">Conte sua experiência</small></span>
+                </a>
+            </div>
+            <a href="#/faturas" class="al-aviso" id="al-aviso-venc" hidden></a>
+        </section>
+
+        <!-- ===== Treinos ===== -->
+        <section class="al-view" id="view-treino" hidden>
+            <div class="treino-area" id="treino-area">
+            <div class="treino-vazio" id="treino-vazio" hidden>
+                <div class="treino-icone"><i class="fa-solid fa-person-running"></i></div>
+                <div>
+                    <h2>Seu treino</h2>
+                    <p>Seu personal ainda não cadastrou a sua ficha de treino. Assim que ela estiver pronta, aparece aqui.</p>
+                </div>
+            </div>
+
+            <div class="treino-grid" id="treino-grid" hidden>
+                <article class="ficha-card">
+                    <header class="ficha-head">
+                        <h2 id="tr-dia-nome">Treino</h2>
+                        <p id="tr-sub"></p>
+                    </header>
+                    <div class="ficha-semana" id="tr-semana" role="tablist" aria-label="Dias da semana"></div>
+                    <p class="ficha-descanso" id="tr-descanso" hidden><i class="fa-solid fa-bed"></i> Hoje é dia de descanso. Escolha um dia de treino acima para ver os exercícios.</p>
+                    <ul class="ficha-lista" id="tr-lista"></ul>
+                    <div class="ficha-prog">
+                        <div class="ficha-barra"><span id="tr-barra"></span></div>
+                        <small id="tr-prog-txt">0 de 0 concluídos</small>
+                    </div>
+                    <button type="button" class="btn btn-primary ficha-feedback" id="tr-feedback-btn"><i class="fa-regular fa-comment-dots"></i> Feedback do dia</button>
+                </article>
+
+                <aside class="ficha-info">
+                    <div class="info-bloco">
+                        <span class="info-l">Sua ficha</span>
+                        <strong id="tr-ficha-nome">—</strong>
+                        <div class="tags" id="tr-tags"></div>
+                    </div>
+                    <div class="info-bloco" id="tr-obs-bloco" hidden>
+                        <span class="info-l">Orientações do personal</span>
+                        <p id="tr-obs"></p>
+                    </div>
+                    <div class="info-bloco dica">
+                        <i class="fa-solid fa-circle-play"></i>
+                        <p>Toque em um exercício para ver o vídeo de execução. Marque o círculo quando terminar.</p>
+                    </div>
+                </aside>
+            </div>
+            </div>
+        </section>
+
+        <!-- ===== Meu progresso ===== -->
+        <section class="al-view" id="view-progresso" hidden>
+            <div class="al-cards3">
+                <div class="al-num"><strong id="pg-semana">0</strong><small id="pg-semana-txt">treinos nesta semana</small></div>
+                <div class="al-num"><strong id="pg-mes">0</strong><small>feedbacks no mês</small></div>
+                <div class="al-num"><strong id="pg-esforco">—</strong><small>último esforço</small></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Esta semana</h2>
+                <div class="pg-semana" id="pg-dias"></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Seus feedbacks</h2>
+                <ul class="pg-lista" id="pg-lista"></ul>
+            </div>
+        </section>
+
+        <!-- ===== E-books ===== -->
+        <section class="al-view" id="view-ebooks" hidden>
+            <ul class="arq-lista" id="arq-lista"></ul>
+            <div class="al-vazio" id="arq-vazio" hidden><i class="fa-solid fa-book-open"></i><p>Nenhum e-book por aqui ainda. Quando o personal enviar um material, ele aparece nesta tela.</p></div>
+        </section>
+
+        <!-- ===== Depoimentos ===== -->
+        <section class="al-view" id="view-depoimentos" hidden>
+            <form class="al-bloco dep-form" id="dep-form" novalidate>
+                <h2><i class="fa-solid fa-comment-dots"></i> Deixe seu depoimento</h2>
+                <p class="dep-intro">Conte como está sendo a consultoria com o Fagner. Os melhores depoimentos podem aparecer no site.</p>
+                <fieldset class="estrelas" id="dep-estrelas">
+                    <legend>Sua nota</legend>
+                    <input type="radio" name="dep-nota" id="dep-n5" value="5"><label for="dep-n5" title="5 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n4" value="4"><label for="dep-n4" title="4 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n3" value="3"><label for="dep-n3" title="3 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n2" value="2"><label for="dep-n2" title="2 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n1" value="1"><label for="dep-n1" title="1 estrela">★</label>
+                </fieldset>
+                <label class="fb-coment">Seu depoimento
+                    <textarea id="dep-texto" rows="5" maxlength="600" placeholder="Ex.: Em 3 meses saí do platô, perdi 6 kg e ganhei disciplina. O acompanhamento faz toda a diferença!"></textarea>
+                    <small class="dep-cont" id="dep-cont">0 / 600</small>
+                </label>
+                <label class="fb-coment">Como seu nome aparece no site
+                    <select id="dep-nome-modo">
+                        <option value="inicial">Primeiro nome e inicial</option>
+                        <option value="primeiro">Só o primeiro nome</option>
+                        <option value="completo">Nome completo</option>
+                    </select>
+                    <small id="dep-nome-prev"></small>
+                </label>
+                <label class="dep-autoriza"><input type="checkbox" id="dep-autorizo"> <span>Autorizo o personal Fagner Lage a publicar este depoimento no site, com o nome escolhido acima.</span></label>
+                <p class="form-msg" id="dep-msg" role="alert"></p>
+                <button type="submit" class="btn btn-primary dep-enviar" id="dep-enviar"><i class="fa-solid fa-paper-plane"></i> Enviar depoimento</button>
+            </form>
+            <div class="al-bloco">
+                <h2>Seus depoimentos</h2>
+                <ul class="pg-lista" id="dep-lista"></ul>
+            </div>
+        </section>
+
+        <!-- ===== Faturas ===== -->
+        <section class="al-view" id="view-faturas" hidden>
+            <div class="al-bloco plano-bloco">
+                <span class="info-l">Seu plano</span>
+                <strong class="plano-nome" id="aluno-plano">—</strong>
+                <div class="plano-linhas">
+                    <div><small>Vencimento</small><b id="aluno-venc">—</b><em id="aluno-dias"></em></div>
+                    <div><small>Situação</small><span class="badge ok" id="aluno-status">Ativo</span></div>
+                    <div id="aluno-fatura-wrap" hidden><small>Fatura</small><b id="aluno-fatura"></b></div>
+                </div>
+            </div>
+            <div class="al-bloco pix-bloco" id="pix-bloco" hidden>
+                <h2><i class="fa-brands fa-pix"></i> Pagar com Pix</h2>
+                <span class="info-l">Chave Pix · <span id="pix-tipo"></span></span>
+                <strong class="pix-chave-al" id="pix-chave"></strong>
+                <small class="pix-nome-al" id="pix-nome"></small>
+                <div class="pix-botoes">
+                    <button type="button" class="btn btn-ghost" id="pix-copiar-chave"><i class="fa-regular fa-copy"></i> Copiar chave</button>
+                    <button type="button" class="btn btn-primary" id="pix-copiar-codigo"><i class="fa-solid fa-qrcode"></i> Copiar Pix copia e cola</button>
+                </div>
+                <a class="btn btn-ghost pix-comprovante" id="pix-comprovante" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Enviar comprovante</a>
+            </div>
+            <div class="al-vazio" id="pix-vazio" hidden><i class="fa-solid fa-dollar-sign"></i><p>Para renovar ou pagar o plano, fale com o personal pelo WhatsApp.</p></div>
+        </section>
+
+        <!-- ===== Menu de baixo ===== -->
+        <nav class="al-nav" aria-label="Menu principal">
+            <a href="#/inicio" data-nav="inicio"><i class="fa-solid fa-house"></i><span>Início</span></a>
+            <a href="https://www.instagram.com/fagnerlage_personal" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+            <a id="nav-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a>
+            <button type="button" id="nav-menu" aria-expanded="false"><i class="fa-solid fa-bars"></i><span>Menu</span></button>
+        </nav>
+    </div>
+
+    <!-- Menu lateral (botão Menu) -->
+    <div class="al-sheet-fundo" id="al-sheet-fundo" hidden></div>
+    <aside class="al-sheet" id="al-sheet" aria-label="Menu" hidden>
+        <div class="al-sheet-head">
+            <span class="avatar-al" id="al-iniciais">A</span>
+            <div><strong id="al-sheet-nome">Aluno</strong><small id="al-sheet-email"></small></div>
+        </div>
+        <a href="#/inicio"><i class="fa-solid fa-house"></i> Início</a>
+        <a href="#/treino"><i class="fa-solid fa-dumbbell"></i> Treinos</a>
+        <a href="#/progresso"><i class="fa-solid fa-clipboard-check"></i> Meu progresso</a>
+        <a href="#/ebooks"><i class="fa-solid fa-book-open"></i> E-books</a>
+        <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
+        <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
+        <a href="./index.html"><i class="fa-solid fa-globe"></i> Visitar site</a>
+        <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    </aside>
+
+    <!-- Pop-up: vídeo do exercício -->
+    <div class="modal" id="modal-video" hidden>
+        <div class="modal-box video-box" role="dialog" aria-modal="true" aria-labelledby="mv-titulo">
+            <!-- Vídeo vertical 9:16, estilo story -->
+            <div class="story">
+                <div class="story-topo">
+                    <div class="story-perfil">
+                        <img src="./Assets/img/banner05.png" alt="">
+                        <div><strong id="mv-titulo">Exercício</strong><small id="mv-sub">Fagner Lage</small></div>
+                    </div>
+                    <button type="button" class="story-fechar" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="video-wrap" id="mv-video"></div>
+            </div>
+            <div class="mv-dados" id="mv-dados"></div>
+            <p class="mv-obs" id="mv-obs" hidden></p>
+            <button type="button" class="btn btn-primary story-feito" id="mv-feito"><i class="fa-solid fa-check"></i> Marcar como feito</button>
+        </div>
+    </div>
+
+    <!-- Pop-up: feedback do dia -->
+    <div class="modal" id="modal-feedback" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="fb-titulo">
+            <div class="modal-head">
+                <h2 id="fb-titulo">Como foi o treino?</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="feedback-form" novalidate>
+                <p class="fb-resumo" id="fb-resumo"></p>
+                <fieldset class="esforco">
+                    <legend>Esforço do treino</legend>
+                    <label><input type="radio" name="esforco" value="minimo"><span><i class="fa-solid fa-face-smile"></i> Mínimo</span></label>
+                    <label><input type="radio" name="esforco" value="medio"><span><i class="fa-solid fa-face-meh"></i> Médio</span></label>
+                    <label><input type="radio" name="esforco" value="alto"><span><i class="fa-solid fa-face-tired"></i> Alto</span></label>
+                </fieldset>
+                <label class="fb-coment">Comentário (opcional)
+                    <textarea id="fb-comentario" rows="4" maxlength="1000" placeholder="Conte como se sentiu, se teve dor, dificuldade em algum exercício..."></textarea>
+                </label>
+                <p class="form-msg" id="fb-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="fb-enviar"><i class="fa-brands fa-whatsapp"></i> Enviar feedback</button>
+                </div>
+                <small class="fb-nota">O feedback vai para o painel do personal e abre o WhatsApp para enviar a mensagem.</small>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+    </template>
+
+    <span id="spa-fim" hidden></span>
 
     <!-- Cloudflare Turnstile: avisa o login quando a biblioteca terminar de carregar -->
     <script>
@@ -166,9 +814,9 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script type="module" src="./Assets/js/login-aluno.js?v=12"></script>
+    <script src="./Assets/js/spa-aluno.js?v=1"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
-    <script src="./Assets/js/supino-pct.js?v=2" defer></script>
+    <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>
 

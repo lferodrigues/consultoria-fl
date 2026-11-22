@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ATENÇÃO: cadastrolivre.html é uma cópia desta página (cadastro sem escolher plano). Ao mudar uma, copie para a outra. -->
+<!-- GERADO por aluno-spa/gerar.mjs — não edite aqui. Edite aluno-spa/vistas/ e rode: node aluno-spa/gerar.mjs -->
 <html lang="pt-BR">
 
 <head>
@@ -15,26 +15,169 @@
     <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
     <link rel="preconnect" href="https://securetoken.googleapis.com">
     <link rel="preconnect" href="https://challenges.cloudflare.com">
-    <link rel="preload" as="script" href="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-check.js">
     <link rel="modulepreload" href="./Assets/js/app-check.js?v=4">
     <link rel="modulepreload" href="./Assets/js/firebase-app.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/spa-nav.js?v=1">
     <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/inscricao.js?v=5">
+    <link rel="modulepreload" href="./Assets/js/inscricao.js?v=6">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="./Assets/css/cadastro.css?v=2">
+    <link rel="stylesheet" href="./Assets/css/cadastro.css?v=2" data-vista="cadastro">
     <link rel="stylesheet" href="./Assets/css/cookies.css?v=1">
+    <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
+    <link rel="prefetch" as="style" href="./Assets/css/login.css?v=5">
+    <link rel="prefetch" as="style" href="./Assets/css/admin.css?v=3">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=11">
+    <link rel="modulepreload" href="./Assets/js/login-aluno.js?v=13">
+    <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=10">
 </head>
 
 <body>
+    <!-- ===================== Tela: login ===================== -->
+    <template id="vista-login">
+    <main class="login-page">
+
+        <!-- Painel visual -->
+        <section class="visual" aria-hidden="true">
+            <img class="visual-photo" src="./administrador/Assets/img/5.jpeg" alt="">
+            <div class="visual-shade"></div>
+            <span class="glow g1"></span>
+            <span class="glow g2"></span>
+            <span class="streak s1"></span>
+            <span class="streak s2"></span>
+            <span class="streak s3"></span>
+
+            <a href="./index.html" class="brand" tabindex="-1">
+                <img src="./Assets/img/banner05.png" alt="">
+                <span>Fagner Lage<small>Personal trainer</small></span>
+            </a>
+
+            <h2 class="visual-title">Entre no seu<br><span>treino!</span></h2>
+        </section>
+
+        <!-- Formulário -->
+        <section class="panel">
+            <div class="panel-inner">
+                <a href="./index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a>
+
+                <div id="auth-area">
+                    <h1 id="title">Entrar</h1>
+
+                    <form id="auth-form" novalidate>
+                        <div class="group">
+                            <label for="email">Entre com seu e-mail</label>
+                            <div class="field">
+                                <i class="fa-regular fa-envelope"></i>
+                                <input type="email" id="email" placeholder="seunome@gmail.com" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="group">
+                            <div class="field">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="password" placeholder="Sua senha" autocomplete="current-password" required minlength="6" aria-label="Senha">
+                                <button type="button" class="toggle-pass" id="toggle-pass" aria-label="Mostrar senha"><i class="fa-regular fa-eye"></i></button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="link forgot" id="forgot-btn">Esqueci a senha</button>
+
+                        <!-- Verificação "Não sou um robô" (Cloudflare Turnstile) -->
+                        <div class="robo" id="robo" aria-label="Verificação de segurança"></div>
+
+                        <button type="submit" class="btn-login" id="submit-btn">Entrar</button>
+                    </form>
+
+                    <div class="divider"></div>
+
+                    <p class="continue">Ou continue com</p>
+                    <div class="social">
+                    <button type="button" class="btn-google" id="google-btn">
+                        <svg viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+                            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+                            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button type="button" class="btn-google btn-apple" id="apple-btn">
+                        <svg viewBox="0 0 384 512" aria-hidden="true"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                        Apple
+                    </button>
+                    </div>
+
+                    <p class="switch">
+                        Ainda não é aluno? <a href="./planos.html" class="link strong">Conheça os planos</a>
+                    </p>
+                </div>
+
+                <p class="message" id="message" role="alert"></p>
+
+                <!-- Mostrado depois do login -->
+                <div class="logged" id="logged" hidden>
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h1>Olá, <span id="user-name"></span>!</h1>
+                    <p>Você entrou na área do aluno.</p>
+                    <button type="button" class="btn-login" id="logout-btn">Sair</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="loading" id="loading" hidden><div class="supino">
+        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
+          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
+          <!-- suporte da barra (atrás da cabeça) -->
+          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
+          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
+          <!-- banco -->
+          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
+          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
+          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
+          <!-- pernas: quadril, joelho, pé no chão -->
+          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
+          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
+          <!-- tronco e cabeça -->
+          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
+          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
+          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
+            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
+            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
+            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
+          </g>
+          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
+          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
+            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+          </polyline>
+          <circle class="supino-cabeca" r="5">
+            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
+            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          </circle>
+        </svg>
+        <span class="supino-texto">Entrando...</span>
+    </div></div>
+    </template>
+
+    <!-- ===================== Tela: ficha de inscrição ===================== -->
+    <template id="vista-cadastro">
     <header class="cad-top">
         <a href="./index.html" aria-label="Início"><img src="./Assets/img/banner05.png" alt="Fagner Lage Personal Trainer"></a>
         <a href="./login.html" class="cad-top-link"><i class="fa-solid fa-user"></i> Já sou aluno</a>
@@ -347,9 +490,333 @@
             <span class="supino-texto" id="cad-loading-texto">Carregando...</span>
         </span>
     </div></div>
+    </template>
 
-    <script type="module" src="./Assets/js/inscricao.js?v=5"></script>
+    <!-- ===================== Tela: área do aluno ===================== -->
+    <template id="vista-area">
+    <!-- Verificação de acesso (some quando o aluno é confirmado) -->
+    <div class="gate" id="gate"><div class="supino">
+        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
+          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
+          <!-- suporte da barra (atrás da cabeça) -->
+          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
+          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
+          <!-- banco -->
+          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
+          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
+          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
+          <!-- pernas: quadril, joelho, pé no chão -->
+          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
+          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
+          <!-- tronco e cabeça -->
+          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
+          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
+          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
+            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
+            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
+            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
+          </g>
+          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
+          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
+            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+          </polyline>
+          <circle class="supino-cabeca" r="5">
+            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
+            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          </circle>
+        </svg>
+    </div><p>Verificando acesso...</p></div>
+
+    <!-- Inscrição enviada, aguardando a primeira ficha -->
+    <section class="al-espera" id="al-espera" hidden>
+        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <div class="esp-card">
+            <img class="esp-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
+            <h1>Quase lá<span id="esp-nome"></span>!</h1>
+            <p id="esp-texto"></p>
+            <ol class="esp-passos">
+                <li class="feito" id="esp-passo1"><i class="fa-solid fa-check"></i><span>Ficha de inscrição enviada</span></li>
+                <li id="esp-passo2"><i class="fa-solid fa-hourglass-half"></i><span>O Fagner analisa as suas respostas</span></li>
+                <li id="esp-passo3"><i class="fa-solid fa-dumbbell"></i><span>Primeira ficha de treino cadastrada — área do aluno liberada</span></li>
+            </ol>
+            <a class="btn btn-primary esp-btn" id="esp-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar com o Fagner</a>
+            <button type="button" class="btn btn-ghost esp-btn" id="esp-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </section>
+
+    <div class="app-aluno" id="app">
+
+        <!-- ===== Topo ===== -->
+        <header class="al-top">
+            <a href="#/inicio" class="al-voltar" id="al-voltar" aria-label="Voltar ao início" hidden><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="#/inicio" class="al-marca" id="al-marca"><img src="./Assets/img/banner05.png" alt=""><span>Fagner Lage</span></a>
+            <strong class="al-top-titulo" id="al-top-titulo" hidden></strong>
+            <div class="al-top-dir">
+                <button type="button" class="al-bell" id="al-bell" aria-label="Notificações" aria-expanded="false">
+                    <i class="fa-regular fa-bell"></i><span class="al-bell-n" id="al-bell-n" hidden>0</span>
+                </button>
+            </div>
+            <div class="al-notifs" id="al-notifs" hidden role="dialog" aria-label="Notificações">
+                <div class="al-notifs-head"><strong>Notificações</strong><button type="button" class="al-link" id="al-notifs-fechar">Fechar</button></div>
+                <div id="al-notifs-lista"></div>
+            </div>
+        </header>
+
+        <!-- ===== Início ===== -->
+        <section class="al-view" id="view-inicio" hidden>
+            <div class="al-hero">
+                <img class="al-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
+                <strong class="al-nome-personal">Fagner Lage</strong>
+                <small class="al-cref">Personal Trainer</small>
+            </div>
+            <h1 class="al-saudacao"><span id="al-saudacao">Olá</span>, <span id="aluno-nome">aluno</span>!</h1>
+            <div class="al-tiles">
+                <a href="#/treino" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dumbbell"></i></span>
+                    <span class="al-tile-txt"><strong>Treinos</strong><small id="tile-treino">Sua ficha de treino</small></span>
+                </a>
+                <a href="#/progresso" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-clipboard-check"></i></span>
+                    <span class="al-tile-txt"><strong>Meu progresso</strong><small id="tile-progresso">Treinos e feedbacks</small></span>
+                </a>
+                <a href="#/ebooks" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-book-open"></i></span>
+                    <span class="al-tile-txt"><strong>E-books</strong><small id="tile-arquivos">Materiais do personal</small></span>
+                </a>
+                <a href="#/faturas" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-dollar-sign"></i></span>
+                    <span class="al-tile-txt"><strong>Faturas</strong><small id="tile-faturas">Plano e pagamento</small></span>
+                </a>
+                <a href="#/depoimentos" class="al-tile">
+                    <span class="al-tile-ico"><i class="fa-solid fa-comment-dots"></i></span>
+                    <span class="al-tile-txt"><strong>Depoimentos</strong><small id="tile-depoimentos">Conte sua experiência</small></span>
+                </a>
+            </div>
+            <a href="#/faturas" class="al-aviso" id="al-aviso-venc" hidden></a>
+        </section>
+
+        <!-- ===== Treinos ===== -->
+        <section class="al-view" id="view-treino" hidden>
+            <div class="treino-area" id="treino-area">
+            <div class="treino-vazio" id="treino-vazio" hidden>
+                <div class="treino-icone"><i class="fa-solid fa-person-running"></i></div>
+                <div>
+                    <h2>Seu treino</h2>
+                    <p>Seu personal ainda não cadastrou a sua ficha de treino. Assim que ela estiver pronta, aparece aqui.</p>
+                </div>
+            </div>
+
+            <div class="treino-grid" id="treino-grid" hidden>
+                <article class="ficha-card">
+                    <header class="ficha-head">
+                        <h2 id="tr-dia-nome">Treino</h2>
+                        <p id="tr-sub"></p>
+                    </header>
+                    <div class="ficha-semana" id="tr-semana" role="tablist" aria-label="Dias da semana"></div>
+                    <p class="ficha-descanso" id="tr-descanso" hidden><i class="fa-solid fa-bed"></i> Hoje é dia de descanso. Escolha um dia de treino acima para ver os exercícios.</p>
+                    <ul class="ficha-lista" id="tr-lista"></ul>
+                    <div class="ficha-prog">
+                        <div class="ficha-barra"><span id="tr-barra"></span></div>
+                        <small id="tr-prog-txt">0 de 0 concluídos</small>
+                    </div>
+                    <button type="button" class="btn btn-primary ficha-feedback" id="tr-feedback-btn"><i class="fa-regular fa-comment-dots"></i> Feedback do dia</button>
+                </article>
+
+                <aside class="ficha-info">
+                    <div class="info-bloco">
+                        <span class="info-l">Sua ficha</span>
+                        <strong id="tr-ficha-nome">—</strong>
+                        <div class="tags" id="tr-tags"></div>
+                    </div>
+                    <div class="info-bloco" id="tr-obs-bloco" hidden>
+                        <span class="info-l">Orientações do personal</span>
+                        <p id="tr-obs"></p>
+                    </div>
+                    <div class="info-bloco dica">
+                        <i class="fa-solid fa-circle-play"></i>
+                        <p>Toque em um exercício para ver o vídeo de execução. Marque o círculo quando terminar.</p>
+                    </div>
+                </aside>
+            </div>
+            </div>
+        </section>
+
+        <!-- ===== Meu progresso ===== -->
+        <section class="al-view" id="view-progresso" hidden>
+            <div class="al-cards3">
+                <div class="al-num"><strong id="pg-semana">0</strong><small id="pg-semana-txt">treinos nesta semana</small></div>
+                <div class="al-num"><strong id="pg-mes">0</strong><small>feedbacks no mês</small></div>
+                <div class="al-num"><strong id="pg-esforco">—</strong><small>último esforço</small></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Esta semana</h2>
+                <div class="pg-semana" id="pg-dias"></div>
+            </div>
+            <div class="al-bloco">
+                <h2>Seus feedbacks</h2>
+                <ul class="pg-lista" id="pg-lista"></ul>
+            </div>
+        </section>
+
+        <!-- ===== E-books ===== -->
+        <section class="al-view" id="view-ebooks" hidden>
+            <ul class="arq-lista" id="arq-lista"></ul>
+            <div class="al-vazio" id="arq-vazio" hidden><i class="fa-solid fa-book-open"></i><p>Nenhum e-book por aqui ainda. Quando o personal enviar um material, ele aparece nesta tela.</p></div>
+        </section>
+
+        <!-- ===== Depoimentos ===== -->
+        <section class="al-view" id="view-depoimentos" hidden>
+            <form class="al-bloco dep-form" id="dep-form" novalidate>
+                <h2><i class="fa-solid fa-comment-dots"></i> Deixe seu depoimento</h2>
+                <p class="dep-intro">Conte como está sendo a consultoria com o Fagner. Os melhores depoimentos podem aparecer no site.</p>
+                <fieldset class="estrelas" id="dep-estrelas">
+                    <legend>Sua nota</legend>
+                    <input type="radio" name="dep-nota" id="dep-n5" value="5"><label for="dep-n5" title="5 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n4" value="4"><label for="dep-n4" title="4 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n3" value="3"><label for="dep-n3" title="3 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n2" value="2"><label for="dep-n2" title="2 estrelas">★</label>
+                    <input type="radio" name="dep-nota" id="dep-n1" value="1"><label for="dep-n1" title="1 estrela">★</label>
+                </fieldset>
+                <label class="fb-coment">Seu depoimento
+                    <textarea id="dep-texto" rows="5" maxlength="600" placeholder="Ex.: Em 3 meses saí do platô, perdi 6 kg e ganhei disciplina. O acompanhamento faz toda a diferença!"></textarea>
+                    <small class="dep-cont" id="dep-cont">0 / 600</small>
+                </label>
+                <label class="fb-coment">Como seu nome aparece no site
+                    <select id="dep-nome-modo">
+                        <option value="inicial">Primeiro nome e inicial</option>
+                        <option value="primeiro">Só o primeiro nome</option>
+                        <option value="completo">Nome completo</option>
+                    </select>
+                    <small id="dep-nome-prev"></small>
+                </label>
+                <label class="dep-autoriza"><input type="checkbox" id="dep-autorizo"> <span>Autorizo o personal Fagner Lage a publicar este depoimento no site, com o nome escolhido acima.</span></label>
+                <p class="form-msg" id="dep-msg" role="alert"></p>
+                <button type="submit" class="btn btn-primary dep-enviar" id="dep-enviar"><i class="fa-solid fa-paper-plane"></i> Enviar depoimento</button>
+            </form>
+            <div class="al-bloco">
+                <h2>Seus depoimentos</h2>
+                <ul class="pg-lista" id="dep-lista"></ul>
+            </div>
+        </section>
+
+        <!-- ===== Faturas ===== -->
+        <section class="al-view" id="view-faturas" hidden>
+            <div class="al-bloco plano-bloco">
+                <span class="info-l">Seu plano</span>
+                <strong class="plano-nome" id="aluno-plano">—</strong>
+                <div class="plano-linhas">
+                    <div><small>Vencimento</small><b id="aluno-venc">—</b><em id="aluno-dias"></em></div>
+                    <div><small>Situação</small><span class="badge ok" id="aluno-status">Ativo</span></div>
+                    <div id="aluno-fatura-wrap" hidden><small>Fatura</small><b id="aluno-fatura"></b></div>
+                </div>
+            </div>
+            <div class="al-bloco pix-bloco" id="pix-bloco" hidden>
+                <h2><i class="fa-brands fa-pix"></i> Pagar com Pix</h2>
+                <span class="info-l">Chave Pix · <span id="pix-tipo"></span></span>
+                <strong class="pix-chave-al" id="pix-chave"></strong>
+                <small class="pix-nome-al" id="pix-nome"></small>
+                <div class="pix-botoes">
+                    <button type="button" class="btn btn-ghost" id="pix-copiar-chave"><i class="fa-regular fa-copy"></i> Copiar chave</button>
+                    <button type="button" class="btn btn-primary" id="pix-copiar-codigo"><i class="fa-solid fa-qrcode"></i> Copiar Pix copia e cola</button>
+                </div>
+                <a class="btn btn-ghost pix-comprovante" id="pix-comprovante" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Enviar comprovante</a>
+            </div>
+            <div class="al-vazio" id="pix-vazio" hidden><i class="fa-solid fa-dollar-sign"></i><p>Para renovar ou pagar o plano, fale com o personal pelo WhatsApp.</p></div>
+        </section>
+
+        <!-- ===== Menu de baixo ===== -->
+        <nav class="al-nav" aria-label="Menu principal">
+            <a href="#/inicio" data-nav="inicio"><i class="fa-solid fa-house"></i><span>Início</span></a>
+            <a href="https://www.instagram.com/fagnerlage_personal" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+            <a id="nav-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a>
+            <button type="button" id="nav-menu" aria-expanded="false"><i class="fa-solid fa-bars"></i><span>Menu</span></button>
+        </nav>
+    </div>
+
+    <!-- Menu lateral (botão Menu) -->
+    <div class="al-sheet-fundo" id="al-sheet-fundo" hidden></div>
+    <aside class="al-sheet" id="al-sheet" aria-label="Menu" hidden>
+        <div class="al-sheet-head">
+            <span class="avatar-al" id="al-iniciais">A</span>
+            <div><strong id="al-sheet-nome">Aluno</strong><small id="al-sheet-email"></small></div>
+        </div>
+        <a href="#/inicio"><i class="fa-solid fa-house"></i> Início</a>
+        <a href="#/treino"><i class="fa-solid fa-dumbbell"></i> Treinos</a>
+        <a href="#/progresso"><i class="fa-solid fa-clipboard-check"></i> Meu progresso</a>
+        <a href="#/ebooks"><i class="fa-solid fa-book-open"></i> E-books</a>
+        <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
+        <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
+        <a href="./index.html"><i class="fa-solid fa-globe"></i> Visitar site</a>
+        <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    </aside>
+
+    <!-- Pop-up: vídeo do exercício -->
+    <div class="modal" id="modal-video" hidden>
+        <div class="modal-box video-box" role="dialog" aria-modal="true" aria-labelledby="mv-titulo">
+            <!-- Vídeo vertical 9:16, estilo story -->
+            <div class="story">
+                <div class="story-topo">
+                    <div class="story-perfil">
+                        <img src="./Assets/img/banner05.png" alt="">
+                        <div><strong id="mv-titulo">Exercício</strong><small id="mv-sub">Fagner Lage</small></div>
+                    </div>
+                    <button type="button" class="story-fechar" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="video-wrap" id="mv-video"></div>
+            </div>
+            <div class="mv-dados" id="mv-dados"></div>
+            <p class="mv-obs" id="mv-obs" hidden></p>
+            <button type="button" class="btn btn-primary story-feito" id="mv-feito"><i class="fa-solid fa-check"></i> Marcar como feito</button>
+        </div>
+    </div>
+
+    <!-- Pop-up: feedback do dia -->
+    <div class="modal" id="modal-feedback" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="fb-titulo">
+            <div class="modal-head">
+                <h2 id="fb-titulo">Como foi o treino?</h2>
+                <button type="button" class="icon-btn" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="feedback-form" novalidate>
+                <p class="fb-resumo" id="fb-resumo"></p>
+                <fieldset class="esforco">
+                    <legend>Esforço do treino</legend>
+                    <label><input type="radio" name="esforco" value="minimo"><span><i class="fa-solid fa-face-smile"></i> Mínimo</span></label>
+                    <label><input type="radio" name="esforco" value="medio"><span><i class="fa-solid fa-face-meh"></i> Médio</span></label>
+                    <label><input type="radio" name="esforco" value="alto"><span><i class="fa-solid fa-face-tired"></i> Alto</span></label>
+                </fieldset>
+                <label class="fb-coment">Comentário (opcional)
+                    <textarea id="fb-comentario" rows="4" maxlength="1000" placeholder="Conte como se sentiu, se teve dor, dificuldade em algum exercício..."></textarea>
+                </label>
+                <p class="form-msg" id="fb-msg" role="alert"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="fb-enviar"><i class="fa-brands fa-whatsapp"></i> Enviar feedback</button>
+                </div>
+                <small class="fb-nota">O feedback vai para o painel do personal e abre o WhatsApp para enviar a mensagem.</small>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+    </template>
+
+    <span id="spa-fim" hidden></span>
+
+    <!-- Cloudflare Turnstile: avisa o login quando a biblioteca terminar de carregar -->
+    <script>
+        window.flTurnstilePronto = false;
+        window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
+    </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
+    <script src="./Assets/js/spa-aluno.js?v=1"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
+    <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>
 
