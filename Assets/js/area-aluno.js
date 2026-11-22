@@ -365,6 +365,7 @@ $("tr-pdf").addEventListener("click", async () => {
     try {
         // Idade, peso e altura vêm da ficha de inscrição (se o aluno fez a inscrição pelo site)
         let inscricao = cache?.inscricaoPdf || null;
+        try { await auth.authStateReady(); } catch { /* segue */ }
         if (auth.currentUser) {
             const ins = await get(ref(db, "inscricoes/" + aluno.uid)).then((s) => s.val()).catch(() => null);
             if (ins) {
@@ -392,11 +393,17 @@ const cepMasc = (d) => (d = d.slice(0, 8), d.length > 5 ? d.slice(0, 5) + "-" + 
 let dadosOriginais = null;
 
 async function carregarDados() {
+    $("dd-carregando").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando os seus dados...';
     $("dd-carregando").hidden = false;
     $("dd-campos").hidden = true;
     $("dd-sem").hidden = true;
     $("dd-msg").textContent = "";
-    if (!auth.currentUser) { $("dd-carregando").textContent = "Sem conexão. Tente de novo em instantes."; return; }
+    // A área abre na hora pela cópia do aparelho, antes do login terminar de carregar: espera o login
+    try { await auth.authStateReady(); } catch { /* segue */ }
+    if (!auth.currentUser) {
+        $("dd-carregando").innerHTML = 'Sua sessão expirou. <a href="./login.html">Entre de novo</a> para editar os seus dados.';
+        return;
+    }
     try {
         const ins = (await get(ref(db, "inscricoes/" + aluno.uid))).val();
         $("dd-carregando").hidden = true;
