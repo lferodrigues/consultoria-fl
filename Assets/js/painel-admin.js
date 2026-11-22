@@ -19,8 +19,8 @@ import * as Exercicios from "./admin-exercicios.js?v=1";
 import * as Pix from "./admin-pix.js?v=1";
 import * as Depoimentos from "./admin-depoimentos.js?v=1";
 import * as Inscricoes from "./admin-inscricoes.js?v=4";
-import * as Vitrine from "./admin-vitrine.js?v=2";
-import * as Avaliacoes from "./admin-avaliacoes.js?v=2";
+import * as Vitrine from "./admin-vitrine.js?v=3";
+import * as Avaliacoes from "./admin-avaliacoes.js?v=3";
 
 const TELAS = ["inicio", "avaliacoes", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "vitrine", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu

@@ -6,8 +6,8 @@
 
 export const VIDEO_PADRAO = "Ls7xSzsZ_Js";
 // A foto 4 saiu do padrão: a alça do cabo na mão parecia um gesto ofensivo
-export const PRINCIPAL_PADRAO = "./administrador/Assets/img/5.jpeg";
-export const SOBRE_PADRAO = [1, 2, 3, 5].map((n) => "./administrador/Assets/img/" + n + ".jpeg");
+export const PRINCIPAL_PADRAO = "./administrador/Assets/img/5.webp";
+export const SOBRE_PADRAO = [1, 2, 3, 5].map((n) => "./administrador/Assets/img/" + n + ".webp");
 
 const ID_YT = /^[A-Za-z0-9_-]{11}$/;
 
@@ -39,7 +39,8 @@ export const urlEmbed = (id) => "https://www.youtube-nocookie.com/embed/" + id;
 export function srcSeguro(src) {
     const s = String(src || "");
     if (/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(s)) return s;
-    if (/^\.\/administrador\/Assets\/img\/[\w.-]+$/.test(s)) return s;
+    // Fotos do próprio site: sempre a versão .webp (mais leve), mesmo se o banco guardou .jpeg/.png
+    if (/^\.\/administrador\/Assets\/img\/[\w.-]+$/.test(s)) return s.replace(/\.(jpe?g|png)$/i, ".webp");
     return "";
 }
 

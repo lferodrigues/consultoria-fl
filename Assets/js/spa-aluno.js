@@ -22,14 +22,14 @@
             titulo: "Ficha de inscrição | Consultoria Fagner Lage",
             appCheck: "on",
             css: ["./Assets/css/cadastro.css?v=2"],
-            modulo: "./Assets/js/inscricao.js?v=6"
+            modulo: "./Assets/js/inscricao.js?v=7"
         },
         area: {
             titulo: "Área do Aluno | Fagner Lage",
             appCheck: "on",
             robots: "noindex, nofollow",
             css: ["./Assets/css/admin.css?v=5", "./Assets/css/aluno.css?v=16", "./Assets/css/aluno-claro.css?v=2"],
-            modulo: "./Assets/js/area-aluno.js?v=17"
+            modulo: "./Assets/js/area-aluno.js?v=18"
         }
     };
 

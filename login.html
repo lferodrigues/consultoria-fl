@@ -37,12 +37,12 @@
     <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=16">
     <link rel="prefetch" as="style" href="./Assets/css/aluno-claro.css?v=2">
     <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/inscricao.js?v=6">
+    <link rel="modulepreload" href="./Assets/js/inscricao.js?v=7">
     <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=17">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=18">
 </head>
 
 <body>
@@ -52,7 +52,7 @@
 
         <!-- Painel visual -->
         <section class="visual" aria-hidden="true">
-            <img class="visual-photo" src="./administrador/Assets/img/5.jpeg" alt="">
+            <img class="visual-photo" src="./administrador/Assets/img/5.webp" alt="">
             <div class="visual-shade"></div>
             <span class="glow g1"></span>
             <span class="glow g2"></span>
@@ -61,7 +61,7 @@
             <span class="streak s3"></span>
 
             <a href="./index.html" class="brand" tabindex="-1">
-                <img src="./Assets/img/banner05.png" alt="">
+                <img src="./Assets/img/banner05.webp" alt="">
                 <span>Fagner Lage<small>Personal trainer</small></span>
             </a>
 
@@ -180,7 +180,7 @@
     <!-- ===================== Tela: ficha de inscrição ===================== -->
     <template id="vista-cadastro">
     <header class="cad-top">
-        <a href="./index.html" aria-label="Início"><img src="./Assets/img/banner05.png" alt="Fagner Lage Personal Trainer"></a>
+        <a href="./index.html" aria-label="Início"><img src="./Assets/img/banner05.webp" alt="Fagner Lage Personal Trainer"></a>
         <a href="./login.html" class="cad-top-link"><i class="fa-solid fa-user"></i> Já sou aluno</a>
     </header>
 
@@ -535,9 +535,9 @@
 
     <!-- Inscrição enviada, aguardando a primeira ficha -->
     <section class="al-espera" id="al-espera" hidden>
-        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <img class="esp-logo" src="./Assets/img/banner05.webp" alt="Fagner Lage">
         <div class="esp-card">
-            <img class="esp-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
+            <img class="esp-foto" src="./administrador/Assets/img/5.webp" alt="Personal Fagner Lage">
             <h1>Quase lá<span id="esp-nome"></span>!</h1>
             <p id="esp-texto"></p>
             <ol class="esp-passos">
@@ -552,7 +552,7 @@
 
     <!-- Acesso travado pelo personal por falta de pagamento -->
     <section class="al-espera al-bloqueio" id="al-bloqueio" hidden>
-        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <img class="esp-logo" src="./Assets/img/banner05.webp" alt="Fagner Lage">
         <div class="esp-card">
             <div class="bloq-ico"><i class="fa-solid fa-lock"></i></div>
             <h1>Acesso pausado<span id="bloq-nome"></span></h1>
@@ -573,7 +573,7 @@
         <!-- ===== Topo ===== -->
         <header class="al-top">
             <a href="#/inicio" class="al-voltar" id="al-voltar" aria-label="Voltar ao início" hidden><i class="fa-solid fa-arrow-left"></i></a>
-            <a href="#/inicio" class="al-marca" id="al-marca"><img src="./Assets/img/banner05.png" alt=""><span>Fagner Lage</span></a>
+            <a href="#/inicio" class="al-marca" id="al-marca"><img src="./Assets/img/banner05.webp" alt=""><span>Fagner Lage</span></a>
             <strong class="al-top-titulo" id="al-top-titulo" hidden></strong>
             <div class="al-top-dir">
                 <button type="button" class="al-bell" id="al-bell" aria-label="Notificações" aria-expanded="false">
@@ -827,7 +827,7 @@
             <div class="story">
                 <div class="story-topo">
                     <div class="story-perfil">
-                        <img src="./Assets/img/banner05.png" alt="">
+                        <img src="./Assets/img/banner05.webp" alt="">
                         <div><strong id="mv-titulo">Exercício</strong><small id="mv-sub">Fagner Lage</small></div>
                     </div>
                     <button type="button" class="story-fechar" data-fechar aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
@@ -879,7 +879,7 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=8"></script>
+    <script src="./Assets/js/spa-aluno.js?v=9"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

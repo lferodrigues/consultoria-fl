@@ -1,6 +1,6 @@
 // Tela: Avaliações por foto (enviadas pelos alunos na área do aluno)
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }
-//   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."   (baixada só ao abrir a avaliação)
+//   avaliacoesFotos/{id} -> "data:image/webp;base64,..."   (baixada só ao abrir a avaliação)
 // Cada foto fica 15 dias. Depois disso as regras do banco já não deixam ler, e ela é apagada
 // pela limpeza diária (/api/diario) ou aqui mesmo, quando o painel encontra uma vencida.
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -88,7 +88,7 @@ export async function abrir(id) {
         const foto = (await get(ref(db, "avaliacoesFotos/" + id))).val();
         if (atual !== id) return;
         $("av-det-foto").innerHTML = typeof foto === "string" && foto.startsWith("data:image/")
-            ? `<img src="${foto}" alt="Foto enviada para avaliação"><a class="btn btn-ghost btn-sm" href="${foto}" download="avaliacao-${esc(id)}.jpg"><i class="fa-solid fa-download"></i> Baixar foto</a>`
+            ? `<img src="${foto}" alt="Foto enviada para avaliação"><a class="btn btn-ghost btn-sm" href="${foto}" download="avaliacao-${esc(id)}.${foto.startsWith("data:image/webp") ? "webp" : "jpg"}"><i class="fa-solid fa-download"></i> Baixar foto</a>`
             : '<div class="empty card-empty"><i class="fa-regular fa-image"></i><p>Esta foto não está mais disponível (já passou dos 15 dias ou foi excluída).</p></div>';
     } catch (e) {
         console.error(e);

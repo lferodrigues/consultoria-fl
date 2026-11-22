@@ -2,8 +2,9 @@
 //   vitrine/video -> { id, atualizadoEm }   vitrine/principal -> { src, atualizadoEm }   vitrine/sobre/{id} -> { src, ordem }
 import { ref, onValue, set, remove, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
-import { VIDEO_PADRAO, SOBRE_PADRAO, idDoYoutube, videoValido, urlEmbed, principalDe, sobreDe, textosDe, textoDoElemento, TEXTO_MAX } from "./vitrine-util.js?v=2";
+import { VIDEO_PADRAO, SOBRE_PADRAO, idDoYoutube, videoValido, urlEmbed, principalDe, sobreDe, textosDe, textoDoElemento, TEXTO_MAX } from "./vitrine-util.js?v=3";
 import { $, esc, aviso, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
+import { canvasParaImagem } from "./imagem-webp.js?v=1";
 
 let vitrine = {};
 let lidoUmaVez = false;
@@ -356,6 +357,6 @@ function reduzir(img, lado, qualidade) {
     ctx.fillStyle = "#000"; // fundo para PNG transparente
     ctx.fillRect(0, 0, c.width, c.height);
     ctx.drawImage(img, 0, 0, c.width, c.height);
-    return c.toDataURL("image/jpeg", qualidade);
+    return canvasParaImagem(c, qualidade);
 }
 

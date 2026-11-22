@@ -8,6 +8,7 @@ import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, 
 import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { navegar } from "./spa-nav.js?v=1";
+import { canvasParaImagem } from "./imagem-webp.js?v=1";
 
 // WhatsApp do personal (55 = Brasil, 32 = DDD)
 const WHATSAPP = "5532998528266";
@@ -159,7 +160,7 @@ function atualizarCabecalho() {
 }
 
 /* =================== Perfil: foto, nome e tema =================== */
-//   perfis/{uid} -> { foto: "data:image/jpeg;base64,...", tema: "claro" | "escuro" }
+//   perfis/{uid} -> { foto: "data:image/webp;base64,...", tema: "claro" | "escuro" }
 // A foto vem do perfil; se o aluno nunca trocou, usa a da ficha de inscrição e, por último, a do Google.
 
 const fotoValida = (f) => typeof f === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(f);
@@ -173,7 +174,7 @@ function mostrarCapa(src) {
     $("al-capa-remover").hidden = !src;
 }
 
-// Capa: recorte 3:1 com 1200 px de largura, em JPEG
+// Capa: recorte 3:1 com 1200 px de largura, em WebP
 function reduzirCapa(arquivo, largura = 1200, altura = 400) {
     return new Promise((ok, falha) => {
         const url = URL.createObjectURL(arquivo);
@@ -186,7 +187,7 @@ function reduzirCapa(arquivo, largura = 1200, altura = 400) {
             c.width = largura; c.height = altura;
             c.getContext("2d").drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, largura, altura);
             URL.revokeObjectURL(url);
-            ok(c.toDataURL("image/jpeg", 0.8));
+            ok(canvasParaImagem(c, 0.8));
         };
         img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
         img.src = url;
@@ -269,7 +270,7 @@ async function carregarPerfil() {
     }
 }
 
-// Reduz para 400x400 (recorte quadrado no centro), em JPEG: fica leve para o banco
+// Reduz para 400x400 (recorte quadrado no centro), em WebP: fica leve para o banco
 function reduzirFoto(arquivo, lado = 400) {
     return new Promise((ok, falha) => {
         const url = URL.createObjectURL(arquivo);
@@ -280,7 +281,7 @@ function reduzirFoto(arquivo, lado = 400) {
             c.width = c.height = lado;
             c.getContext("2d").drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, lado, lado);
             URL.revokeObjectURL(url);
-            ok(c.toDataURL("image/jpeg", 0.82));
+            ok(canvasParaImagem(c, 0.82));
         };
         img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
         img.src = url;
@@ -365,12 +366,12 @@ $("tr-pdf").addEventListener("click", async () => {
 
 /* =================== Avaliação por foto =================== */
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }   (dados)
-//   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."                         (a foto, separada para a lista do painel ser leve)
+//   avaliacoesFotos/{id} -> "data:image/webp;base64,..."                         (a foto, separada para a lista do painel ser leve)
 // Fica 15 dias: depois some (regras do banco + limpeza diária em /api/diario e no painel).
 const DIAS_AVALIACAO = 15;
 let fotoAvaliacao = "";
 
-// Foto de avaliação: lado maior com até 1280 px, em JPEG (boa para ver detalhes e ainda leve)
+// Foto de avaliação: lado maior com até 1280 px, em WebP (boa para ver detalhes e ainda leve)
 function reduzirFotoAvaliacao(arquivo, maximo = 1280) {
     return new Promise((ok, falha) => {
         const url = URL.createObjectURL(arquivo);
@@ -382,8 +383,8 @@ function reduzirFotoAvaliacao(arquivo, maximo = 1280) {
             c.height = Math.round(img.height * escala);
             c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
             URL.revokeObjectURL(url);
-            let q = 0.82, dados = c.toDataURL("image/jpeg", q);
-            while (dados.length > 1400000 && q > 0.4) { q -= 0.1; dados = c.toDataURL("image/jpeg", q); }
+            let q = 0.82, dados = canvasParaImagem(c, q);
+            while (dados.length > 1400000 && q > 0.4) { q -= 0.1; dados = canvasParaImagem(c, q); }
             ok(dados);
         };
         img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };

@@ -34,7 +34,7 @@ line-height: 1.8;
 .bgimg-1 {
 background-position: center;
 background-size: cover;
-background-image: url("Assets/img/banner.png");
+background-image: url("Assets/img/banner.webp");
 min-height: 100vh;
 }
 

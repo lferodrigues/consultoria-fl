@@ -2,7 +2,7 @@
 // Lê "vitrine" no banco (o personal muda pelo painel). Sem nada salvo, ficam as originais.
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
-import { SOBRE_PADRAO, principalDe, sobreDe, videoValido, urlEmbed, textosDe, textoParaHtml } from "./vitrine-util.js?v=2";
+import { SOBRE_PADRAO, principalDe, sobreDe, videoValido, urlEmbed, textosDe, textoParaHtml } from "./vitrine-util.js?v=3";
 
 /* ---------- Textos editáveis (data-texto) ---------- */
 const CACHE_TEXTOS = "fl-vitrine-textos"; // evita piscar o texto antigo ao abrir o site

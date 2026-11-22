@@ -10,6 +10,7 @@ import {
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, PAGINAS } from "./firebase-app.js?v=2";
 import { ordenarPlanos } from "./planos-card.js?v=2";
+import { canvasParaImagem } from "./imagem-webp.js?v=1";
 
 export const VERSAO_TERMOS = "1.0";
 const WHATSAPP_FAGNER = "5532998528266";
@@ -360,7 +361,7 @@ function reduzirFoto(arquivo, lado) {
             c.width = c.height = lado;
             c.getContext("2d").drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, lado, lado);
             URL.revokeObjectURL(url);
-            ok(c.toDataURL("image/jpeg", 0.82));
+            ok(canvasParaImagem(c, 0.82));
         };
         img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
         img.src = url;
