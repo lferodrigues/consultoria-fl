@@ -18,7 +18,7 @@
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-check.js">
-    <link rel="modulepreload" href="./Assets/js/app-check.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/app-check.js?v=3">
     <link rel="modulepreload" href="./Assets/js/firebase-app.js?v=2">
     <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
@@ -52,39 +52,41 @@
 <body>
     <!-- Verificação de acesso -->
     <div class="gate" id="gate"><div class="supino">
-        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
-          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
-          <!-- suporte da barra (atrás da cabeça) -->
-          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
-          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
-          <!-- banco -->
-          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
-          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
-          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
-          <!-- pernas: quadril, joelho, pé no chão -->
-          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
-          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
-          <!-- tronco e cabeça -->
-          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
-          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
-          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
-          <g>
-            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
-              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
-            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
-            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
-            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
-          </g>
-          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
-          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
-            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+        <svg viewBox="62 2 86 124" role="img" aria-label="Carregando: aluno fazendo agachamento" style="max-height:150px">
+          <ellipse class="supino-sombra" cx="104" cy="117" rx="46" ry="5"/>
+          <!-- pé no chão -->
+          <line class="supino-corpo" stroke-width="7" x1="100" y1="112" x2="114" y2="112"/>
+          <!-- perna: quadril, joelho, tornozelo -->
+          <polyline class="supino-corpo" stroke-width="10" points="100,62 103,87 100,110">
+            <animate attributeName="points" dur="1.8s" repeatCount="indefinite" calcMode="spline"
               keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
-              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+              values="100,62 103,87 100,110; 84,88 116,86 100,110; 100,62 103,87 100,110"/>
           </polyline>
-          <circle class="supino-cabeca" r="5">
-            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
-            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          <!-- tronco: quadril até o ombro -->
+          <polyline class="supino-corpo" stroke-width="15" points="100,62 100,33">
+            <animate attributeName="points" dur="1.8s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="100,62 100,33; 84,88 101,62; 100,62 100,33"/>
+          </polyline>
+          <!-- cabeça -->
+          <circle class="supino-cabeca" r="8">
+            <animate attributeName="cx" dur="1.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="102;106;102"/>
+            <animate attributeName="cy" dur="1.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="19;48;19"/>
           </circle>
+          <!-- barra nas costas, vista de lado (anilha) -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.8s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 0,28; 0,0"/>
+            <circle class="supino-anilha" cx="96" cy="34" r="13"/>
+            <circle class="supino-anilha-borda" cx="96" cy="34" r="8.5"/>
+            <circle class="supino-centro" cx="96" cy="34" r="2.5"/>
+          </g>
+          <!-- braço segurando a barra -->
+          <polyline class="supino-corpo" stroke-width="7" points="101,38 110,48 99,35">
+            <animate attributeName="points" dur="1.8s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="101,38 110,48 99,35; 102,66 112,74 99,63; 101,38 110,48 99,35"/>
+          </polyline>
         </svg>
     </div><p>Verificando acesso...</p></div>
 

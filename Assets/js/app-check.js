@@ -19,8 +19,9 @@ const ENDPOINT = "/api/app-check";
 const ACAO = "app-check";                    // a mesma "action" conferida no servidor
 
 let appCheck = null;
-// Token da caixinha do login, já resolvida pela pessoa (vale ~5 min e só uma vez)
-let tokenDoLogin = null;
+// Troca da caixinha do login pelo passe (iniciada assim que a pessoa marca a caixinha)
+let trocaDoLogin = null;
+const ehPaginaDeLogin = () => document.querySelector('meta[name="fl-app-check"]')?.content === "login";
 
 let carregando = null;
 
@@ -51,13 +52,15 @@ function bibliotecaTurnstile() {
 async function tokenTurnstile() {
     const ts = await bibliotecaTurnstile();
     return new Promise((resolve, reject) => {
+        // Fica fora da tela: se a Cloudflare pedir clique, a verificação simplesmente não conclui
+        // (o site segue sem o passe) em vez de mostrar uma caixinha para a pessoa.
         const caixa = document.createElement("div");
-        caixa.setAttribute("aria-live", "polite");
-        caixa.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10000;";
+        caixa.setAttribute("aria-hidden", "true");
+        caixa.style.cssText = "position:fixed;left:-10000px;top:0;width:300px;height:65px;overflow:hidden;";
         document.body.appendChild(caixa);
         let id = null;
         const fim = () => { try { if (id !== null) ts.remove(id); } catch { /* já removido */ } caixa.remove(); };
-        const tempo = setTimeout(() => { fim(); reject(new Error("Verificação não concluída")); }, 120000);
+        const tempo = setTimeout(() => { fim(); reject(new Error("Verificação não concluída")); }, 15000);
         id = ts.render(caixa, {
             sitekey: SITEKEY_INVISIVEL || SITEKEY,
             action: ACAO,
@@ -65,32 +68,34 @@ async function tokenTurnstile() {
             theme: "dark",
             language: "pt-br",
             callback: (token) => { clearTimeout(tempo); fim(); resolve(token); },
-            "error-callback": () => { clearTimeout(tempo); fim(); reject(new Error("Erro no Turnstile")); return true; }
+            "error-callback": () => { clearTimeout(tempo); fim(); reject(new Error("Erro no Turnstile")); return true; },
+            "before-interactive-callback": () => { clearTimeout(tempo); fim(); reject(new Error("Turnstile pediu interação")); }
         });
     });
 }
 
+// Envia o token do Turnstile ao servidor e recebe o passe do Firebase
+async function trocar(token, tipo) {
+    const r = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, tipo })
+    });
+    if (!r.ok) throw new Error("App Check recusado (" + r.status + ")");
+    const d = await r.json();
+    return { token: d.token, expireTimeMillis: d.expiresAt };
+}
+
 const provedor = new CustomProvider({
     getToken: async () => {
-        // No login, usa a caixinha que a pessoa já marcou (sem 2ª verificação)
-        let token, tipo;
-        if (tokenDoLogin && Date.now() - tokenDoLogin.em < 280000) {
-            token = tokenDoLogin.token;
-            tipo = "login";
-            tokenDoLogin = null;
-        } else {
-            tokenDoLogin = null;
-            token = await tokenTurnstile();
-            tipo = SITEKEY_INVISIVEL ? "invisivel" : "login";
+        // No login: só vale a caixinha que a pessoa marcou. Nunca abre uma 2ª verificação.
+        if (ehPaginaDeLogin()) {
+            if (!trocaDoLogin) throw new Error("Aguardando a caixinha do login");
+            try { return await trocaDoLogin; } catch (e) { trocaDoLogin = null; throw e; }
         }
-        const r = await fetch(ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, tipo })
-        });
-        if (!r.ok) throw new Error("App Check recusado (" + r.status + ")");
-        const d = await r.json();
-        return { token: d.token, expireTimeMillis: d.expiresAt };
+        // Outras páginas: verificação escondida (o passe do login normalmente ainda vale)
+        const token = await tokenTurnstile();
+        return trocar(token, SITEKEY_INVISIVEL ? "invisivel" : "login");
     }
 });
 
@@ -98,8 +103,7 @@ export function ativarAppCheck(app) {
     try {
         // No login: sem renovação automática (o passe vem da caixinha que a pessoa marca).
         // Nas outras páginas: renova em segundo plano antes de vencer, sem segurar o carregamento.
-        const ehLogin = document.querySelector('meta[name="fl-app-check"]')?.content === "login";
-        appCheck = initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: !ehLogin });
+        appCheck = initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: !ehPaginaDeLogin() });
     } catch (e) {
         console.error("App Check não iniciou", e);
     }
@@ -109,6 +113,7 @@ export function ativarAppCheck(app) {
 // já troca o token pelo passe do Firebase, para o "Entrar" ser imediato.
 export function prepararAppCheck(tokenTurnstileLogin) {
     if (!appCheck || !tokenTurnstileLogin) return;
-    tokenDoLogin = { token: tokenTurnstileLogin, em: Date.now() };
-    getToken(appCheck, false).catch((e) => console.warn("App Check:", e));
+    trocaDoLogin = trocar(tokenTurnstileLogin, "login");
+    trocaDoLogin.catch(() => {});
+    getToken(appCheck, true).catch((e) => console.warn("App Check:", e));
 }
