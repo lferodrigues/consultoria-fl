@@ -62,3 +62,7 @@ html[data-tema="claro"] .al-hero.com-capa {
         var(--capa) center / cover no-repeat;
 }
 html[data-tema="claro"] .al-hero.com-capa :is(.al-nome-personal, .al-cref) { color: var(--text); text-shadow: 0 1px 10px rgba(255, 255, 255, .95); }
+@media (min-width: 900px) {
+    html[data-tema="claro"] .al-nav { background: transparent; box-shadow: none; }
+    html[data-tema="claro"] .al-nav a:hover, html[data-tema="claro"] .al-nav button:hover { background: rgba(15, 23, 42, .05); }
+}

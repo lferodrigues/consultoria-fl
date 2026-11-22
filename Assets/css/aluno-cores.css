@@ -96,3 +96,12 @@ html[data-cor="preto-amarelo"] .al-hero {
 }
 html[data-cor="preto-amarelo"] .al-tile:hover { background: var(--card); border-color: rgba(250, 204, 21, .5); }
 html[data-cor="preto-amarelo"] .al-foto-cam { color: #111; }
+
+/* Computador: o menu fica na barra do topo colorida, então os itens usam a cor do texto da barra */
+@media (min-width: 900px) {
+    /* (seletor reforçado para vencer as cores do tema claro) */
+    html[data-cor][data-cor] body #app .al-nav :is(a, button) { color: var(--sobre-topo, #fff); opacity: .85; }
+    html[data-cor][data-cor] body #app .al-nav :is(a:hover, button:hover, .ativo) { color: var(--sobre-topo, #fff); opacity: 1; background: rgba(255, 255, 255, .18); }
+    html[data-cor="amarelo"][data-cor] body #app .al-nav :is(a:hover, button:hover, .ativo),
+    html[data-cor="preto-amarelo"][data-cor] body #app .al-nav :is(a:hover, button:hover, .ativo) { background: rgba(0, 0, 0, .1); }
+}

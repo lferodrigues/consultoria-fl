@@ -495,3 +495,43 @@ body.modal-aberto { overflow: hidden; }
 .bloq-valor strong { font-size: 1.5rem; }
 .bloq-pix { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
 .bloq-pix small { color: var(--muted); font-size: .78rem; margin: 2px 0 6px; text-align: center; }
+
+/* ===== Computador (900 px ou mais) =====
+   Topo e fundo do início ocupam a tela inteira; o conteúdo fica centralizado em 1100 px.
+   O menu de baixo sobe para o meio da barra do topo; os 6 quadros ficam em 3 colunas. */
+@media (min-width: 900px) {
+    .app-aluno { max-width: none; padding-bottom: 40px; }
+    .al-top { padding: 0 max(24px, calc((100% - 1100px) / 2)); height: 64px; }
+    .al-view { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .al-view:not(#view-inicio) { padding-top: 28px; }
+    #view-inicio { max-width: none; padding: 0; }
+    #view-inicio > :not(.al-hero) { max-width: 1100px; margin-left: auto; margin-right: auto; }
+    .al-hero { padding: 40px 24px 84px; }
+    .al-hero .al-capa-btn { right: max(16px, calc((100% - 1100px) / 2)); }
+    .al-foto { width: 128px; height: 128px; }
+    .al-saudacao { font-size: 2rem; margin-top: -58px; }
+
+    .al-tiles { grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 24px; }
+    .al-tiles .al-tile:last-child:nth-child(odd) { grid-column: auto; }
+    .al-tile { flex-direction: row; text-align: left; justify-content: flex-start; min-height: 112px; padding: 22px 20px; gap: 16px; }
+    .al-tile-txt strong { font-size: 1.05rem; }
+    .al-tile-txt small { font-size: .82rem; }
+    #view-inicio > .al-aviso { max-width: 1052px; margin-top: 16px; }
+
+    /* Menu: no meio da barra do topo, ícone e texto lado a lado */
+    .al-nav {
+        top: 0; bottom: auto; left: 50%; right: auto; transform: translateX(-50%); z-index: 31;
+        width: auto; height: 64px; display: flex; align-items: center; gap: 4px; padding: 0;
+        background: transparent; border: 0; border-radius: 0; box-shadow: none;
+    }
+    .al-nav a, .al-nav button { flex-direction: row; gap: 8px; padding: 9px 16px; border-radius: 999px; font-size: .88rem; }
+    .al-nav i { font-size: 1.05rem; }
+    .al-nav a:hover, .al-nav button:hover { background: rgba(255, 255, 255, .06); }
+    .al-nav .ativo { background: rgba(var(--red-rgb), .14); }
+    .toast { bottom: 24px; }
+    .al-notifs { top: 68px; right: max(12px, calc((100% - 1100px) / 2)); }
+}
+/* Entre 900 e 1180 px o nome da marca sai, para caber o menu no meio */
+@media (min-width: 900px) and (max-width: 1180px) {
+    .al-marca span, .al-marca strong { display: none; }
+}
