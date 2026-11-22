@@ -312,9 +312,14 @@
         <button type="button" id="al-foto-trocar"><i class="fa-solid fa-camera"></i> Trocar foto de perfil</button>
         <button type="button" id="al-capa-trocar"><i class="fa-solid fa-image"></i> Trocar foto de capa</button>
         <button type="button" id="al-capa-remover" hidden><i class="fa-solid fa-eraser"></i> Remover foto de capa</button>
-        <div class="al-tema" role="group" aria-label="Tema">
-            <span><i class="fa-solid fa-circle-half-stroke"></i> Tema</span>
-            <div class="al-temas">
+        <div class="al-tema">
+            <!-- Toque em "Tema" para abrir as opções -->
+            <button type="button" class="al-tema-abrir" id="al-tema-abrir" aria-expanded="false" aria-controls="al-temas">
+                <i class="fa-solid fa-circle-half-stroke"></i> Tema
+                <span class="al-tema-atual" id="al-tema-atual"></span>
+                <i class="fa-solid fa-chevron-down al-tema-seta"></i>
+            </button>
+            <div class="al-temas" id="al-temas" role="group" aria-label="Escolha o tema" hidden>
                 <button type="button" data-tema="escuro" aria-pressed="true" title="Padrão"><span class="al-tema-bola" style="--c1:#07080b;--c2:#e3202b"></span>Padrão</button>
                 <button type="button" data-tema="claro" aria-pressed="false" title="Branco"><span class="al-tema-bola" style="--c1:#ffffff;--c2:#e3202b"></span>Branco</button>
                 <button type="button" data-tema="rosa" aria-pressed="false" title="Rosa e branco"><span class="al-tema-bola" style="--c1:#ec4899;--c2:#ffffff"></span>Rosa</button>

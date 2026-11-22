@@ -337,12 +337,22 @@ function aplicarTema(tema, salvar = true) {
     if (TEMAS_ESCUROS.includes(tema)) delete raiz.dataset.tema; else raiz.dataset.tema = "claro";
     if (tema === "escuro" || tema === "claro") delete raiz.dataset.cor; else raiz.dataset.cor = tema;
     try { localStorage.setItem("fl-tema-aluno", tema); } catch { /* sem armazenamento */ }
-    document.querySelectorAll(".al-temas button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === tema)));
+    document.querySelectorAll(".al-temas button").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.tema === tema));
+        if (b.dataset.tema === tema) $("al-tema-atual").textContent = b.title;
+    });
     const cor = document.querySelector('meta[name="theme-color"]');
     if (cor) cor.content = TEMAS[tema];
     if (salvar && aluno) update(ref(db), { ["perfis/" + aluno.uid + "/tema"]: tema }).catch((e) => console.warn(e));
 }
 document.querySelectorAll(".al-temas button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
+
+// "Tema" no menu abre e fecha as opções (mostra ao lado o nome do tema atual)
+function mostrarOpcoesTema(abrir) {
+    $("al-temas").hidden = !abrir;
+    $("al-tema-abrir").setAttribute("aria-expanded", String(abrir));
+}
+$("al-tema-abrir").addEventListener("click", () => mostrarOpcoesTema($("al-temas").hidden));
 aplicarTema(document.documentElement.dataset.cor || (document.documentElement.dataset.tema === "claro" ? "claro" : "escuro"), false);
 
 /* =================== Ficha em PDF =================== */
@@ -573,6 +583,7 @@ function abrirMenu() {
     $("nav-menu").setAttribute("aria-expanded", "true");
 }
 function fecharMenu() {
+    mostrarOpcoesTema(false);
     $("al-sheet").hidden = true;
     $("al-sheet-fundo").hidden = true;
     $("nav-menu").setAttribute("aria-expanded", "false");
