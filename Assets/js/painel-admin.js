@@ -30,26 +30,71 @@ const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, fina
 const NOS = ["avaliacoes", "inscricoes", "alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 
 let saindo = false;
-let iniciado = false;
+let iniciado = false;   // tela montada (pela cópia do aparelho ou após o login)
+let ligado = false;     // dados em tempo real ligados
 const pararEscutas = [];
+
+/* =================== Abertura instantânea (cópia no aparelho) =================== */
+// Como na área do aluno: a última versão dos dados do painel fica guardada neste aparelho.
+// Ao abrir, o painel aparece NA HORA com ela, e o Firebase confere o login e atualiza tudo em seguida.
+// Dados sensíveis das inscrições (saúde, CPF, endereço, foto) NÃO entram na cópia: só o resumo da lista.
+const CACHE = "fl-admin-cache-v1";
+const RESUMO_INSCRICAO = ["uid", "nome", "email", "whatsapp", "planoId", "planoNome", "valor", "status", "visto", "criadoEm", "alunoId", "aprovadoEm", "diaVencimento", "primeiroVencimento"];
+
+function lerCache() {
+    try { return JSON.parse(localStorage.getItem(CACHE) || "null"); } catch { return null; }
+}
+function limparCache() {
+    try { localStorage.removeItem(CACHE); } catch { /* sem armazenamento */ }
+}
+let timerCache = null;
+function salvarCache(user) {
+    clearTimeout(timerCache);
+    timerCache = setTimeout(() => {
+        const dados = {};
+        NOS.forEach((no) => { dados[no] = estado[no]; });
+        dados.inscricoes = (estado.inscricoes || []).map((i) => {
+            const r = { id: i.id };
+            RESUMO_INSCRICAO.forEach((k) => { if (i[k] !== undefined) r[k] = i[k]; });
+            return r;
+        });
+        const copia = { email: user.email, nome: user.displayName || "", salvoEm: Date.now(), dados };
+        try { localStorage.setItem(CACHE, JSON.stringify(copia)); }
+        catch {
+            // Aparelho sem espaço: guarda sem a biblioteca de exercícios (a parte mais pesada)
+            try { delete copia.dados.exercicios; localStorage.setItem(CACHE, JSON.stringify(copia)); } catch { /* desiste */ }
+        }
+    }, 800);
+}
+
+// Chamada no fim do arquivo (depois que tudo foi declarado)
+function abrirDoCache() {
+    const c = lerCache();
+    if (!c || !c.dados || !ehAdmin({ email: c.email })) return;
+    Object.entries(c.dados).forEach(([no, lista]) => { if (Array.isArray(lista)) estado[no] = lista; });
+    try { iniciarPainel({ email: c.email, displayName: c.nome }); }
+    catch (e) { console.error(e); limparCache(); location.reload(); }
+}
 
 /* =================== Acesso =================== */
 
 onAuthStateChanged(auth, (user) => {
     if (saindo) return;
     if (!user || !ehAdmin(user)) {
+        limparCache();
         pararEscutas.forEach((p) => p());
         mostrarAcessoNegado(user
             ? { texto: "Esta área é exclusiva do administrador.", botao: "Ir para a área do aluno", link: PAGINAS.aluno || PAGINAS.login }
             : { texto: "Faça o seu login para entrar." });
         return;
     }
-    if (iniciado) return;
-    iniciado = true;
-    iniciarPainel(user);
+    if (!iniciado) iniciarPainel(user);
+    ligarDados(user);
 });
 
+// Monta a tela (uma vez): módulos, menu e rotas
 function iniciarPainel(user) {
+    iniciado = true;
     const nome = (user.displayName || "Fagner Lage").trim();
     $("admin-nome").textContent = nome.split(" ")[0];
     $("admin-email").textContent = user.email;
@@ -62,7 +107,19 @@ function iniciarPainel(user) {
     iniciarMenu();
     iniciarTopo();
 
-    // Escuta os dados em tempo real (os PDFs em "arquivos" só são baixados quando pedidos)
+    window.addEventListener("hashchange", rotear);
+    rotear();
+    notificar();
+    $("gate").hidden = true;
+}
+
+// Escuta os dados em tempo real (uma vez, depois do login). Os PDFs em "arquivos" só são baixados quando pedidos.
+function ligarDados(user) {
+    if (ligado) return;
+    ligado = true;
+    $("admin-nome").textContent = (user.displayName || "Fagner Lage").trim().split(" ")[0];
+    $("admin-email").textContent = user.email;
+    aoMudar(() => salvarCache(user));
     NOS.forEach((no) => {
         pararEscutas.push(onValue(ref(db, no), (snap) => {
             if (no === "fichas") {
@@ -79,11 +136,6 @@ function iniciarPainel(user) {
             aviso("Sem permissão para ler \"" + no + "\". Confira as regras do Realtime Database.", "error");
         }));
     });
-
-    window.addEventListener("hashchange", rotear);
-    rotear();
-    notificar();
-    $("gate").hidden = true;
 }
 
 /* =================== Rotas =================== */
@@ -228,6 +280,7 @@ function iniciarTopo() {
     $("logout-btn").addEventListener("click", async () => {
         saindo = true;
         pararEscutas.forEach((p) => p());
+        limparCache();
         await signOut(auth);
         window.location.replace(PAGINAS.login);
     });
@@ -307,3 +360,6 @@ function quando(ts) {
     if (min < 1440) return "há " + Math.round(min / 60) + " h";
     return new Date(ts).toLocaleDateString("pt-BR");
 }
+
+// Abre na hora com a cópia do aparelho (se houver); o login é conferido em paralelo
+abrirDoCache();

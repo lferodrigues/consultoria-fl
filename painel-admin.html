@@ -41,7 +41,7 @@
     <link rel="modulepreload" href="./Assets/js/admin-avaliacoes.js?v=3">
     <link rel="modulepreload" href="./Assets/js/vitrine-util.js?v=3">
     <link rel="modulepreload" href="./Assets/js/admin-vitrine.js?v=3">
-    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=21">
+    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=22">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
 
 <body>
     <!-- Verificação de acesso -->
-    <div class="gate" id="gate"><div class="supino">
+    <div class="gate" id="gate"><script>try { if (localStorage.getItem("fl-admin-cache-v1")) document.getElementById("gate").hidden = true; } catch (e) { /* sem armazenamento */ }</script><div class="supino">
         <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
           <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
           <!-- suporte da barra (atrás da cabeça) -->
@@ -887,7 +887,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=21"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=22"></script>
     <script src="./Assets/js/supino-pct.js?v=2" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>
