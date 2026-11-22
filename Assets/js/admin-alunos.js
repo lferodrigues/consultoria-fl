@@ -33,6 +33,7 @@ export function iniciar() {
         if (btn.dataset.acao === "editar") abrir(aluno);
         if (btn.dataset.acao === "plano") { abrir(aluno); setTimeout(() => campos.plano.focus(), 50); }
         if (btn.dataset.acao === "alternar") alternarAcesso(aluno);
+        if (btn.dataset.acao === "pagamento") alternarBloqueio(aluno);
         if (btn.dataset.acao === "excluir") excluir(aluno);
     });
 
@@ -70,10 +71,11 @@ function desenhar() {
             <td data-label="Plano" class="plano">${a.plano ? esc(a.plano) : '<span class="badge warn">A definir</span>'}</td>
             <td data-label="Início">${dataBR(a.inicio)}</td>
             <td data-label="Vencimento">${dataBR(a.vencimento)}</td>
-            <td data-label="Situação"><span class="badge ${s.classe}">${s.texto}</span></td>
+            <td data-label="Situação"><span class="badge ${s.classe}">${s.texto}</span>${a.bloqueado ? ' <span class="badge bad" title="Travado por falta de pagamento"><i class="fa-solid fa-lock"></i> Fatura em aberto</span>' : ""}</td>
             <td class="td-actions"><div class="actions">
                 <button type="button" class="icon-btn" data-acao="editar" data-id="${a.id}" title="Editar" aria-label="Editar ${esc(a.nome)}"><i class="fa-solid fa-pen"></i></button>
                 <button type="button" class="icon-btn" data-acao="plano" data-id="${a.id}" title="${a.plano ? "Mudar / fazer upgrade do plano" : "Escolher o plano"}" aria-label="Plano de ${esc(a.nome)}"><i class="fa-solid fa-arrow-up-right-dots"></i></button>
+                <button type="button" class="icon-btn${a.bloqueado ? " ativo-alerta" : ""}" data-acao="pagamento" data-id="${a.id}" title="${a.bloqueado ? "Pagamento recebido: destravar o acesso" : "Travar o acesso por falta de pagamento"}" aria-label="${a.bloqueado ? "Destravar" : "Travar por falta de pagamento"} ${esc(a.nome)}"><i class="fa-solid ${a.bloqueado ? "fa-money-bill-wave" : "fa-file-invoice-dollar"}"></i></button>
                 <button type="button" class="icon-btn" data-acao="alternar" data-id="${a.id}" title="${bloqueado ? "Liberar acesso" : "Desativar acesso"}" aria-label="${bloqueado ? "Liberar" : "Desativar"} ${esc(a.nome)}"><i class="fa-solid ${bloqueado ? "fa-lock-open" : "fa-lock"}"></i></button>
                 <button type="button" class="icon-btn danger" data-acao="excluir" data-id="${a.id}" title="Excluir" aria-label="Excluir ${esc(a.nome)}"><i class="fa-solid fa-trash"></i></button>
             </div></td>
@@ -191,7 +193,7 @@ async function salvar(ev) {
         const mudancas = {
             ["alunos/" + id]: registro,
             ["emails/" + chaveNova]: {
-                aluno: id, ativo: dados.ativo, vencimento: dados.vencimento, nome: dados.nome, plano: dados.plano,
+                aluno: id, ativo: dados.ativo, vencimento: dados.vencimento, nome: dados.nome, plano: dados.plano, bloqueado: registro.bloqueado || null,
                 valor: dados.valor || null, diaFatura: registro.diaFatura || null, primeiraFatura: registro.primeiraFatura || null
             }
         };
@@ -241,5 +243,29 @@ async function excluir(aluno) {
     } catch (e) {
         console.error(e);
         aviso(mensagemErro(e, "Não foi possível excluir."), "error");
+    }
+}
+
+// Travar / destravar por falta de pagamento: o aluno vê só a tela de pagamento (Pix + enviar comprovante).
+// Diferente de "Desativar acesso", que fecha tudo.
+async function alternarBloqueio(aluno) {
+    const travar = !aluno.bloqueado;
+    if (travar && !(await confirmar({
+        titulo: "Travar o acesso de " + aluno.nome.split(" ")[0] + "?",
+        texto: "Enquanto a fatura estiver em aberto, " + aluno.nome.split(" ")[0] + " vê só a tela de pagamento (Pix e enviar comprovante). Treinos, e-books e progresso ficam bloqueados até você destravar.",
+        botao: "Travar acesso"
+    }))) return;
+    const valor = travar ? "pagamento" : null;
+    try {
+        await update(ref(db), {
+            ["alunos/" + aluno.id + "/bloqueado"]: valor,
+            ["alunos/" + aluno.id + "/bloqueadoEm"]: travar ? Date.now() : null,
+            ["alunos/" + aluno.id + "/atualizadoEm"]: Date.now(),
+            ["emails/" + chaveEmail(aluno.email) + "/bloqueado"]: valor
+        });
+        aviso(travar ? "Acesso de " + aluno.nome + " travado até o pagamento." : "Pagamento confirmado: acesso de " + aluno.nome + " liberado.", "ok");
+    } catch (e) {
+        console.error(e);
+        aviso(mensagemErro(e, "Não foi possível alterar o acesso."), "error");
     }
 }

@@ -53,6 +53,24 @@
         </div>
     </section>
 
+    <!-- Acesso travado pelo personal por falta de pagamento -->
+    <section class="al-espera al-bloqueio" id="al-bloqueio" hidden>
+        <img class="esp-logo" src="./Assets/img/banner05.png" alt="Fagner Lage">
+        <div class="esp-card">
+            <div class="bloq-ico"><i class="fa-solid fa-lock"></i></div>
+            <h1>Acesso pausado<span id="bloq-nome"></span></h1>
+            <p>O seu acesso à área do aluno está pausado porque a fatura do plano está em aberto. Assim que o pagamento for confirmado, o Fagner libera e tudo volta na hora: treinos, e-books e progresso.</p>
+            <div class="bloq-valor" id="bloq-valor" hidden><small>Valor da fatura</small><strong id="bloq-valor-txt"></strong></div>
+            <div class="bloq-pix" id="bloq-pix" hidden>
+                <button type="button" class="btn btn-primary esp-btn" id="bloq-copiar"><i class="fa-solid fa-qrcode"></i> Copiar Pix copia e cola</button>
+                <button type="button" class="btn btn-ghost esp-btn" id="bloq-chave"><i class="fa-regular fa-copy"></i> Copiar a chave Pix</button>
+                <small id="bloq-pix-info"></small>
+            </div>
+            <a class="btn btn-primary esp-btn" id="bloq-whats" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Enviar o comprovante ao Fagner</a>
+            <button type="button" class="btn btn-ghost esp-btn" id="bloq-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </section>
+
     <div class="app-aluno" id="app">
 
         <!-- ===== Topo ===== -->

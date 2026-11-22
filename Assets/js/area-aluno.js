@@ -52,7 +52,7 @@ function limparCache() {
     cache = null;
     try { localStorage.removeItem(CACHE); } catch { /* sem armazenamento */ }
 }
-const acessoValido = (c) => !!c && c.ativo !== false && !(c.vencimento && c.vencimento < hojeISO());
+const acessoValido = (c) => !!c && c.ativo !== false && !c.bloqueado && !(c.vencimento && c.vencimento < hojeISO());
 
 // Chamada no fim deste arquivo (depois que tudo foi declarado)
 function abrirDoCache() {
@@ -85,6 +85,8 @@ onAuthStateChanged(auth, async (user) => {
             return mostrarAcessoNegado({ texto: "O e-mail " + (user.email || "") + " não está cadastrado. Escolha um plano e preencha a ficha de inscrição.", botao: "Ver planos", link: PAGINAS.planos });
         }
         if (!acessoValido(cadastro)) limparCache();
+        // Travado pelo personal por falta de pagamento: tela de pagamento (libera sozinha quando ele destravar)
+        if (cadastro.bloqueado && cadastro.ativo !== false) return mostrarBloqueio(user);
         if (cadastro.ativo === false) {
             return mostrarAcessoNegado({ texto: "Seu acesso está desativado. Fale com o personal para liberar.", botao: "Voltar ao login" });
         }
@@ -131,6 +133,10 @@ function ligarDados() {
     if (dadosLigados) return;
     dadosLigados = true;
     carregarPerfil();
+    // Se o personal travar o acesso (fatura em aberto) com a área aberta, troca na hora para a tela de pagamento
+    onValue(ref(db, "emails/" + chaveEmail(aluno.email) + "/bloqueado"), (snap) => {
+        if (snap.exists()) { limparCache(); location.reload(); }
+    }, (e) => console.warn(e));
     escutarFicha();
     escutarArquivos();
     carregarPix();
@@ -464,6 +470,37 @@ $("av-form").addEventListener("submit", async (ev) => {
         botao.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Enviar para o Fagner';
     }
 });
+
+/* =================== Acesso travado (falta de pagamento) =================== */
+
+async function mostrarBloqueio(user) {
+    const nome = String(cadastro.nome || user.displayName || "").split(" ")[0];
+    $("bloq-nome").textContent = nome ? ", " + nome : "";
+    $("app").hidden = true;
+    $("al-espera").hidden = true;
+    $("al-bloqueio").hidden = false;
+    $("gate").hidden = true;
+    document.querySelectorAll(".an-tela").forEach((n) => n.remove());
+
+    const valor = Number(cadastro.valor) || 0;
+    $("bloq-valor").hidden = !valor;
+    $("bloq-valor-txt").textContent = valor ? moeda(valor) : "";
+    $("bloq-whats").href = wa("Olá, Fagner! Aqui é " + (cadastro.nome || user.email) + ". Segue o comprovante do pagamento da fatura" + (valor ? " (" + moeda(valor) + ")" : "") + " para liberar o meu acesso.");
+
+    try {
+        const p = (await get(ref(db, "config/pix"))).val();
+        if (p?.chave) {
+            $("bloq-pix").hidden = false;
+            $("bloq-pix-info").textContent = (TIPOS_PIX[p.tipo]?.nome || p.tipo) + ": " + chaveFormatada(p.tipo, p.chave) + " · " + p.nome;
+            $("bloq-copiar").onclick = () => copiar(pixCopiaECola({ chave: p.chave, nome: p.nome, cidade: p.cidade, valorCentavos: valor }), "Pix copia e cola copiado. No app do banco, escolha Pix → Copia e cola.");
+            $("bloq-chave").onclick = () => copiar(p.chave, "Chave Pix copiada. Cole no app do seu banco.");
+        }
+    } catch (e) { console.warn("Pix indisponível:", e); }
+
+    // Quando o Fagner destravar, a área abre sozinha
+    onValue(ref(db, "emails/" + chaveEmail(user.email) + "/bloqueado"), (snap) => { if (!snap.exists()) location.reload(); }, (e) => console.warn(e));
+}
+$("bloq-sair").addEventListener("click", () => sair());
 
 /* =================== Espera pela primeira ficha =================== */
 

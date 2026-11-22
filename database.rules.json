@@ -190,7 +190,7 @@
       ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       "$alunoId": {
-        ".read": "auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == $alunoId && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false"
+        ".read": "auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == $alunoId && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists()"
       }
     },
     "feedbacks": {
@@ -201,7 +201,7 @@
         "criadoEm"
       ],
       "$id": {
-        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('alunoId').val() == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false",
+        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('alunoId').val() == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists()",
         ".validate": "newData.hasChildren(['alunoId', 'esforco', 'criadoEm', 'dia']) && newData.child('esforco').isString() && newData.child('esforco').val().matches(/^(minimo|medio|alto)$/) && (!newData.child('comentario').exists() || (newData.child('comentario').isString() && newData.child('comentario').val().length <= 1000))"
       }
     },
@@ -213,7 +213,7 @@
       ]
     },
     "biblioteca": {
-      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' || (auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false)",
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br' || (auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists())",
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'"
     },
     "arquivos": {
@@ -221,7 +221,7 @@
       ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
       "$id": {
         ".validate": "newData.child('dados').isString() && newData.child('dados').val().length < 7500000",
-        ".read": "(auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false) && (root.child('biblioteca').child($id).child('para').val() != 'selecionados' || root.child('biblioteca').child($id).child('alunos').child(root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val()).exists())"
+        ".read": "(auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).exists() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists()) && (root.child('biblioteca').child($id).child('para').val() != 'selecionados' || root.child('biblioteca').child($id).child('alunos').child(root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val()).exists())"
       }
     },
     "financeiro": {
@@ -257,7 +257,7 @@
         "criadoEm"
       ],
       "$id": {
-        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('alunoId').val() == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && newData.child('publicado').val() == false && newData.child('visto').val() == false",
+        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('alunoId').val() == root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists() && newData.child('publicado').val() == false && newData.child('visto').val() == false",
         ".validate": "newData.hasChildren(['alunoId', 'nome', 'texto', 'nota', 'criadoEm', 'autorizado']) && newData.child('texto').isString() && newData.child('texto').val().length >= 20 && newData.child('texto').val().length <= 600 && newData.child('nota').isNumber() && newData.child('nota').val() >= 1 && newData.child('nota').val() <= 5 && newData.child('autorizado').val() == true && (!newData.child('nomeExibicao').exists() || (newData.child('nomeExibicao').isString() && newData.child('nomeExibicao').val().length <= 80))"
       }
     },
@@ -324,7 +324,7 @@
         "criadoEm"
       ],
       "$id": {
-        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('uid').val() == auth.uid && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == newData.child('alunoId').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && newData.child('visto').val() == false && newData.child('criadoEm').val() <= now + 60000 && newData.child('criadoEm').val() >= now - 600000 && newData.child('expiraEm').val() == newData.child('criadoEm').val() + 1296000000",
+        ".write": "!data.exists() && auth != null && auth.token.email != null && newData.child('uid').val() == auth.uid && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == newData.child('alunoId').val() && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists() && newData.child('visto').val() == false && newData.child('criadoEm').val() <= now + 60000 && newData.child('criadoEm').val() >= now - 600000 && newData.child('expiraEm').val() == newData.child('criadoEm').val() + 1296000000",
         ".validate": "newData.hasChildren(['uid', 'alunoId', 'nome', 'criadoEm', 'expiraEm', 'visto'])",
         "uid": {
           ".validate": "newData.isString() && newData.val().length <= 128"

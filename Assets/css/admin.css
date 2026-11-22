@@ -235,3 +235,4 @@ option { background: var(--card); }
 .av-det-obs p { margin-top: 4px; white-space: pre-line; }
 .av-det-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 860px) { .av-det { grid-template-columns: 1fr; } }
+.icon-btn.ativo-alerta { color: var(--red-2); border-color: rgba(255, 59, 69, .5); background: rgba(227, 32, 43, .12); }
