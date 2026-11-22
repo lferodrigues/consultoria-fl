@@ -7,7 +7,7 @@ import { situacao, dataBR } from "./alunos-util.js?v=2";
 import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO } from "./fichas-util.js?v=1";
 import { CATEGORIAS, categoriaPorId } from "./exercicios-dados.js?v=1";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
-import { daAluno, foneWhats } from "./admin-inscricoes.js?v=2";
+import { daAluno, foneWhats } from "./admin-inscricoes.js?v=3";
 import { PAGINAS } from "./firebase-app.js?v=2";
 
 const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9 ]/g, "").trim();

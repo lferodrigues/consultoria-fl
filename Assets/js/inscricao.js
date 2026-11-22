@@ -15,9 +15,9 @@ export const VERSAO_TERMOS = "1.0";
 const WHATSAPP_FAGNER = "5532998528266";
 const TOTAL = 5;
 
-// Link direto (cadastro.html?direto=1): o aluno faz a inscrição sem escolher plano.
+// Link direto (/cadastrolivre ou cadastro.html?direto=1): o aluno faz a inscrição sem escolher plano.
 // O plano e o valor ficam "a combinar" e o Fagner define na hora de aprovar.
-export const DIRETO = new URLSearchParams(location.search).has("direto");
+export const DIRETO = new URLSearchParams(location.search).has("direto") || /\/cadastrolivre\/?$/i.test(location.pathname);
 export const PLANO_A_DEFINIR = { id: "a-definir", nome: "A combinar com o Fagner", preco: 0 };
 
 const $ = (id) => document.getElementById(id);

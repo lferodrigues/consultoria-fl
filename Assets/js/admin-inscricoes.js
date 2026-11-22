@@ -14,7 +14,10 @@ const semPlano = (i) => i.planoId === "a-definir";
 const valorTxt = (i) => (semPlano(i) ? "A combinar" : moeda(i.valor));
 
 // Link que o Fagner manda para o aluno se inscrever sem passar pelos planos
-export const LINK_DIRETO = new URL("./cadastro.html?direto=1", location.href).href;
+// No domínio próprio (Vercel) usa o endereço curto; fora dele, o link com ?direto=1
+export const LINK_DIRETO = /personalfagnerlage\.com\.br$/i.test(location.hostname)
+    ? location.origin + "/cadastrolivre"
+    : new URL("./cadastro.html?direto=1", location.href).href;
 
 async function copiarLinkDireto() {
     try {
