@@ -360,7 +360,7 @@ $("tr-pdf").addEventListener("click", async () => {
 /* =================== Avaliação por foto =================== */
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }   (dados)
 //   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."                         (a foto, separada para a lista do painel ser leve)
-// Fica 15 dias: depois some (regras do banco + limpeza diária em /api/limpar-avaliacoes e no painel).
+// Fica 15 dias: depois some (regras do banco + limpeza diária em /api/diario e no painel).
 const DIAS_AVALIACAO = 15;
 let fotoAvaliacao = "";
 

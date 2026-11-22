@@ -2,7 +2,7 @@
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }
 //   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."   (baixada só ao abrir a avaliação)
 // Cada foto fica 15 dias. Depois disso as regras do banco já não deixam ler, e ela é apagada
-// pela limpeza diária (/api/limpar-avaliacoes) ou aqui mesmo, quando o painel encontra uma vencida.
+// pela limpeza diária (/api/diario) ou aqui mesmo, quando o painel encontra uma vencida.
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
 import { $, estado, aoMudar, esc, aviso, confirmar, mensagemErro } from "./admin-core.js?v=1";
