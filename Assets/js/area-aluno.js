@@ -4,7 +4,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { ref, get, onValue, push, update, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-util.js?v=2";
-import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO } from "./fichas-util.js?v=1";
+import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
 import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { navegar } from "./spa-nav.js?v=1";
@@ -346,7 +346,7 @@ $("tr-pdf").addEventListener("click", async () => {
                 salvarCache({ inscricaoPdf: inscricao });
             }
         }
-        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=1");
+        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=2");
         await baixarFichaPDF({ aluno, ficha, inscricao });
     } catch (e) {
         console.error(e);
@@ -559,6 +559,18 @@ function montarNotificacoes() {
             novo: vencVisto !== hojeISO()
         });
     }
+    // Ficha perto da troca: tocar avisa o Fagner no WhatsApp
+    const diasTroca = ficha ? diasParaTroca(ficha, hojeISO()) : null;
+    if (diasTroca !== null && diasTroca <= AVISO_TROCA_DIAS) {
+        const quando = dataBR(trocaDaFicha(ficha));
+        lista.push({
+            icone: "fa-rotate", cor: "warn", quando: Date.now() + 1, externo: true,
+            link: wa("Olá, Fagner! Aqui é " + aluno.nome + ". Minha ficha de treino \"" + (ficha.nome || "Ficha de treino") + "\" " + textoTroca(diasTroca) + " (" + quando + "). Podemos montar a próxima?"),
+            titulo: "Sua ficha " + textoTroca(diasTroca),
+            texto: "Toque aqui para avisar o Fagner no WhatsApp e pedir a próxima ficha.",
+            novo: lerLocal("fl-troca-visto-" + ficha.id, "") !== hojeISO()
+        });
+    }
     if (ficha) {
         const criada = ficha.criadoEm || 0;
         const mudou = ficha.atualizadoEm || criada;
@@ -600,7 +612,7 @@ function abrirNotificacoes() {
     const lista = montarNotificacoes();
     $("al-notifs-lista").innerHTML = lista.length
         ? lista.map((x) => `
-            <a href="${x.link}" class="al-notif${x.novo ? " novo" : ""}">
+            <a href="${esc(x.link)}" class="al-notif${x.novo ? " novo" : ""}${x.externo ? " externo" : ""}"${x.externo ? ' target="_blank" rel="noopener"' : ""}>
                 <span class="al-notif-ico ${x.cor}"><i class="fa-solid ${x.icone}"></i></span>
                 <span class="al-notif-txt"><strong>${esc(x.titulo)}</strong><small>${esc(x.texto)}</small><em>${x.cor === "warn" ? "Aviso" : quando(x.quando)}</em></span>
             </a>`).join("")
@@ -610,6 +622,7 @@ function abrirNotificacoes() {
     // Abriu = viu
     gravarLocal(chaveVisto(), String(Date.now()));
     gravarLocal(chaveVencVisto(), hojeISO());
+    if (ficha) gravarLocal("fl-troca-visto-" + ficha.id, hojeISO());
     atualizarSino();
 }
 function fecharNotificacoes() {
@@ -743,6 +756,15 @@ function desenharInicio() {
     const aviso = $("al-aviso-venc");
     aviso.hidden = !(dias !== null && dias <= 7);
     if (!aviso.hidden) aviso.innerHTML = `<i class="fa-solid fa-clock"></i><span><strong>${dias === 0 ? "Seu plano vence hoje" : "Seu plano vence em " + dias + (dias === 1 ? " dia" : " dias")}</strong><small>Toque para renovar pelo Pix</small></span><i class="fa-solid fa-chevron-right"></i>`;
+
+    // Ficha perto da troca: o mesmo aviso do sino, também no início
+    const troca = $("al-aviso-troca");
+    const nTroca = montarNotificacoes().find((x) => x.icone === "fa-rotate");
+    troca.hidden = !nTroca;
+    if (nTroca) {
+        troca.href = nTroca.link;
+        troca.innerHTML = `<i class="fa-solid fa-rotate"></i><span><strong>${esc(nTroca.titulo)}</strong><small>Toque para avisar o Fagner no WhatsApp</small></span><i class="fa-brands fa-whatsapp"></i>`;
+    }
 }
 
 /* =================== Meu progresso =================== */

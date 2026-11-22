@@ -4,7 +4,7 @@
 import { ref, push, update, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db, hojeISO } from "./firebase-app.js?v=2";
 import { situacao, dataBR } from "./alunos-util.js?v=2";
-import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO } from "./fichas-util.js?v=1";
+import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
 import { CATEGORIAS, categoriaPorId } from "./exercicios-dados.js?v=1";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 import { daAluno, foneWhats } from "./admin-inscricoes.js?v=3";
@@ -155,7 +155,7 @@ function corpoAluno(a, fichas, fbs) {
         return `
         <tr>
             <td class="td-aluno"><div class="aluno-nome">${esc(f.nome || "Ficha de treino")}</div><div class="aluno-email">${esc([f.objetivo, f.nivel].filter(Boolean).join(" · "))}</div></td>
-            <td data-label="Início">${dataBR(f.inicio)}</td>
+            <td data-label="Início">${dataBR(f.inicio)}${i === 0 && trocaDaFicha(f) ? `<div class="aluno-email">troca ${dataBR(trocaDaFicha(f))}${(() => { const d = diasParaTroca(f, hojeISO()); return d !== null && d <= AVISO_TROCA_DIAS ? ` <span class="badge ${d < 0 ? "bad" : "warn"}">${textoTroca(d)}</span>` : ""; })()}</div>` : ""}</td>
             <td data-label="Dias">${chipsDias(f)}</td>
             <td data-label="Exercícios">${total}</td>
             <td data-label="Situação">${i === 0 ? '<span class="badge ok">Atual</span>' : '<span class="badge off">Anterior</span>'}</td>
@@ -232,7 +232,21 @@ async function excluir(f) {
 
 /* =================== Cadastrar ficha =================== */
 
+// Mostra embaixo do campo "Duração" quando a ficha deve ser trocada
+function infoTroca() {
+    const t = trocaDaFicha({ inicio: $("fc-inicio").value || hojeISO(), duracaoMeses: Number($("fc-duracao").value) });
+    $("fc-troca-info").textContent = t ? "Troca em " + dataBR(t) + ". Você e o aluno são avisados " + AVISO_TROCA_DIAS + " dias antes." : "";
+}
+let infoTrocaLigada = false;
+function ligarInfoTroca() {
+    if (infoTrocaLigada) return;
+    infoTrocaLigada = true;
+    $("fc-duracao").addEventListener("change", infoTroca);
+    $("fc-inicio").addEventListener("change", infoTroca);
+}
+
 function abrir(f, aoFechar, copia = false) {
+    ligarInfoTroca();
     editando = f && f.id && !copia ? { alunoId: f.alunoId, id: f.id } : null;
     $("fc-titulo").textContent = editando ? "Editar ficha de treino" : copia ? "Nova ficha a partir de outra" : "Cadastrar ficha de treino";
     $("fc-msg").textContent = "";
@@ -244,6 +258,9 @@ function abrir(f, aoFechar, copia = false) {
 
     $("fc-nome").value = f?.nome || "";
     $("fc-inicio").value = f?.inicio || hojeISO();
+    // Duração: a da ficha; ficha nova começa com 2 meses
+    $("fc-duracao").value = f?.duracaoMeses ? String(f.duracaoMeses) : (f && f.id && !copia ? "" : "2");
+    infoTroca();
     $("fc-objetivo").value = f?.objetivo || "Hipertrofia";
     $("fc-nivel").value = f?.nivel || "Intermediário";
     $("fc-obs").value = f?.obs || "";
@@ -575,6 +592,8 @@ async function salvar(ev) {
             nivel: $("fc-nivel").value,
             obs: $("fc-obs").value.trim(),
             diasPorSemana: qtdDias,
+            duracaoMeses: Number($("fc-duracao").value) || null,
+            troca: trocaDaFicha({ inicio: $("fc-inicio").value || hojeISO(), duracaoMeses: Number($("fc-duracao").value) }) || null,
             dias,
             criadoEm: antigo?.criadoEm || agora,
             atualizadoEm: agora

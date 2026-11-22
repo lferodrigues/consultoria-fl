@@ -25,10 +25,10 @@
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-core.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-alunos.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
+    <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/exercicios-dados.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-inscricoes.js?v=3">
-    <link rel="modulepreload" href="./Assets/js/admin-fichas.js?v=4">
+    <link rel="modulepreload" href="./Assets/js/admin-fichas.js?v=5">
     <link rel="modulepreload" href="./Assets/js/admin-biblioteca.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-financeiro.js?v=1">
     <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
@@ -40,7 +40,7 @@
     <link rel="modulepreload" href="./Assets/js/admin-avaliacoes.js?v=1">
     <link rel="modulepreload" href="./Assets/js/vitrine-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/admin-vitrine.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=17">
+    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=18">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -646,6 +646,14 @@
                     <div class="grid-2 fc-dados">
                         <label>Nome da ficha<input type="text" id="fc-nome" autocomplete="off" maxlength="60" placeholder="Ex.: Bloco de força"></label>
                         <label>Início<input type="date" id="fc-inicio"></label>
+                        <label>Duração da ficha
+                            <select id="fc-duracao">
+                                <option value="">Sem prazo de troca</option>
+                                <option value="1">1 mês</option><option value="2">2 meses</option><option value="3">3 meses</option>
+                                <option value="4">4 meses</option><option value="5">5 meses</option><option value="6">6 meses</option>
+                            </select>
+                            <small id="fc-troca-info"></small>
+                        </label>
                         <label>Objetivo
                             <select id="fc-objetivo">
                                 <option>Hipertrofia</option><option>Emagrecimento</option><option>Força</option>
@@ -884,7 +892,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=17"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=18"></script>
     <script src="./Assets/js/supino-pct.js?v=2" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>

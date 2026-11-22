@@ -3,6 +3,7 @@
 // fichas/{alunoId}/{fichaId} -> {
 //   nome, objetivo, nivel, inicio (AAAA-MM-DD), obs, diasPorSemana,
 //   dias: { seg: { nome, exercicios: [{ nome, series, reps, carga, descanso, video, obs }] }, qua: {...} },
+//   duracaoMeses (1-12, opcional), troca (AAAA-MM-DD: inicio + duracaoMeses),
 //   criadoEm, atualizadoEm
 // }
 
@@ -63,3 +64,36 @@ export const ESFORCO = {
     medio: { nome: "Médio", classe: "warn" },
     alto: { nome: "Alto", classe: "bad" }
 };
+
+/* ---------- Validade da ficha (troca) ---------- */
+export const AVISO_TROCA_DIAS = 5; // avisa o personal e o aluno a partir de 5 dias antes
+
+// Data da troca: a salva na ficha ou início + duração
+export function trocaDaFicha(f) {
+    if (!f) return "";
+    if (f.troca) return f.troca;
+    const meses = Number(f.duracaoMeses);
+    if (!f.inicio || !meses) return "";
+    const [a, m, d] = f.inicio.split("-").map(Number);
+    const alvo = new Date(a, m - 1 + meses, 1);
+    alvo.setDate(Math.min(d, new Date(alvo.getFullYear(), alvo.getMonth() + 1, 0).getDate()));
+    return alvo.getFullYear() + "-" + String(alvo.getMonth() + 1).padStart(2, "0") + "-" + String(alvo.getDate()).padStart(2, "0");
+}
+
+// Dias que faltam para a troca (negativo = já passou); null = ficha sem prazo
+export function diasParaTroca(f, hojeIso) {
+    const t = trocaDaFicha(f);
+    if (!t) return null;
+    const [y1, m1, d1] = hojeIso.split("-").map(Number);
+    const [y2, m2, d2] = t.split("-").map(Number);
+    return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+}
+
+// "vence em 3 dias" / "vence hoje" / "venceu há 2 dias"
+export function textoTroca(dias) {
+    if (dias === null) return "";
+    if (dias > 1) return "vence em " + dias + " dias";
+    if (dias === 1) return "vence amanhã";
+    if (dias === 0) return "vence hoje";
+    return "venceu há " + -dias + (dias === -1 ? " dia" : " dias");
+}

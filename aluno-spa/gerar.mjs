@@ -23,8 +23,8 @@ const CSS = {
 const MODULOS = {
     login: ["./Assets/js/login-aluno.js?v=13"],
     cadastro: ["./Assets/js/planos-card.js?v=2", "./Assets/js/inscricao.js?v=6"],
-    area: ["./Assets/js/alunos-util.js?v=2", "./Assets/js/fichas-util.js?v=1", "./Assets/js/pix-util.js?v=1",
-        "./Assets/js/acesso-negado.js?v=1", "./Assets/js/area-aluno.js?v=15"]
+    area: ["./Assets/js/alunos-util.js?v=2", "./Assets/js/fichas-util.js?v=2", "./Assets/js/pix-util.js?v=1",
+        "./Assets/js/acesso-negado.js?v=1", "./Assets/js/area-aluno.js?v=16"]
 };
 
 const PAGINAS = [
@@ -103,7 +103,7 @@ ${telas.area}
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=6"></script>
+    <script src="./Assets/js/spa-aluno.js?v=7"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

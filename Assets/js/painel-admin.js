@@ -10,8 +10,8 @@ import { situacao, dataBR, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
 import * as Alunos from "./admin-alunos.js?v=1";
-import * as Treinos from "./admin-fichas.js?v=4";
-import { diaPorId, ESFORCO } from "./fichas-util.js?v=1";
+import * as Treinos from "./admin-fichas.js?v=5";
+import { diaPorId, ESFORCO, ordenarFichas, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
 import * as Planos from "./admin-planos.js?v=2";
@@ -241,12 +241,28 @@ function alunosComAviso() {
         .sort((x, y) => (x.a.vencimento || "").localeCompare(y.a.vencimento || ""));
 }
 
+// Fichas atuais que vencem em até 5 dias (ou já venceram) — só alunos ativos
+function fichasParaTrocar() {
+    const hoje = hojeISO();
+    return estado.alunos
+        .filter((a) => a.ativo !== false && !(a.vencimento && a.vencimento < hoje))
+        .map((a) => {
+            const atual = ordenarFichas(estado.fichas.filter((f) => f.alunoId === a.id))[0];
+            const dias = atual ? diasParaTroca(atual, hoje) : null;
+            return { a, f: atual, dias };
+        })
+        .filter((x) => x.dias !== null && x.dias <= AVISO_TROCA_DIAS)
+        .sort((x, y) => x.dias - y.dias);
+}
+
 function desenharAvisos() {
     const vencimentos = alunosComAviso();
+    const trocas = fichasParaTrocar();
+    const avs = Avaliacoes.novas();
     const feedbacks = estado.feedbacks.filter((f) => !f.lido).sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
     const deps = Depoimentos.novos();
     const insc = Inscricoes.novas().sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
-    const total = vencimentos.length + feedbacks.length + deps.length + insc.length;
+    const total = vencimentos.length + feedbacks.length + deps.length + insc.length + trocas.length + avs.length;
     $("bell-n").textContent = total > 99 ? "99+" : total;
     $("bell-n").classList.toggle("zero", total === 0);
 
@@ -267,7 +283,13 @@ function desenharAvisos() {
         <a href="#/inscricoes/${esc(i.id)}" class="aviso-item"><i class="fa-solid fa-file-signature" style="color:var(--warn)"></i>
         <span>${esc(i.nome)}<small>Nova inscrição · ${esc(i.planoNome || "")} · ${quando(i.criadoEm)}</small></span></a>`).join("");
 
+    const htmlTrocas = trocas.slice(0, 8).map(({ a, f, dias }) => `
+        <a href="#/treinos/aluno/${esc(a.id)}" class="aviso-item"><i class="fa-solid fa-rotate" style="color:${dias < 0 ? "var(--red-2)" : "var(--warn)"}"></i>
+        <span>${esc(a.nome)}<small>Ficha "${esc(f.nome || "Ficha de treino")}" ${textoTroca(dias)} · ${dataBR(trocaDaFicha(f))}</small></span></a>`).join("");
+
     $("bell-menu").innerHTML =
+        (avs.length ? `<span class="drop-title">Avaliações por foto</span><a href="#/avaliacoes" class="aviso-item"><i class="fa-solid fa-camera" style="color:var(--red-2)"></i><span>${avs.length} ${avs.length === 1 ? "foto nova" : "fotos novas"} para avaliar<small>Toque para ver</small></span></a><span class="drop-sep"></span>` : "") +
+        (trocas.length ? '<span class="drop-title">Fichas para trocar</span>' + htmlTrocas + '<span class="drop-sep"></span>' : "") +
         (insc.length ? '<span class="drop-title">Novas inscrições</span>' + htmlInsc + '<span class="drop-sep"></span>' : "") +
         `<div class="drop-head"><span class="drop-title">Feedbacks dos alunos</span>${feedbacks.length ? '<button type="button" class="drop-link" id="fb-todos-lidos">Marcar como lidos</button>' : ""}</div>` +
         (htmlFeedbacks || '<span class="drop-vazio">Nenhum feedback novo.</span>') +
