@@ -56,8 +56,40 @@ function msg(texto, tipo = "") {
     $("cad-msg").textContent = texto || "";
     $("cad-msg").className = "cad-msg " + tipo;
 }
-function carregando(sim) {
-    $("cad-loading").hidden = !sim;
+// Tela de carregamento com porcentagem. Não dá para medir o tempo real do Firebase,
+// então a % anda sozinha (cada vez mais devagar até 95%), pula nas etapas concluídas
+// e vai a 100% quando termina.
+let pct = 0;
+let timerPct = null;
+function mostrarPct() {
+    const n = Math.floor(pct);
+    $("cad-pct").textContent = n + "%";
+    $("cad-barra").style.width = n + "%";
+}
+function progresso(n, texto) {
+    if (texto) $("cad-loading-texto").textContent = texto;
+    pct = Math.max(pct, n);
+    mostrarPct();
+}
+function carregando(sim, texto) {
+    const tela = $("cad-loading");
+    if (sim) {
+        if (tela.hidden || tela.dataset.saindo) {
+            delete tela.dataset.saindo;
+            pct = 0;
+            clearInterval(timerPct);
+            timerPct = setInterval(() => { pct += (95 - pct) * 0.06; mostrarPct(); }, 80);
+        }
+        $("cad-loading-texto").textContent = texto || "Carregando...";
+        mostrarPct();
+        tela.hidden = false;
+    } else if (!tela.hidden) {
+        clearInterval(timerPct);
+        pct = 100;
+        mostrarPct();
+        tela.dataset.saindo = "1";
+        setTimeout(() => { if (tela.dataset.saindo) { tela.hidden = true; delete tela.dataset.saindo; } }, 250);
+    }
     ["cad-avancar", "cad-google", "cad-apple"].forEach((id) => { $(id).disabled = sim; });
 }
 function erroEm(el, texto) {
@@ -107,6 +139,10 @@ $("cad-form").addEventListener("submit", async (ev) => {
 async function carregarPlanos() {
     if (DIRETO) {
         $("cad-planos").hidden = true;
+        // Mesmo sem mostrar os planos, faz essa leitura leve logo ao abrir a página:
+        // ela já resolve a verificação de segurança (App Check) e abre a conexão com o banco,
+        // e o "Continuar" fica rápido em vez de esperar tudo isso no clique.
+        get(ref(db, "planos")).catch(() => {});
         return;
     }
     try {
@@ -153,9 +189,12 @@ function mostrarConta(user) {
 // Já é aluno ou já mandou a inscrição? Então não precisa preencher de novo.
 async function situacaoDaConta(user) {
     if (ehAdmin(user)) return { titulo: "Você está como administrador", texto: "Saia e entre com a conta do aluno para fazer a inscrição.", tipo: "admin" };
-    const cad = await get(ref(db, "emails/" + chaveEmail(user.email))).catch(() => null);
+    // As duas consultas ao mesmo tempo (antes era uma depois da outra)
+    const [cad, ins] = await Promise.all([
+        get(ref(db, "emails/" + chaveEmail(user.email))).catch(() => null),
+        get(ref(db, "inscricoes/" + user.uid)).catch(() => null)
+    ]);
     if (cad && cad.exists()) return { titulo: "Você já é aluno!", texto: "Esta conta já está cadastrada. É só entrar na área do aluno." };
-    const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
     if (ins && ins.exists()) {
         const i = ins.val();
         return {
@@ -186,9 +225,10 @@ async function entrarCom(provedor) {
     if (!planoEscolhido()) return msg("Escolha um plano primeiro.");
     msg("");
     ocupado = true;
-    carregando(true);
+    carregando(true, "Entrando com a sua conta...");
     try {
         const r = await signInWithPopup(auth, provedor);
+        progresso(60, "Conferindo o seu cadastro...");
         if (await aoEntrar(r.user)) irPara(2);
     } catch (e) {
         console.error(e);
@@ -222,7 +262,7 @@ async function avancarConta() {
     if (senha !== $("c-senha2").value) return erroEm($("c-senha2"), "As senhas não são iguais.");
 
     ocupado = true;
-    carregando(true);
+    carregando(true, "Criando a sua conta...");
     try {
         let cred;
         try {
@@ -230,8 +270,10 @@ async function avancarConta() {
         } catch (e) {
             // Já existe conta com esse e-mail: tenta entrar com a mesma senha (quem voltou para terminar a inscrição)
             if (e.code !== "auth/email-already-in-use") throw e;
+            progresso(30, "Entrando na sua conta...");
             cred = await signInWithEmailAndPassword(auth, email, senha);
         }
+        progresso(60, "Conferindo o seu cadastro...");
         if (await aoEntrar(cred.user)) irPara(2);
     } catch (e) {
         console.error(e);
@@ -495,7 +537,7 @@ async function enviar() {
     try { janela = window.open("", "_blank"); } catch (e) { janela = null; }
 
     ocupado = true;
-    carregando(true);
+    carregando(true, "Enviando a sua ficha...");
     try {
         await update(ref(db), { ["inscricoes/" + usuario.uid]: dados });
         if (!usuario.displayName) updateProfile(auth.currentUser, { displayName: dados.nome }).catch(() => {});
@@ -530,6 +572,6 @@ irPara(1);
 onAuthStateChanged(auth, async (user) => {
     if (ocupado) return;
     if (!user) return mostrarConta(null);
-    carregando(true);
+    carregando(true, "Carregando a sua conta...");
     try { await aoEntrar(user); } finally { carregando(false); }
 });

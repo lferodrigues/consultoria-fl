@@ -206,6 +206,11 @@ h1, h2, h3 { font-family: 'Montserrat', 'Inter', sans-serif; line-height: 1.15; 
 @keyframes pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
 .cad-loading { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(7, 8, 11, .7); backdrop-filter: blur(3px); }
+/* Porcentagem e barra de progresso da tela de carregamento */
+.cad-progresso { display: block; margin-top: 8px; text-align: center; line-height: 1.2; }
+.cad-progresso b { display: block; font: 800 1.5rem/1 'Montserrat', system-ui, sans-serif; color: #fff; font-variant-numeric: tabular-nums; }
+.cad-barra-fundo { display: block; height: 5px; margin: 10px 0 2px; border-radius: 99px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.cad-barra-fundo i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #e3202b, #ff3b45); transition: width .15s linear; }
 .spinner { width: 42px; height: 42px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .15); border-top-color: var(--red-2); animation: gira .8s linear infinite; }
 @keyframes gira { to { transform: rotate(360deg); } }
 
