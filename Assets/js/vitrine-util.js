@@ -5,8 +5,9 @@
 // Sem nada salvo, o site usa as fotos e o vídeo originais abaixo.
 
 export const VIDEO_PADRAO = "Ls7xSzsZ_Js";
-export const PRINCIPAL_PADRAO = "./administrador/Assets/img/4.jpeg";
-export const SOBRE_PADRAO = [1, 2, 3, 4, 5].map((n) => "./administrador/Assets/img/" + n + ".jpeg");
+// A foto 4 saiu do padrão: a alça do cabo na mão parecia um gesto ofensivo
+export const PRINCIPAL_PADRAO = "./administrador/Assets/img/5.jpeg";
+export const SOBRE_PADRAO = [1, 2, 3, 5].map((n) => "./administrador/Assets/img/" + n + ".jpeg");
 
 const ID_YT = /^[A-Za-z0-9_-]{11}$/;
 

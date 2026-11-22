@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Página não encontrada | Fagner Lage</title>
+    <meta name="theme-color" content="#07080b">
+    <!-- Caminhos começando com "/" para funcionar em qualquer endereço errado (ex.: /pasta/qualquer) -->
+    <link rel="icon" href="/Assets/img/logo.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/Assets/css/landing.css?v=6">
+    <style>
+        html, body { overflow-x: hidden; }
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .e404-top { padding: 22px 0; }
+        .e404-top img { height: 44px; width: auto; }
+        .e404 { flex: 1; display: grid; place-items: center; position: relative; padding: 40px 0 70px; overflow: hidden; }
+        .e404::before {
+            content: ""; position: absolute; width: 560px; height: 560px; border-radius: 50%; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
+            background: radial-gradient(circle, rgba(227, 32, 43, .22), rgba(227, 32, 43, 0) 65%);
+        }
+        .e404-box { position: relative; text-align: center; max-width: 620px; }
+        .e404-num {
+            font-family: 'Montserrat', sans-serif; font-weight: 900; line-height: .9; letter-spacing: -.04em;
+            font-size: clamp(6.5rem, 24vw, 12rem);
+            background: linear-gradient(180deg, #fff 10%, var(--red-2) 60%, var(--red) 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            display: flex; justify-content: center; align-items: center; gap: .04em;
+        }
+        .e404-peso {
+            width: .78em; height: .78em; color: var(--red-2); flex-shrink: 0;
+            transform: rotate(-30deg); animation: e404-peso 2.6s ease-in-out infinite;
+            filter: drop-shadow(0 10px 24px rgba(227, 32, 43, .45));
+        }
+        @keyframes e404-peso { 50% { transform: rotate(-30deg) translateY(-10px); } }
+        @media (prefers-reduced-motion: reduce) { .e404-peso { animation: none; } }
+        .e404 h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 800; margin: 18px 0 10px; }
+        .e404 p { color: var(--muted); font-size: 1.02rem; }
+        .e404-acoes { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+        .e404-links { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 26px; font-size: .9rem; }
+        .e404-links a { color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
+        .e404-links a:hover { color: #fff; }
+        .e404-links i { color: var(--red-2); }
+        .e404-foot { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px 0 26px; border-top: 1px solid var(--line); }
+    </style>
+</head>
+
+<body>
+    <header class="e404-top">
+        <div class="container">
+            <a href="/" aria-label="Início"><img src="/Assets/img/banner05.png" alt="Fagner Lage Personal Trainer"></a>
+        </div>
+    </header>
+
+    <main class="e404">
+        <div class="container e404-box">
+            <div class="e404-num" aria-hidden="true">4<svg class="e404-peso" viewBox="0 0 64 64"><g fill="currentColor"><rect x="4" y="22" width="8" height="20" rx="2"/><rect x="12" y="16" width="9" height="32" rx="2.5"/><rect x="21" y="29" width="22" height="6" rx="2"/><rect x="43" y="16" width="9" height="32" rx="2.5"/><rect x="52" y="22" width="8" height="20" rx="2"/></g></svg>4</div>
+            <span class="eyebrow">Página não encontrada</span>
+            <h1>Esse treino <span class="accent">não existe</span></h1>
+            <p>O endereço pode ter sido digitado errado, ou a página mudou de lugar. Mas não perca o ritmo: escolha para onde quer ir.</p>
+
+            <div class="e404-acoes">
+                <a href="/" class="btn btn-primary"><i class="fa-solid fa-house"></i> Voltar ao início</a>
+                <a href="/planos" class="btn btn-ghost">Ver os planos</a>
+            </div>
+
+            <nav class="e404-links" aria-label="Outros caminhos">
+                <a href="/login"><i class="fa-solid fa-user"></i> Área do aluno</a>
+                <a href="https://wa.me/5532998528266" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar com o Fagner</a>
+                <a href="/#sobre"><i class="fa-solid fa-circle-info"></i> Sobre a consultoria</a>
+            </nav>
+        </div>
+    </main>
+
+    <footer class="e404-foot">© <span id="ano">2026</span> Fagner Lage · Consultoria online de treino</footer>
+
+    <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
+    <script src="/Assets/js/sem-botao-direito.js?v=1"></script>
+</body>
+
+</html>

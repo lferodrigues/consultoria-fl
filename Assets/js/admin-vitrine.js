@@ -196,7 +196,7 @@ async function acaoSobre(ev) {
 }
 
 async function sobrePadrao() {
-    if (!(await confirmar({ titulo: "Voltar às fotos originais?", texto: "A seção Sobre volta a mostrar as 5 fotos de antes. As fotos enviadas por aqui serão apagadas.", botao: "Voltar às originais" }))) return;
+    if (!(await confirmar({ titulo: "Voltar às fotos originais?", texto: "A seção Sobre volta a mostrar as fotos originais. As fotos enviadas por aqui serão apagadas.", botao: "Voltar às originais" }))) return;
     await gravar(() => remove(ref(db, "vitrine/sobre")), "Fotos originais restauradas.");
 }
 
