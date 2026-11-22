@@ -84,6 +84,7 @@ h1, h2, h3 { font-family: 'Montserrat', 'Inter', sans-serif; line-height: 1.15; 
     filter: blur(2px); transform: rotate(-4deg);
 }
 .hero-photo img {
+    transition: opacity .4s ease;
     position: relative; border-radius: 24px; aspect-ratio: 4/5; object-fit: cover; width: 100%;
     -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
             mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
@@ -276,3 +277,8 @@ footer img { height: 40px; width: auto; }
     html { scroll-behavior: auto; }
 }
 html, body { overflow-x: hidden; }
+
+/* Links de privacidade no rodapé */
+.foot-links { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.foot-links a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.foot-links a:hover { color: #fff; }

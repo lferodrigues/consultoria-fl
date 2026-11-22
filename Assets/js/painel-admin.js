@@ -1,7 +1,7 @@
 // Painel de Controle (SPA) — acesso, dados em tempo real, rotas e menu
 //
 // Rotas (tudo na mesma página, sem recarregar):
-//   #/inicio  #/inscricoes[/uid]  #/alunos  #/treinos  #/exercicios[/grupo]  #/biblioteca  #/financeiro  #/planos
+//   #/inicio  #/inscricoes[/uid]  #/alunos  #/treinos  #/exercicios[/grupo]  #/biblioteca  #/financeiro  #/planos  #/vitrine
 //   #/<tela>/novo abre o cadastro daquela tela
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
@@ -19,11 +19,12 @@ import * as Exercicios from "./admin-exercicios.js?v=1";
 import * as Pix from "./admin-pix.js?v=1";
 import * as Depoimentos from "./admin-depoimentos.js?v=1";
 import * as Inscricoes from "./admin-inscricoes.js?v=1";
+import * as Vitrine from "./admin-vitrine.js?v=1";
 
-const TELAS = ["inicio", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
+const TELAS = ["inicio", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "vitrine", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu
 const GRUPO = { exercicios: "treinos" };
-const TITULOS = { inicio: "Início", inscricoes: "Inscrições", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", depoimentos: "Depoimentos" };
+const TITULOS = { inicio: "Início", inscricoes: "Inscrições", alunos: "Alunos", treinos: "Treinos", exercicios: "Biblioteca de exercícios", biblioteca: "Biblioteca", financeiro: "Financeiro", planos: "Planos", vitrine: "Vitrine", depoimentos: "Depoimentos" };
 const MODULOS = { alunos: Alunos, treinos: Treinos, biblioteca: Biblioteca, financeiro: Financeiro, planos: Planos, exercicios: Exercicios, depoimentos: Depoimentos, inscricoes: Inscricoes };
 const NOS = ["inscricoes", "alunos", "fichas", "feedbacks", "exercicios", "biblioteca", "financeiro", "planos", "depoimentos"];
 
@@ -55,6 +56,7 @@ function iniciarPainel(user) {
 
     Object.values(MODULOS).forEach((m) => m.iniciar());
     Pix.iniciar();
+    Vitrine.iniciar();
     aoMudar(desenharAvisos);
     iniciarMenu();
     iniciarTopo();

@@ -267,6 +267,30 @@
       "$id": {
         ".validate": "newData.hasChildren(['nome', 'texto', 'nota']) && newData.child('texto').isString() && newData.child('texto').val().length <= 600 && newData.child('nota').isNumber()"
       }
+    },
+    "vitrine": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "video": {
+        ".validate": "newData.hasChildren(['id']) && newData.child('id').isString() && newData.child('id').val().matches(/^[A-Za-z0-9_-]{11}$/)"
+      },
+      "principal": {
+        ".validate": "newData.hasChildren(['src'])",
+        "src": {
+          ".validate": "newData.isString() && newData.val().length < 1000000 && (newData.val().beginsWith('data:image/') || newData.val().beginsWith('./administrador/Assets/img/'))"
+        }
+      },
+      "sobre": {
+        "$id": {
+          ".validate": "newData.hasChildren(['src', 'ordem']) && newData.child('ordem').isNumber()",
+          "src": {
+            ".validate": "newData.isString() && newData.val().length < 1000000 && (newData.val().beginsWith('data:image/') || newData.val().beginsWith('./administrador/Assets/img/'))"
+          }
+        }
+      },
+      "$outro": {
+        ".validate": false
+      }
     }
   }
 }

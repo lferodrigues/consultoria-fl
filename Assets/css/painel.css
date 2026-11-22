@@ -541,3 +541,25 @@ body.side-fechada .hamb { visibility: visible; }
 .fc-insc li b { color: #fff; }
 .fc-insc li.alerta { color: #fecaca; }
 .fc-insc li.alerta::before { content: "⚠ "; color: var(--warn); }
+
+/* ===== Vitrine (fotos e vídeo do site) ===== */
+.vt-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; align-items: start; }
+.vt-bloco-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vt-bloco-head small { color: var(--muted); font-size: .78rem; font-weight: 500; margin-left: 4px; }
+.vt-dica { color: var(--muted); font-size: .85rem; }
+.vt-acoes { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.vt-acoes label.btn { cursor: pointer; }
+.vt-video { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+.vt-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vt-principal { width: min(260px, 100%); margin: 0 auto; }
+.vt-principal img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; border: 1px solid var(--line); display: block; background: #000; }
+.vt-sobre { margin-bottom: 50px; }
+.vt-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.vt-foto { position: relative; margin: 0; background: rgba(255, 255, 255, .02); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.vt-foto img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; background: #000; }
+.vt-foto-n { position: absolute; top: 8px; left: 8px; font-size: .72rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: rgba(7, 8, 11, .8); }
+.vt-foto figcaption { display: flex; justify-content: center; gap: 4px; padding: 8px; }
+.vt-foto label.icon-btn { cursor: pointer; }
+body.vt-salvando #view-vitrine { opacity: .6; pointer-events: none; transition: opacity .2s; }
+@media (max-width: 900px) { .vt-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .vt-fotos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .vt-foto figcaption { gap: 2px; padding: 6px 4px; flex-wrap: wrap; } }

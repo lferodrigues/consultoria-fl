@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=11">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=12">
 </head>
 
 <body>
@@ -87,6 +87,9 @@
                             <li><a href="#/planos" data-sub="planos">Planos do site</a></li>
                             <li><a href="#/planos/novo" data-sub="planos/novo">Novo plano</a></li>
                         </ul>
+                    </li>
+                    <li class="menu-item" data-rota="vitrine">
+                        <a href="#/vitrine" class="menu-link"><i class="fa-solid fa-images"></i><span>Vitrine</span></a>
                     </li>
                     <li class="menu-item" data-rota="depoimentos">
                         <a href="#/depoimentos" class="menu-link"><i class="fa-solid fa-comment-dots"></i><span>Depoimentos</span><span class="menu-badge" id="menu-dep-n" hidden>0</span></a>
@@ -305,6 +308,65 @@
                     </section>
                     <div class="cards dep-cards" id="dp-lista"></div>
                     <div class="empty card-empty" id="dp-vazio" hidden><i class="fa-solid fa-comment-dots"></i><p id="dp-vazio-txt"></p></div>
+                </section>
+
+                <!-- ============ VITRINE ============ -->
+                <section class="view" id="view-vitrine" hidden>
+                    <div class="page-head">
+                        <div>
+                            <span class="eyebrow">Site</span>
+                            <h1>Vitrine</h1>
+                            <p class="page-sub">Troque as fotos e o vídeo de apresentação da página inicial. As mudanças aparecem no site na hora.</p>
+                        </div>
+                        <a href="./index.html" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver no site</a>
+                    </div>
+
+                    <div class="vt-grid">
+                        <article class="in-bloco">
+                            <div class="vt-bloco-head">
+                                <h2><i class="fa-brands fa-youtube"></i> Vídeo de apresentação</h2>
+                                <span id="vt-video-badge"></span>
+                            </div>
+                            <div class="vt-video"><iframe id="vt-video-prev" title="Prévia do vídeo de apresentação" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+                            <form id="vt-video-form" class="grid-2" novalidate>
+                                <label class="full">Link do vídeo no YouTube
+                                    <input type="url" id="vt-video-url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=...">
+                                    <small>Copie o link do vídeo no YouTube (botão Compartilhar) e cole aqui. A prévia muda enquanto você cola.</small>
+                                </label>
+                                <p class="form-msg full" id="vt-video-msg" role="alert"></p>
+                                <div class="vt-acoes full">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="vt-video-padrao" hidden><i class="fa-solid fa-rotate-left"></i> Voltar ao original</button>
+                                    <button type="submit" class="btn btn-primary btn-sm" id="vt-video-salvar">Salvar vídeo</button>
+                                </div>
+                            </form>
+                        </article>
+
+                        <article class="in-bloco">
+                            <div class="vt-bloco-head">
+                                <h2><i class="fa-solid fa-image-portrait"></i> Foto principal</h2>
+                                <span id="vt-principal-badge"></span>
+                            </div>
+                            <p class="vt-dica">A foto grande do topo do site. Fica melhor uma foto em pé (vertical).</p>
+                            <div class="vt-principal"><img id="vt-principal-img" alt="Foto principal do site"></div>
+                            <div class="vt-acoes">
+                                <button type="button" class="btn btn-ghost btn-sm" id="vt-principal-padrao" hidden><i class="fa-solid fa-rotate-left"></i> Voltar à original</button>
+                                <label class="btn btn-primary btn-sm"><i class="fa-solid fa-camera"></i> Trocar foto<input type="file" id="vt-principal-arq" accept="image/*" hidden></label>
+                            </div>
+                        </article>
+                    </div>
+
+                    <article class="in-bloco vt-sobre">
+                        <div class="vt-bloco-head">
+                            <h2><i class="fa-solid fa-images"></i> Fotos da seção “Sobre” <small id="vt-sobre-n"></small></h2>
+                            <span id="vt-sobre-badge"></span>
+                        </div>
+                        <p class="vt-dica">Passam uma depois da outra, a cada 5 segundos, ao lado do texto “Prazer, sou o Fagner Lage”. Use as setas para mudar a ordem.</p>
+                        <div class="vt-fotos" id="vt-sobre-lista"></div>
+                        <div class="vt-acoes">
+                            <button type="button" class="btn btn-ghost btn-sm" id="vt-sobre-padrao" hidden><i class="fa-solid fa-rotate-left"></i> Voltar às originais</button>
+                            <label class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Adicionar fotos<input type="file" id="vt-sobre-arq" accept="image/*" multiple hidden></label>
+                        </div>
+                    </article>
                 </section>
 
                 <!-- ============ INSCRIÇÕES ============ -->
@@ -721,7 +783,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=11"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=12"></script>
 </body>
 
 </html>
