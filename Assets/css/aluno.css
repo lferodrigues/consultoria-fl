@@ -462,3 +462,21 @@ body.modal-aberto { overflow: hidden; }
 .av-foto.erro { border-color: var(--red-2); }
 .av-aviso { display: flex; gap: 8px; align-items: flex-start; font-size: .8rem; color: var(--muted); margin: 2px 0 10px; }
 .av-aviso i { color: var(--red-2); margin-top: 2px; }
+
+/* Foto de capa do aluno (topo da tela inicial) */
+.al-hero { position: relative; }
+.al-hero.com-capa {
+    background:
+        linear-gradient(180deg, rgba(7, 8, 11, .15) 0%, rgba(7, 8, 11, .55) 55%, var(--bg) 100%),
+        var(--capa) center / cover no-repeat;
+}
+.al-capa-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .2); cursor: pointer;
+    background: rgba(7, 8, 11, .55); color: #fff; font-size: .76rem; font-weight: 600; backdrop-filter: blur(6px);
+}
+.al-capa-btn:hover { background: rgba(227, 32, 43, .8); border-color: transparent; }
+.al-hero.enviando-capa .al-capa-btn i::before { content: "\f110"; }
+.al-hero.enviando-capa .al-capa-btn i { animation: gira .8s linear infinite; }
+.al-hero.com-capa .al-nome-personal, .al-hero.com-capa .al-cref { text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
+.al-hero.com-capa .al-cref { color: #e5e7eb; }

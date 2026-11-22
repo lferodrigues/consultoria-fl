@@ -73,7 +73,10 @@
 
         <!-- ===== Início ===== -->
         <section class="al-view" id="view-inicio" hidden>
-            <div class="al-hero">
+            <div class="al-hero" id="al-hero">
+                <!-- Foto de capa do aluno -->
+                <button type="button" class="al-capa-btn" id="al-capa-btn" aria-label="Trocar a foto de capa"><i class="fa-solid fa-image"></i><span>Capa</span></button>
+                <input type="file" id="al-capa-input" accept="image/*" hidden>
                 <!-- Foto de perfil do aluno: toque para trocar -->
                 <button type="button" class="al-foto-btn" id="al-foto-btn" aria-label="Trocar a sua foto de perfil">
                     <img class="al-foto" id="al-foto" alt="Sua foto de perfil" hidden>
@@ -287,6 +290,8 @@
         <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
         <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
         <button type="button" id="al-foto-trocar"><i class="fa-solid fa-camera"></i> Trocar foto de perfil</button>
+        <button type="button" id="al-capa-trocar"><i class="fa-solid fa-image"></i> Trocar foto de capa</button>
+        <button type="button" id="al-capa-remover" hidden><i class="fa-solid fa-eraser"></i> Remover foto de capa</button>
         <div class="al-tema" role="group" aria-label="Tema">
             <span><i class="fa-solid fa-circle-half-stroke"></i> Tema</span>
             <div class="al-tema-op">

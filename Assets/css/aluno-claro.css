@@ -56,3 +56,9 @@ html[data-tema="claro"] .table th, html[data-tema="claro"] .table tbody tr:hover
 html[data-tema="claro"] .modal-box, html[data-tema="claro"] .modal-card, html[data-tema="claro"] .al-notifs { background: #ffffff; color: var(--text); }
 html[data-tema="claro"] :is(.esforco input:focus-visible + span, .estrelas input:focus-visible + label) { outline-color: var(--text); }
 html[data-tema="claro"] .al-top { background: rgba(255, 255, 255, .9); }
+html[data-tema="claro"] .al-hero.com-capa {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .35) 55%, var(--bg) 100%),
+        var(--capa) center / cover no-repeat;
+}
+html[data-tema="claro"] .al-hero.com-capa :is(.al-nome-personal, .al-cref) { color: var(--text); text-shadow: 0 1px 10px rgba(255, 255, 255, .95); }

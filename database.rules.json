@@ -308,6 +308,9 @@
         "tema": {
           ".validate": "newData.isString() && (newData.val() == 'claro' || newData.val() == 'escuro')"
         },
+        "capa": {
+          ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 600000"
+        },
         "$outro": {
           ".validate": false
         }

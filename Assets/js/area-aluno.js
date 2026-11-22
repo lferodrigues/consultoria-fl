@@ -148,6 +148,7 @@ function atualizarCabecalho() {
     $("al-hero-nome").textContent = aluno.nome;
     $("al-hero-sub").textContent = cadastro?.plano ? "Plano " + cadastro.plano : "Aluno da consultoria";
     mostrarFoto(cache?.foto || aluno.fotoGoogle || "");
+    mostrarCapa(cache?.capa || "");
     desenharFaturas();
 }
 
@@ -156,6 +157,76 @@ function atualizarCabecalho() {
 // A foto vem do perfil; se o aluno nunca trocou, usa a da ficha de inscrição e, por último, a do Google.
 
 const fotoValida = (f) => typeof f === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(f);
+
+// Foto de capa: fundo do topo da tela inicial (com uma sombra por cima para o nome continuar legível)
+function mostrarCapa(src) {
+    const hero = $("al-hero");
+    if (src) hero.style.setProperty("--capa", "url(" + src + ")");
+    else hero.style.removeProperty("--capa");
+    hero.classList.toggle("com-capa", !!src);
+    $("al-capa-remover").hidden = !src;
+}
+
+// Capa: recorte 3:1 com 1200 px de largura, em JPEG
+function reduzirCapa(arquivo, largura = 1200, altura = 400) {
+    return new Promise((ok, falha) => {
+        const url = URL.createObjectURL(arquivo);
+        const img = new Image();
+        img.onload = () => {
+            const alvo = largura / altura;
+            let sw = img.width, sh = img.width / alvo;
+            if (sh > img.height) { sh = img.height; sw = img.height * alvo; }
+            const c = document.createElement("canvas");
+            c.width = largura; c.height = altura;
+            c.getContext("2d").drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, largura, altura);
+            URL.revokeObjectURL(url);
+            ok(c.toDataURL("image/jpeg", 0.8));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
+        img.src = url;
+    });
+}
+
+function escolherCapa() {
+    fecharMenu();
+    location.hash = "#/inicio";
+    $("al-capa-input").click();
+}
+$("al-capa-btn").addEventListener("click", escolherCapa);
+$("al-capa-trocar").addEventListener("click", escolherCapa);
+$("al-capa-input").addEventListener("change", async (ev) => {
+    const arq = ev.target.files[0];
+    ev.target.value = "";
+    if (!arq) return;
+    if (!arq.type.startsWith("image/")) return msgFoto("Escolha um arquivo de imagem.", "erro");
+    $("al-hero").classList.add("enviando-capa");
+    msgFoto("Salvando a sua capa...");
+    try {
+        const capa = await reduzirCapa(arq);
+        await update(ref(db), { ["perfis/" + aluno.uid + "/capa"]: capa });
+        mostrarCapa(capa);
+        salvarCache({ capa });
+        msgFoto("Capa atualizada!", "ok");
+        setTimeout(() => msgFoto(""), 3000);
+    } catch (e) {
+        console.error(e);
+        msgFoto(/permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar a capa agora. Avise o personal." : "Não foi possível usar essa imagem. Tente outra.", "erro");
+    } finally {
+        $("al-hero").classList.remove("enviando-capa");
+    }
+});
+$("al-capa-remover").addEventListener("click", async () => {
+    fecharMenu();
+    try {
+        await update(ref(db), { ["perfis/" + aluno.uid + "/capa"]: null });
+        mostrarCapa("");
+        salvarCache({ capa: "" });
+        aviso("Foto de capa removida.", "ok");
+    } catch (e) {
+        console.error(e);
+        aviso("Não foi possível remover a capa agora.", "error");
+    }
+});
 
 function mostrarFoto(src) {
     const iniciais = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
@@ -181,6 +252,9 @@ async function carregarPerfil() {
             get(ref(db, "inscricoes/" + aluno.uid + "/foto")).then((s) => s.val()).catch(() => null)
         ]);
         if (perfil.tema === "claro" || perfil.tema === "escuro") aplicarTema(perfil.tema, false);
+        const capa = fotoValida(perfil.capa) ? perfil.capa : "";
+        mostrarCapa(capa);
+        salvarCache({ capa });
         const foto = fotoValida(perfil.foto) ? perfil.foto : fotoValida(insFoto) ? insFoto : aluno.fotoGoogle || "";
         mostrarFoto(foto);
         salvarCache({ foto });
