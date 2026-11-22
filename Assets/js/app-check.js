@@ -40,7 +40,7 @@ function bibliotecaTurnstile() {
         const inicio = Date.now();
         (function esperar() {
             if (window.turnstile) return resolve(window.turnstile);
-            if (Date.now() - inicio > 20000) return reject(new Error("Turnstile demorou demais"));
+            if (Date.now() - inicio > 7000) return reject(new Error("Turnstile demorou demais"));
             setTimeout(esperar, 100);
         })();
     });
@@ -60,7 +60,7 @@ async function tokenTurnstile() {
         document.body.appendChild(caixa);
         let id = null;
         const fim = () => { try { if (id !== null) ts.remove(id); } catch { /* já removido */ } caixa.remove(); };
-        const tempo = setTimeout(() => { fim(); reject(new Error("Verificação não concluída")); }, 15000);
+        const tempo = setTimeout(() => { fim(); reject(new Error("Verificação não concluída")); }, 7000);
         id = ts.render(caixa, {
             sitekey: SITEKEY_INVISIVEL || SITEKEY,
             action: ACAO,

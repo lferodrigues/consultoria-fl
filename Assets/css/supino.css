@@ -21,3 +21,7 @@
 .supino-pct b { display: block; font: 800 1.5rem/1 'Montserrat', system-ui, sans-serif; color: #fff; font-variant-numeric: tabular-nums; }
 .supino-pct-barra { display: block; height: 5px; margin: 10px 0 2px; border-radius: 99px; background: rgba(255, 255, 255, .1); overflow: hidden; }
 .supino-pct-barra i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #e3202b, #ff3b45); transition: width .15s linear; }
+/* Aviso depois de 10 s na tela de carregamento */
+.supino-lento { display: block; margin-top: 12px; font: 500 .8rem/1.35 'Inter', system-ui, sans-serif; color: #c9cdd4; }
+.supino-lento[hidden] { display: none; }
+.supino-lento button { display: block; margin: 10px auto 0; padding: 9px 16px; border: 0; border-radius: 10px; background: #e3202b; color: #fff; font: 700 .82rem 'Inter', system-ui, sans-serif; cursor: pointer; }

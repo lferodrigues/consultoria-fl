@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { ativarAppCheck } from "./app-check.js?v=3";
+import { ativarAppCheck } from "./app-check.js?v=4";
 
 export const firebaseConfig = {
     apiKey: "AIzaSyALkfMd9sTok0tuFgRmDkqgK6NCh4kAGr0",

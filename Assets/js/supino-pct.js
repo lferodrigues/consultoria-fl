@@ -7,6 +7,7 @@
 (function () {
     const TETO = 95;      // a % nunca passa disso sozinha
     const PASSO = 0.06;   // quanto do que falta anda a cada 80 ms
+    const LIMITE = 10000; // depois de 10 s na tela, oferece "Tentar de novo"
 
     function preparar(supino) {
         if (supino.dataset.pct || supino.closest(".cad-loading")) return;
@@ -16,7 +17,11 @@
         const caixa = document.createElement("span");
         caixa.className = "supino-pct";
         caixa.setAttribute("aria-live", "polite");
-        caixa.innerHTML = '<b>0%</b><span class="supino-pct-barra"><i></i></span>';
+        caixa.innerHTML = '<b>0%</b><span class="supino-pct-barra"><i></i></span>' +
+            '<span class="supino-lento" hidden>Está demorando mais que o normal. Confira a sua internet.' +
+            '<button type="button">Tentar de novo</button></span>';
+        const lento = caixa.querySelector(".supino-lento");
+        lento.querySelector("button").addEventListener("click", () => location.reload());
         const texto = supino.querySelector(".supino-texto");
         if (texto) supino.insertBefore(caixa, texto);
         else supino.insertAdjacentElement("afterend", caixa);
@@ -25,6 +30,7 @@
         const barra = caixa.querySelector("i");
         let pct = 0;
         let timer = null;
+        let alarme = null;
 
         const mostrar = () => {
             const n = Math.floor(pct);
@@ -39,9 +45,13 @@
                 pct = 0;
                 mostrar();
                 timer = setInterval(() => { pct += (TETO - pct) * PASSO; mostrar(); }, 80);
+                lento.hidden = true;
+                alarme = setTimeout(() => { lento.hidden = false; }, LIMITE);
             } else if (timer) {
                 clearInterval(timer);
+                clearTimeout(alarme);
                 timer = null;
+                lento.hidden = true;
                 pct = 100;
                 mostrar();
             }

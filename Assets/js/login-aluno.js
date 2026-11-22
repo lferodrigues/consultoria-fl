@@ -19,7 +19,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
-import { prepararAppCheck } from "./app-check.js?v=3";
+import { prepararAppCheck } from "./app-check.js?v=4";
 
 /* ---------- "Não sou um robô" (Cloudflare Turnstile) ----------
    A chave abaixo é a Site Key (pública). A Secret Key NUNCA vai no site.
