@@ -288,6 +288,11 @@
           }
         }
       },
+      "textos": {
+        "$chave": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 600"
+        }
+      },
       "$outro": {
         ".validate": false
       }

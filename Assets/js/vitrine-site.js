@@ -2,7 +2,20 @@
 // Lê "vitrine" no banco (o personal muda pelo painel). Sem nada salvo, ficam as originais.
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
-import { SOBRE_PADRAO, principalDe, sobreDe, videoValido, urlEmbed } from "./vitrine-util.js?v=1";
+import { SOBRE_PADRAO, principalDe, sobreDe, videoValido, urlEmbed, textosDe, textoParaHtml } from "./vitrine-util.js?v=2";
+
+/* ---------- Textos editáveis (data-texto) ---------- */
+const CACHE_TEXTOS = "fl-vitrine-textos"; // evita piscar o texto antigo ao abrir o site
+const originais = new Map();
+document.querySelectorAll("[data-texto]").forEach((el) => originais.set(el, el.innerHTML));
+
+function aplicarTextos(textos) {
+    originais.forEach((html, el) => {
+        const t = textos[el.dataset.texto];
+        el.innerHTML = t ? textoParaHtml(t) : html;
+    });
+}
+try { aplicarTextos(JSON.parse(localStorage.getItem(CACHE_TEXTOS) || "{}")); } catch { /* sem cache */ }
 
 const heroImg = document.getElementById("hero-foto");
 const slideImg = document.getElementById("slideshow");
@@ -36,6 +49,10 @@ if (slideImg) {
 /* ---------- Dados do painel ---------- */
 onValue(ref(db, "vitrine"), (snap) => {
     const v = snap.val() || {};
+
+    const textos = textosDe(v);
+    aplicarTextos(textos);
+    try { localStorage.setItem(CACHE_TEXTOS, JSON.stringify(textos)); } catch { /* navegação privada */ }
 
     trocar(heroImg, principalDe(v));
 

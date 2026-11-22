@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./Assets/css/admin.css?v=3">
-    <link rel="stylesheet" href="./Assets/css/painel.css?v=12">
+    <link rel="stylesheet" href="./Assets/css/painel.css?v=13">
 </head>
 
 <body>
@@ -366,6 +366,15 @@
                             <button type="button" class="btn btn-ghost btn-sm" id="vt-sobre-padrao" hidden><i class="fa-solid fa-rotate-left"></i> Voltar às originais</button>
                             <label class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Adicionar fotos<input type="file" id="vt-sobre-arq" accept="image/*" multiple hidden></label>
                         </div>
+                    </article>
+
+                    <article class="in-bloco vt-textos-bloco">
+                        <div class="vt-bloco-head">
+                            <h2><i class="fa-solid fa-font"></i> Textos do site</h2>
+                            <span id="vt-textos-badge"></span>
+                        </div>
+                        <p class="vt-dica">Abra uma parte da página, altere o que quiser e clique em <strong>Salvar</strong>. Para deixar palavras em <span class="accent">vermelho</span>, coloque entre asteriscos: <code>Prazer, sou o *Fagner Lage*</code>. Campo vazio volta ao texto original.</p>
+                        <div class="vt-textos" id="vt-textos"><p class="vt-dica">Carregando os textos da página...</p></div>
                     </article>
                 </section>
 
@@ -783,7 +792,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=12"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=13"></script>
 </body>
 
 </html>

@@ -1,14 +1,21 @@
 // Tela: Vitrine do site — troca as fotos e o vídeo de apresentação da página inicial
 //   vitrine/video -> { id, atualizadoEm }   vitrine/principal -> { src, atualizadoEm }   vitrine/sobre/{id} -> { src, ordem }
-import { ref, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { ref, onValue, set, remove, push, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db } from "./firebase-app.js?v=2";
-import { VIDEO_PADRAO, SOBRE_PADRAO, idDoYoutube, videoValido, urlEmbed, principalDe, sobreDe } from "./vitrine-util.js?v=1";
+import { VIDEO_PADRAO, SOBRE_PADRAO, idDoYoutube, videoValido, urlEmbed, principalDe, sobreDe, textosDe, textoDoElemento, TEXTO_MAX } from "./vitrine-util.js?v=2";
 import { $, esc, aviso, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 
 let vitrine = {};
+let lidoUmaVez = false;
+let grupos = null; // [{ nome, campos: [{ chave, rotulo, padrao }] }], lidos do index.html
 
 export function iniciar() {
-    onValue(ref(db, "vitrine"), (snap) => { vitrine = snap.val() || {}; desenhar(); }, (e) => {
+    onValue(ref(db, "vitrine"), (snap) => {
+        vitrine = snap.val() || {};
+        desenhar();
+        // na primeira leitura, preenche os campos de texto com o que está salvo
+        if (!lidoUmaVez) { lidoUmaVez = true; desenharTextos(true); }
+    }, (e) => {
         console.error(e);
         aviso("Sem permissão para ler \"vitrine\". Confira as regras do Realtime Database.", "error");
     });
@@ -26,11 +33,23 @@ export function iniciar() {
     $("vt-sobre-lista").addEventListener("change", (ev) => {
         if (ev.target.matches("input[data-trocar]")) trocarSobre(ev.target);
     });
+
+    carregarTextos();
+    $("vt-textos").addEventListener("submit", salvarTextos);
+    $("vt-textos").addEventListener("click", (ev) => {
+        const b = ev.target.closest("[data-original]");
+        if (!b) return;
+        const campo = $("vt-t-" + b.dataset.original);
+        const c = acharCampo(b.dataset.original);
+        if (campo && c) { campo.value = c.padrao; campo.focus(); }
+    });
 }
 
 /* =================== Desenho =================== */
 
 function desenhar() {
+    desenharTextos();
+
     // Vídeo
     const id = videoValido(vitrine.video);
     if (document.activeElement !== $("vt-video-url")) $("vt-video-url").value = "https://www.youtube.com/watch?v=" + id;
@@ -179,6 +198,108 @@ async function acaoSobre(ev) {
 async function sobrePadrao() {
     if (!(await confirmar({ titulo: "Voltar às fotos originais?", texto: "A seção Sobre volta a mostrar as 5 fotos de antes. As fotos enviadas por aqui serão apagadas.", botao: "Voltar às originais" }))) return;
     await gravar(() => remove(ref(db, "vitrine/sobre")), "Fotos originais restauradas.");
+}
+
+/* =================== Textos do site =================== */
+
+// Lê o próprio index.html para saber quais textos são editáveis e quais são os originais
+async function carregarTextos() {
+    try {
+        const resp = await fetch("./index.html", { cache: "no-cache" });
+        const doc = new DOMParser().parseFromString(await resp.text(), "text/html");
+        const mapa = new Map();
+        doc.querySelectorAll("[data-texto]").forEach((el) => {
+            const nome = el.closest("[data-grupo]")?.dataset.grupo || "Outros";
+            if (!mapa.has(nome)) mapa.set(nome, []);
+            mapa.get(nome).push({ chave: el.dataset.texto, rotulo: el.dataset.rotulo || el.dataset.texto, padrao: textoDoElemento(el) });
+        });
+        grupos = [...mapa].map(([nome, campos]) => ({ nome, campos }));
+    } catch (e) {
+        console.error(e);
+        $("vt-textos").innerHTML = '<p class="form-msg">Não foi possível carregar os textos da página. Recarregue o painel.</p>';
+        return;
+    }
+    montarTextos();
+}
+
+const acharCampo = (chave) => grupos?.flatMap((g) => g.campos).find((c) => c.chave === chave);
+
+function montarTextos() {
+    const salvos = textosDe(vitrine);
+    $("vt-textos").innerHTML = grupos.map((g, gi) => `
+        <details class="vt-grupo">
+            <summary>${esc(g.nome)} <span class="vt-grupo-n" data-grupo-n="${gi}"></span></summary>
+            <form data-grupo="${gi}" novalidate>
+                <div class="grid-2">
+                    ${g.campos.map((c) => {
+                        const valor = salvos[c.chave] ?? c.padrao;
+                        const longo = c.padrao.length > 70;
+                        const campo = longo
+                            ? `<textarea id="vt-t-${esc(c.chave)}" rows="${c.padrao.length > 200 ? 4 : 2}" maxlength="${TEXTO_MAX}">${esc(valor)}</textarea>`
+                            : `<input type="text" id="vt-t-${esc(c.chave)}" maxlength="${TEXTO_MAX}" value="${esc(valor)}">`;
+                        return `<label class="${longo ? "full" : ""}">
+                            <span class="vt-campo-top">${esc(c.rotulo)} <span data-badge="${esc(c.chave)}"></span></span>
+                            ${campo}
+                            <button type="button" class="vt-orig" data-original="${esc(c.chave)}" hidden>Voltar ao original</button>
+                        </label>`;
+                    }).join("")}
+                </div>
+                <p class="form-msg" data-msg="${gi}" role="alert"></p>
+                <div class="vt-acoes"><button type="submit" class="btn btn-primary btn-sm">Salvar ${esc(g.nome)}</button></div>
+            </form>
+        </details>`).join("");
+    desenharTextos(true);
+}
+
+// Marca o que foi alterado; com "tudo", também atualiza o valor dos campos
+function desenharTextos(tudo) {
+    if (!grupos || !document.querySelector(".vt-grupo")) return;
+    const salvos = textosDe(vitrine);
+    let total = 0;
+    grupos.forEach((g, gi) => {
+        let n = 0;
+        g.campos.forEach((c) => {
+            const alterado = salvos[c.chave] !== undefined && salvos[c.chave] !== c.padrao;
+            if (alterado) n++;
+            const badge = document.querySelector(`[data-badge="${c.chave}"]`);
+            if (badge) badge.innerHTML = alterado ? '<span class="badge ok">Alterado</span>' : "";
+            const orig = document.querySelector(`[data-original="${c.chave}"]`);
+            if (orig) orig.hidden = !alterado;
+            const campo = $("vt-t-" + c.chave);
+            if (tudo && campo) campo.value = salvos[c.chave] ?? c.padrao;
+        });
+        total += n;
+        const el = document.querySelector(`[data-grupo-n="${gi}"]`);
+        if (el) el.textContent = g.campos.length + " textos" + (n ? " · " + n + (n === 1 ? " alterado" : " alterados") : "");
+    });
+    $("vt-textos-badge").innerHTML = total ? '<span class="badge ok">' + total + (total === 1 ? " alterado" : " alterados") + "</span>" : '<span class="badge off">Originais</span>';
+}
+
+async function salvarTextos(ev) {
+    ev.preventDefault();
+    const form = ev.target;
+    const g = grupos[Number(form.dataset.grupo)];
+    const msg = form.querySelector(".form-msg");
+    msg.textContent = "";
+    const mudancas = {};
+    for (const c of g.campos) {
+        const v = $("vt-t-" + c.chave).value.replace(/\s+/g, " ").trim();
+        if ((v.match(/\*/g) || []).length % 2) return (msg.textContent = `“${c.rotulo}”: falta fechar um asterisco do destaque.`);
+        // vazio ou igual ao original: apaga do banco e o site usa o texto original
+        mudancas[c.chave] = v && v !== c.padrao ? v : null;
+    }
+    const botao = form.querySelector("button[type=submit]");
+    ocupado(botao, true);
+    try {
+        await update(ref(db, "vitrine/textos"), mudancas);
+        aviso("Textos de “" + g.nome + "” salvos. Já aparecem no site.", "ok");
+        desenharTextos(true);
+    } catch (e) {
+        console.error(e);
+        msg.textContent = mensagemErro(e);
+    } finally {
+        ocupado(botao, false);
+    }
 }
 
 /* =================== Apoio =================== */

@@ -54,3 +54,32 @@ export function sobreDe(vitrine) {
         .sort((a, b) => a.ordem - b.ordem);
     return lista;
 }
+
+/* ---------- Textos do site ----------
+   vitrine/textos/{chave} -> texto. No index, cada texto editável tem data-texto="chave".
+   Palavras entre *asteriscos* ficam em destaque (vermelho), como em "Prazer, sou o *Fagner Lage*". */
+export const TEXTO_MAX = 600;
+
+const escHtml = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+export function textoParaHtml(t) {
+    return escHtml(t).replace(/\*([^*]+)\*/g, '<span class="accent">$1</span>');
+}
+
+// Texto original de um elemento do index, no mesmo formato (destaques viram *asteriscos*)
+export function textoDoElemento(el) {
+    let t = "";
+    el.childNodes.forEach((n) => {
+        if (n.nodeType === 3) t += n.textContent;
+        else if (n.nodeType === 1) t += n.classList.contains("accent") ? "*" + n.textContent + "*" : n.textContent;
+    });
+    return t.replace(/\s+/g, " ").trim();
+}
+
+export function textosDe(vitrine) {
+    const out = {};
+    Object.entries(vitrine?.textos || {}).forEach(([k, v]) => {
+        if (typeof v === "string" && v.trim() && v.length <= TEXTO_MAX) out[k] = v;
+    });
+    return out;
+}
