@@ -15,7 +15,7 @@ html[data-tema="claro"] {
     color-scheme: light;
 }
 html[data-tema="claro"] body {
-    background: radial-gradient(800px 400px at 100% 0%, rgba(227, 32, 43, .08), transparent 60%), var(--bg);
+    background: radial-gradient(800px 400px at 100% 0%, rgba(var(--red-rgb), .08), transparent 60%), var(--bg);
     color: var(--text);
 }
 
@@ -31,11 +31,11 @@ html[data-tema="claro"] :is(.estrelas label:hover, .estrelas label:hover ~ label
 /* Fundos escuros fixos */
 html[data-tema="claro"] .al-hero {
     background:
-        radial-gradient(420px 220px at 50% 0%, rgba(227, 32, 43, .18), transparent 70%),
+        radial-gradient(420px 220px at 50% 0%, rgba(var(--red-rgb), .18), transparent 70%),
         linear-gradient(180deg, #ffe9ea 0%, var(--bg) 100%);
 }
 html[data-tema="claro"] .al-tile, html[data-tema="claro"] .pg-dia { background: #ffffff; border-color: var(--line); box-shadow: 0 6px 18px -12px rgba(15, 23, 42, .25); }
-html[data-tema="claro"] .al-tile:hover { background: #fff7f7; border-color: rgba(227, 32, 43, .35); }
+html[data-tema="claro"] .al-tile:hover { background: #fff7f7; border-color: rgba(var(--red-rgb), .35); }
 html[data-tema="claro"] .al-nav { background: #ffffff; box-shadow: 0 -6px 20px -12px rgba(15, 23, 42, .2); }
 html[data-tema="claro"] .al-nav :is(a:hover, button:hover, .ativo) { color: var(--red-2); }
 html[data-tema="claro"] .al-sheet-fundo { background: rgba(15, 23, 42, .35); }

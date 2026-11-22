@@ -306,7 +306,7 @@
           ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 400000"
         },
         "tema": {
-          ".validate": "newData.isString() && (newData.val() == 'claro' || newData.val() == 'escuro')"
+          ".validate": "newData.isString() && newData.val().matches(/^(escuro|claro|rosa|amarelo|azul|vermelho|verde)$/)"
         },
         "capa": {
           ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 600000"

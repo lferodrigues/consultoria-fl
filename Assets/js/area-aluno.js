@@ -258,7 +258,7 @@ async function carregarPerfil() {
             get(ref(db, "perfis/" + aluno.uid)).then((s) => s.val() || {}).catch(() => ({})),
             get(ref(db, "inscricoes/" + aluno.uid + "/foto")).then((s) => s.val()).catch(() => null)
         ]);
-        if (perfil.tema === "claro" || perfil.tema === "escuro") aplicarTema(perfil.tema, false);
+        if (TEMAS[perfil.tema]) aplicarTema(perfil.tema, false);
         const capa = fotoValida(perfil.capa) ? perfil.capa : "";
         mostrarCapa(capa);
         salvarCache({ capa });
@@ -323,18 +323,25 @@ $("al-foto-input").addEventListener("change", async (ev) => {
 });
 
 // Tema: aplicado na hora e guardado no aparelho (abre sem piscar) e no perfil (vale em outros aparelhos)
+// Temas: "escuro" (padrão), "claro" (branco) e os coloridos, que usam a base clara + uma cor
+//   (aluno-claro.css + aluno-cores.css). Cor da barra do navegador no celular acompanha o tema.
+export const TEMAS = {
+    escuro: "#07080b", claro: "#ffffff", rosa: "#db2777", amarelo: "#eab308",
+    azul: "#1d4ed8", vermelho: "#dc2626", verde: "#15803d"
+};
 function aplicarTema(tema, salvar = true) {
-    const claro = tema === "claro";
-    if (claro) document.documentElement.dataset.tema = "claro";
-    else delete document.documentElement.dataset.tema;
-    try { localStorage.setItem("fl-tema-aluno", claro ? "claro" : "escuro"); } catch { /* sem armazenamento */ }
-    document.querySelectorAll(".al-tema-op button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === (claro ? "claro" : "escuro"))));
+    if (!TEMAS[tema]) tema = "escuro";
+    const raiz = document.documentElement;
+    if (tema === "escuro") delete raiz.dataset.tema; else raiz.dataset.tema = "claro";
+    if (tema === "escuro" || tema === "claro") delete raiz.dataset.cor; else raiz.dataset.cor = tema;
+    try { localStorage.setItem("fl-tema-aluno", tema); } catch { /* sem armazenamento */ }
+    document.querySelectorAll(".al-temas button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === tema)));
     const cor = document.querySelector('meta[name="theme-color"]');
-    if (cor) cor.content = claro ? "#ffffff" : "#07080b";
-    if (salvar && aluno) update(ref(db), { ["perfis/" + aluno.uid + "/tema"]: claro ? "claro" : "escuro" }).catch((e) => console.warn(e));
+    if (cor) cor.content = TEMAS[tema];
+    if (salvar && aluno) update(ref(db), { ["perfis/" + aluno.uid + "/tema"]: tema }).catch((e) => console.warn(e));
 }
-document.querySelectorAll(".al-tema-op button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
-aplicarTema(document.documentElement.dataset.tema === "claro" ? "claro" : "escuro", false);
+document.querySelectorAll(".al-temas button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
+aplicarTema(document.documentElement.dataset.cor || (document.documentElement.dataset.tema === "claro" ? "claro" : "escuro"), false);
 
 /* =================== Ficha em PDF =================== */
 // Monta o PDF no próprio aparelho (Assets/js/ficha-pdf.js), no modelo da planilha do personal

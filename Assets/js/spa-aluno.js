@@ -28,8 +28,8 @@
             titulo: "Área do Aluno | Fagner Lage",
             appCheck: "on",
             robots: "noindex, nofollow",
-            css: ["./Assets/css/admin.css?v=5", "./Assets/css/aluno.css?v=16", "./Assets/css/aluno-claro.css?v=2"],
-            modulo: "./Assets/js/area-aluno.js?v=18"
+            css: ["./Assets/css/admin.css?v=6", "./Assets/css/aluno.css?v=17", "./Assets/css/aluno-claro.css?v=3", "./Assets/css/aluno-cores.css?v=1"],
+            modulo: "./Assets/js/area-aluno.js?v=19"
         }
     };
 
@@ -99,8 +99,10 @@
         // Tema claro/escuro: só a área do aluno tem (escolha guardada no aparelho)
         let tema = "";
         try { tema = vista === "area" ? localStorage.getItem("fl-tema-aluno") || "" : ""; } catch { /* sem armazenamento */ }
-        if (tema === "claro") document.documentElement.dataset.tema = "claro";
-        else delete document.documentElement.dataset.tema;
+        // Temas coloridos (rosa, amarelo, azul, vermelho, verde) usam a base clara + a cor
+        const raiz = document.documentElement;
+        if (tema && tema !== "escuro") raiz.dataset.tema = "claro"; else delete raiz.dataset.tema;
+        if (["rosa", "amarelo", "azul", "vermelho", "verde"].includes(tema)) raiz.dataset.cor = tema; else delete raiz.dataset.cor;
 
         // Coloca a nova tela antes dos scripts da casca
         const modelo = document.getElementById("vista-" + vista);

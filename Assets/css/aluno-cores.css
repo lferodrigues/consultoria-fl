@@ -1,0 +1,80 @@
+/* ===== Área do Aluno — temas coloridos =====
+   O aluno escolhe no menu. Todos usam a base clara (aluno-claro.css, <html data-tema="claro">)
+   e trocam a cor de destaque com <html data-cor="...">:
+     rosa      rosa e branco        amarelo  amarelo e branco
+     azul      azul e branco        vermelho vermelho e branco
+     verde     verde e amarelo
+   Cada tema só define as cores; o resto da tela usa as variáveis --red, --red-2, --red-3, --red-rgb... */
+
+html[data-cor="rosa"] {
+    --red: #db2777; --red-2: #ec4899; --red-3: #9d174d;
+    --red-rgb: 219, 39, 119; --red-2-rgb: 236, 72, 153; --sobre-cor: #fff;
+    --topo: linear-gradient(90deg, #db2777, #ec4899); --bg: #fff5f9;
+}
+html[data-cor="amarelo"] {
+    --red: #d4a106; --red-2: #eab308; --red-3: #a16207;
+    --red-rgb: 212, 161, 6; --red-2-rgb: 234, 179, 8; --sobre-cor: #1c1600;
+    --topo: linear-gradient(90deg, #eab308, #facc15); --sobre-topo: #1c1600; --bg: #fffbea;
+}
+html[data-cor="azul"] {
+    --red: #1d4ed8; --red-2: #3b82f6; --red-3: #1e3a8a;
+    --red-rgb: 29, 78, 216; --red-2-rgb: 59, 130, 246; --sobre-cor: #fff;
+    --topo: linear-gradient(90deg, #1d4ed8, #3b82f6); --bg: #f3f7ff;
+}
+html[data-cor="vermelho"] {
+    --red: #dc2626; --red-2: #ef4444; --red-3: #991b1b;
+    --red-rgb: 220, 38, 38; --red-2-rgb: 239, 68, 68; --sobre-cor: #fff;
+    --topo: linear-gradient(90deg, #b91c1c, #ef4444); --bg: #fff6f6;
+}
+html[data-cor="verde"] {
+    --red: #15803d; --red-2: #16a34a; --red-3: #14532d;
+    --red-rgb: 21, 128, 61; --red-2-rgb: 22, 163, 74; --sobre-cor: #fff;
+    --topo: linear-gradient(90deg, #15803d, #16a34a); --sobre-topo: #facc15; --bg: #f6fbf2;
+    --amarelo: #facc15;
+}
+
+/* Barra do topo na cor do tema, com texto branco (amarelo: texto escuro; verde: título amarelo) */
+html[data-cor] .al-top { background: var(--topo); border-bottom: 0; color: var(--sobre-topo, #fff); box-shadow: 0 6px 20px -12px rgba(var(--red-rgb), .8); }
+html[data-cor] .al-top > :is(.al-voltar, .al-marca, .al-top-titulo), html[data-cor] .al-top > .al-top-dir .al-bell { color: var(--sobre-topo, #fff); }
+/* Logo da marca em branco (ou preto no amarelo) para aparecer sobre a barra colorida */
+html[data-cor] .al-marca img { filter: brightness(0) invert(1); }
+html[data-cor="amarelo"] .al-marca img { filter: brightness(0); }
+html[data-cor] .al-top .al-bell { border-color: rgba(255, 255, 255, .55); background: rgba(255, 255, 255, .12); }
+html[data-cor="amarelo"] .al-top .al-bell { border-color: rgba(28, 22, 0, .35); background: rgba(255, 255, 255, .3); }
+html[data-cor] .al-top .al-bell-n { background: #fff; color: var(--red); border-color: transparent; }
+
+/* Topo da tela inicial com a cor do tema */
+html[data-cor] .al-hero {
+    background:
+        radial-gradient(460px 240px at 50% 0%, rgba(var(--red-2-rgb), .32), transparent 72%),
+        linear-gradient(180deg, rgba(var(--red-rgb), .12) 0%, var(--bg) 100%);
+}
+html[data-cor="verde"] .al-hero {
+    background:
+        radial-gradient(360px 200px at 20% 10%, rgba(250, 204, 21, .45), transparent 70%),
+        radial-gradient(420px 240px at 80% 0%, rgba(var(--red-2-rgb), .35), transparent 72%),
+        linear-gradient(180deg, rgba(var(--red-rgb), .12) 0%, var(--bg) 100%);
+}
+html[data-cor] .al-tile:hover { background: #fff; border-color: rgba(var(--red-rgb), .45); }
+
+/* Verde e amarelo: o amarelo aparece nos detalhes */
+html[data-cor="verde"] .al-foto { border-color: var(--amarelo); box-shadow: 0 0 0 5px rgba(250, 204, 21, .35), 0 16px 40px -10px rgba(var(--red-rgb), .6); }
+html[data-cor="verde"] .al-foto-cam { background: var(--amarelo); color: #14532d; }
+html[data-cor="verde"] .al-nav .ativo { color: var(--red); }
+html[data-cor="verde"] .al-tile-ico { box-shadow: 0 10px 24px -10px rgba(var(--red-rgb), .9), inset 0 -4px 0 rgba(250, 204, 21, .9); }
+
+/* Amarelo: textos e ícones em amarelo puro ficariam apagados no branco; usa o tom mais escuro */
+html[data-cor="amarelo"] :is(.al-nav .ativo, .al-nav a:hover, .al-nav button:hover, .al-sheet a i, .al-sheet button i, .badge.bad, .al-notif-ico.red) { color: #a16207; }
+
+/* Escolha do tema no menu: bolinhas de cor */
+.al-temas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.al-sheet .al-temas button {
+    flex-direction: column; justify-content: center; gap: 6px; padding: 10px 4px; border-radius: 12px; font-size: .72rem; font-weight: 600;
+    color: var(--muted); background: var(--input); border: 2px solid transparent;
+}
+.al-sheet .al-temas button[aria-pressed="true"] { border-color: var(--red-2); color: var(--text); background: var(--input); }
+.al-tema-bola {
+    width: 30px; height: 30px; border-radius: 50%; display: block; border: 2px solid rgba(127, 127, 127, .35);
+    background: linear-gradient(135deg, var(--c1) 50%, var(--c2) 50%);
+}
+.al-sheet .al-temas button[aria-pressed="true"] .al-tema-bola { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--red-2); }
