@@ -19,6 +19,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
+import { prepararAppCheck } from "./app-check.js?v=2";
 
 /* ---------- "Não sou um robô" (Cloudflare Turnstile) ----------
    A chave abaixo é a Site Key (pública). A Secret Key NUNCA vai no site.
@@ -36,7 +37,7 @@ function montarRobo() {
         language: "pt-br",
         size: "flexible",
         action: "login",
-        callback: (token) => { roboToken = token; if (message.dataset.robo) mostrar("", ""); },
+        callback: (token) => { roboToken = token; prepararAppCheck(token); if (message.dataset.robo) mostrar("", ""); },
         "expired-callback": () => { roboToken = ""; },
         "timeout-callback": () => { roboToken = ""; },
         "error-callback": () => { roboToken = ""; mostrar("Não foi possível carregar a verificação de segurança. Recarregue a página."); return true; }

@@ -9,11 +9,18 @@
 //      quem não passou pela verificação (ex.: robô chamando o Firebase direto) é recusado.
 //
 // Só é ativado nas páginas com <meta name="fl-app-check" content="on"> (login, ficha, área do aluno e painel).
-import { initializeAppCheck, CustomProvider } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app-check.js";
+import { initializeAppCheck, CustomProvider, getToken } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app-check.js";
 
-const SITEKEY = "0x4AAAAAAGNTPIYBtbz6t-xS"; // Site Key pública do Turnstile
+const SITEKEY = "0x4AAAAAAGNTPIYBtbz6t-xS"; // Site Key pública do Turnstile (widget do login)
+// Opcional: Site Key de um 2º widget no modo "Invisível" da Cloudflare. Com ela, a renovação do
+// passe nas outras páginas nunca mostra caixinha. Precisa da variável TURNSTILE_SECRET_KEY_INVISIVEL na Vercel.
+const SITEKEY_INVISIVEL = "";
 const ENDPOINT = "/api/app-check";
 const ACAO = "app-check";                    // a mesma "action" conferida no servidor
+
+let appCheck = null;
+// Token da caixinha do login, já resolvida pela pessoa (vale ~5 min e só uma vez)
+let tokenDoLogin = null;
 
 let carregando = null;
 
@@ -52,7 +59,7 @@ async function tokenTurnstile() {
         const fim = () => { try { if (id !== null) ts.remove(id); } catch { /* já removido */ } caixa.remove(); };
         const tempo = setTimeout(() => { fim(); reject(new Error("Verificação não concluída")); }, 120000);
         id = ts.render(caixa, {
-            sitekey: SITEKEY,
+            sitekey: SITEKEY_INVISIVEL || SITEKEY,
             action: ACAO,
             appearance: "interaction-only",
             theme: "dark",
@@ -65,11 +72,21 @@ async function tokenTurnstile() {
 
 const provedor = new CustomProvider({
     getToken: async () => {
-        const token = await tokenTurnstile();
+        // No login, usa a caixinha que a pessoa já marcou (sem 2ª verificação)
+        let token, tipo;
+        if (tokenDoLogin && Date.now() - tokenDoLogin.em < 280000) {
+            token = tokenDoLogin.token;
+            tipo = "login";
+            tokenDoLogin = null;
+        } else {
+            tokenDoLogin = null;
+            token = await tokenTurnstile();
+            tipo = SITEKEY_INVISIVEL ? "invisivel" : "login";
+        }
         const r = await fetch(ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token })
+            body: JSON.stringify({ token, tipo })
         });
         if (!r.ok) throw new Error("App Check recusado (" + r.status + ")");
         const d = await r.json();
@@ -79,8 +96,18 @@ const provedor = new CustomProvider({
 
 export function ativarAppCheck(app) {
     try {
-        initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: true });
+        // Sem renovação automática: o passe só é buscado quando o Firebase precisa,
+        // e não ao abrir a página (assim nada aparece durante o carregamento).
+        appCheck = initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: false });
     } catch (e) {
         console.error("App Check não iniciou", e);
     }
+}
+
+// Chamado pelo login assim que a caixinha "Não sou um robô" é resolvida:
+// já troca o token pelo passe do Firebase, para o "Entrar" ser imediato.
+export function prepararAppCheck(tokenTurnstileLogin) {
+    if (!appCheck || !tokenTurnstileLogin) return;
+    tokenDoLogin = { token: tokenTurnstileLogin, em: Date.now() };
+    getToken(appCheck, false).catch((e) => console.warn("App Check:", e));
 }
