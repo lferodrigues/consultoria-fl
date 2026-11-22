@@ -296,6 +296,22 @@
       "$outro": {
         ".validate": false
       }
+    },
+    "perfis": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "foto": {
+          ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 400000"
+        },
+        "tema": {
+          ".validate": "newData.isString() && (newData.val() == 'claro' || newData.val() == 'escuro')"
+        },
+        "$outro": {
+          ".validate": false
+        }
+      }
     }
   }
 }

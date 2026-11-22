@@ -53,7 +53,7 @@ onAuthStateChanged(auth, async (user) => {
             return mostrarAcessoNegado({ texto: "Seu plano venceu. Fale com o personal para renovar.", botao: "Ver planos", link: PAGINAS.planos });
         }
         const nome = cadastro.nome || user.displayName || user.email;
-        aluno = { id: cadastro.aluno, nome, email: user.email, uid: user.uid };
+        aluno = { id: cadastro.aluno, nome, email: user.email, uid: user.uid, fotoGoogle: user.photoURL || "" };
         // A área só é liberada depois que o personal cadastra a primeira ficha de treino
         const temFicha = await get(query(ref(db, "fichas/" + cadastro.aluno), limitToFirst(1)));
         if (!temFicha.exists()) {
@@ -77,14 +77,7 @@ function iniciarApp() {
     $("al-iniciais").textContent = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
     $("nav-whats").href = wa("Olá, Fagner! Aqui é " + aluno.nome + ".");
 
-    get(ref(db, "inscricoes/" + aluno.uid + "/foto")).then((s) => {
-        const f = s.val();
-        if (typeof f === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(f)) {
-            $("al-iniciais").textContent = "";
-            $("al-iniciais").style.backgroundImage = "url(" + f + ")";
-            $("al-iniciais").classList.add("com-foto");
-        }
-    }).catch(() => {});
+    iniciarPerfil();
 
     desenharFaturas();
     escutarFicha();
@@ -95,6 +88,111 @@ function iniciarApp() {
     rotear();
     $("gate").hidden = true;
 }
+
+/* =================== Perfil: foto, nome e tema =================== */
+//   perfis/{uid} -> { foto: "data:image/jpeg;base64,...", tema: "claro" | "escuro" }
+// A foto vem do perfil; se o aluno nunca trocou, usa a da ficha de inscrição e, por último, a do Google.
+
+const fotoValida = (f) => typeof f === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(f);
+
+function mostrarFoto(src) {
+    const iniciais = aluno.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+    const img = $("al-foto");
+    if (src) {
+        img.src = src;
+        img.hidden = false;
+        $("al-foto-iniciais").hidden = true;
+        $("al-iniciais").textContent = "";
+        $("al-iniciais").style.backgroundImage = "url(" + src + ")";
+        $("al-iniciais").classList.add("com-foto");
+    } else {
+        img.hidden = true;
+        $("al-foto-iniciais").hidden = false;
+        $("al-foto-iniciais").textContent = iniciais;
+    }
+}
+
+async function iniciarPerfil() {
+    $("al-hero-nome").textContent = aluno.nome;
+    $("al-hero-sub").textContent = cadastro?.plano ? "Plano " + cadastro.plano : "Aluno da consultoria";
+    mostrarFoto(aluno.fotoGoogle || "");
+    try {
+        const [perfil, insFoto] = await Promise.all([
+            get(ref(db, "perfis/" + aluno.uid)).then((s) => s.val() || {}).catch(() => ({})),
+            get(ref(db, "inscricoes/" + aluno.uid + "/foto")).then((s) => s.val()).catch(() => null)
+        ]);
+        if (perfil.tema === "claro" || perfil.tema === "escuro") aplicarTema(perfil.tema, false);
+        const foto = fotoValida(perfil.foto) ? perfil.foto : fotoValida(insFoto) ? insFoto : aluno.fotoGoogle || "";
+        mostrarFoto(foto);
+    } catch (e) {
+        console.warn(e);
+    }
+}
+
+// Reduz para 400x400 (recorte quadrado no centro), em JPEG: fica leve para o banco
+function reduzirFoto(arquivo, lado = 400) {
+    return new Promise((ok, falha) => {
+        const url = URL.createObjectURL(arquivo);
+        const img = new Image();
+        img.onload = () => {
+            const m = Math.min(img.width, img.height);
+            const c = document.createElement("canvas");
+            c.width = c.height = lado;
+            c.getContext("2d").drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, lado, lado);
+            URL.revokeObjectURL(url);
+            ok(c.toDataURL("image/jpeg", 0.82));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem inválida")); };
+        img.src = url;
+    });
+}
+
+function msgFoto(texto, tipo = "") {
+    $("al-foto-msg").textContent = texto;
+    $("al-foto-msg").className = "al-foto-msg " + tipo;
+}
+
+function escolherFoto() {
+    fecharMenu();
+    location.hash = "#/inicio";
+    $("al-foto-input").click();
+}
+$("al-foto-btn").addEventListener("click", escolherFoto);
+$("al-foto-trocar").addEventListener("click", escolherFoto);
+$("al-foto-input").addEventListener("change", async (ev) => {
+    const arq = ev.target.files[0];
+    ev.target.value = "";
+    if (!arq) return;
+    if (!arq.type.startsWith("image/")) return msgFoto("Escolha um arquivo de imagem.", "erro");
+    $("al-foto-btn").classList.add("enviando");
+    msgFoto("Salvando a sua foto...");
+    try {
+        const foto = await reduzirFoto(arq);
+        await update(ref(db), { ["perfis/" + aluno.uid + "/foto"]: foto });
+        mostrarFoto(foto);
+        msgFoto("Foto atualizada!", "ok");
+        setTimeout(() => msgFoto(""), 3000);
+    } catch (e) {
+        console.error(e);
+        msgFoto(/permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar a foto agora. Avise o personal." : "Não foi possível usar essa imagem. Tente outra.", "erro");
+    } finally {
+        $("al-foto-btn").classList.remove("enviando");
+    }
+});
+
+// Tema: aplicado na hora e guardado no aparelho (abre sem piscar) e no perfil (vale em outros aparelhos)
+function aplicarTema(tema, salvar = true) {
+    const claro = tema === "claro";
+    if (claro) document.documentElement.dataset.tema = "claro";
+    else delete document.documentElement.dataset.tema;
+    try { localStorage.setItem("fl-tema-aluno", claro ? "claro" : "escuro"); } catch { /* sem armazenamento */ }
+    document.querySelectorAll(".al-tema-op button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === (claro ? "claro" : "escuro"))));
+    const cor = document.querySelector('meta[name="theme-color"]');
+    if (cor) cor.content = claro ? "#ffffff" : "#07080b";
+    if (salvar && aluno) update(ref(db), { ["perfis/" + aluno.uid + "/tema"]: claro ? "claro" : "escuro" }).catch((e) => console.warn(e));
+}
+document.querySelectorAll(".al-tema-op button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
+aplicarTema(document.documentElement.dataset.tema === "claro" ? "claro" : "escuro", false);
 
 /* =================== Espera pela primeira ficha =================== */
 

@@ -34,14 +34,15 @@
     <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
     <link rel="prefetch" as="style" href="./Assets/css/cadastro.css?v=2">
     <link rel="prefetch" as="style" href="./Assets/css/admin.css?v=3">
-    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=11">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno.css?v=12">
+    <link rel="prefetch" as="style" href="./Assets/css/aluno-claro.css?v=1">
     <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
     <link rel="modulepreload" href="./Assets/js/inscricao.js?v=6">
     <link rel="modulepreload" href="./Assets/js/alunos-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=10">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=11">
 </head>
 
 <body>
@@ -570,9 +571,16 @@
         <!-- ===== Início ===== -->
         <section class="al-view" id="view-inicio" hidden>
             <div class="al-hero">
-                <img class="al-foto" src="./administrador/Assets/img/5.jpeg" alt="Personal Fagner Lage">
-                <strong class="al-nome-personal">Fagner Lage</strong>
-                <small class="al-cref">Personal Trainer</small>
+                <!-- Foto de perfil do aluno: toque para trocar -->
+                <button type="button" class="al-foto-btn" id="al-foto-btn" aria-label="Trocar a sua foto de perfil">
+                    <img class="al-foto" id="al-foto" alt="Sua foto de perfil" hidden>
+                    <span class="al-foto al-foto-iniciais" id="al-foto-iniciais" aria-hidden="true"></span>
+                    <span class="al-foto-cam" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                </button>
+                <input type="file" id="al-foto-input" accept="image/*" hidden>
+                <strong class="al-nome-personal" id="al-hero-nome">Aluno</strong>
+                <small class="al-cref" id="al-hero-sub">Aluno da consultoria</small>
+                <small class="al-foto-msg" id="al-foto-msg" role="status"></small>
             </div>
             <h1 class="al-saudacao"><span id="al-saudacao">Olá</span>, <span id="aluno-nome">aluno</span>!</h1>
             <div class="al-tiles">
@@ -751,6 +759,14 @@
         <a href="#/ebooks"><i class="fa-solid fa-book-open"></i> E-books</a>
         <a href="#/depoimentos"><i class="fa-solid fa-comment-dots"></i> Depoimentos</a>
         <a href="#/faturas"><i class="fa-solid fa-dollar-sign"></i> Faturas</a>
+        <button type="button" id="al-foto-trocar"><i class="fa-solid fa-camera"></i> Trocar foto de perfil</button>
+        <div class="al-tema" role="group" aria-label="Tema">
+            <span><i class="fa-solid fa-circle-half-stroke"></i> Tema</span>
+            <div class="al-tema-op">
+                <button type="button" data-tema="escuro" aria-pressed="true"><i class="fa-solid fa-moon"></i> Escuro</button>
+                <button type="button" data-tema="claro" aria-pressed="false"><i class="fa-solid fa-sun"></i> Claro</button>
+            </div>
+        </div>
         <a href="./index.html"><i class="fa-solid fa-globe"></i> Visitar site</a>
         <button type="button" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
     </aside>
@@ -814,7 +830,7 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=1"></script>
+    <script src="./Assets/js/spa-aluno.js?v=2"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

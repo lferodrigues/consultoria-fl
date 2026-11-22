@@ -28,8 +28,8 @@
             titulo: "Área do Aluno | Fagner Lage",
             appCheck: "on",
             robots: "noindex, nofollow",
-            css: ["./Assets/css/admin.css?v=3", "./Assets/css/aluno.css?v=11"],
-            modulo: "./Assets/js/area-aluno.js?v=10"
+            css: ["./Assets/css/admin.css?v=3", "./Assets/css/aluno.css?v=12", "./Assets/css/aluno-claro.css?v=1"],
+            modulo: "./Assets/js/area-aluno.js?v=11"
         }
     };
 
@@ -96,6 +96,11 @@
         }
         document.querySelectorAll(".an-tela").forEach((n) => n.remove());
         document.body.className = "";
+        // Tema claro/escuro: só a área do aluno tem (escolha guardada no aparelho)
+        let tema = "";
+        try { tema = vista === "area" ? localStorage.getItem("fl-tema-aluno") || "" : ""; } catch { /* sem armazenamento */ }
+        if (tema === "claro") document.documentElement.dataset.tema = "claro";
+        else delete document.documentElement.dataset.tema;
 
         // Coloca a nova tela antes dos scripts da casca
         const modelo = document.getElementById("vista-" + vista);

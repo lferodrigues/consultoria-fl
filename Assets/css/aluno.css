@@ -420,3 +420,30 @@ body.modal-aberto { overflow: hidden; }
 @keyframes esp-pulsa { 50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, .15); } }
 .esp-btn { width: 100%; justify-content: center; margin-top: 10px; }
 .avatar-al.com-foto { background-size: cover; background-position: center; }
+
+/* Foto de perfil do aluno (início): toque para trocar */
+.al-foto-btn { position: relative; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; }
+.al-foto-btn:focus-visible { outline: 3px solid var(--red-2); outline-offset: 4px; }
+.al-foto-iniciais { display: grid; place-items: center; font: 800 2.4rem 'Montserrat', sans-serif; color: #fff; background: linear-gradient(180deg, var(--red-2), var(--red)); }
+.al-foto-cam {
+    position: absolute; right: 2px; bottom: 4px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--red-2); color: #fff; font-size: .85rem; border: 3px solid var(--bg-2); box-shadow: 0 6px 14px -6px rgba(0, 0, 0, .6);
+}
+.al-foto-btn.enviando .al-foto { opacity: .5; }
+.al-foto-btn.enviando .al-foto-cam i { animation: gira .8s linear infinite; }
+.al-foto-btn.enviando .al-foto-cam i::before { content: "\f110"; }
+@keyframes gira { to { transform: rotate(360deg); } }
+.al-foto-msg { min-height: 1em; margin-top: 4px; font-size: .78rem; color: var(--muted); }
+.al-foto-msg.ok { color: var(--ok); }
+.al-foto-msg.erro { color: var(--red-2); }
+.al-hero .al-cref { text-transform: capitalize; }
+
+/* Menu: escolha de tema */
+.al-tema { display: flex; flex-direction: column; gap: 8px; padding: 12px 10px; }
+.al-tema > span { display: flex; align-items: center; gap: 12px; font-size: .95rem; }
+.al-tema > span i { width: 20px; text-align: center; color: var(--red-2); }
+.al-tema-op { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 12px; background: var(--input); border: 1px solid var(--line); }
+.al-sheet .al-tema-op button { justify-content: center; padding: 9px 6px; font-size: .85rem; font-weight: 600; border-radius: 9px; color: var(--muted); }
+.al-sheet .al-tema-op button i { width: auto; color: inherit; }
+.al-sheet .al-tema-op button[aria-pressed="true"] { background: var(--red-2); color: #fff; }
+.al-sheet .al-tema-op button[aria-pressed="true"]:hover { background: var(--red-2); }
