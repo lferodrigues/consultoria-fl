@@ -39,6 +39,7 @@
     <link rel="modulepreload" href="./Assets/js/vitrine-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/admin-vitrine.js?v=2">
     <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=14">
+    <link rel="stylesheet" href="./Assets/css/supino.css?v=1">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +51,42 @@
 
 <body>
     <!-- Verificação de acesso -->
-    <div class="gate" id="gate"><div class="spinner"></div><p>Verificando acesso...</p></div>
+    <div class="gate" id="gate"><div class="supino">
+        <svg viewBox="0 0 200 130" role="img" aria-label="Carregando: aluno fazendo supino">
+          <ellipse class="supino-sombra" cx="104" cy="119" rx="84" ry="5"/>
+          <!-- suporte da barra (atrás da cabeça) -->
+          <line class="supino-banco-pe" x1="60" y1="115" x2="60" y2="20"/>
+          <line class="supino-banco-pe" x1="60" y1="20" x2="68" y2="20"/>
+          <!-- banco -->
+          <rect class="supino-banco" x="36" y="74" width="100" height="9" rx="4"/>
+          <line class="supino-banco-pe" x1="48" y1="83" x2="48" y2="115"/>
+          <line class="supino-banco-pe" x1="124" y1="83" x2="124" y2="115"/>
+          <!-- pernas: quadril, joelho, pé no chão -->
+          <polyline class="supino-corpo" stroke-width="9" points="122,68 152,60 160,112"/>
+          <line class="supino-corpo" stroke-width="7" x1="160" y1="112" x2="172" y2="112"/>
+          <!-- tronco e cabeça -->
+          <line class="supino-corpo" stroke-width="15" x1="64" y1="66" x2="122" y2="68"/>
+          <circle class="supino-cabeca" cx="46" cy="65" r="9"/>
+          <!-- barra vista de lado (anilha): sobe e desce até o peito -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="0,0; 4,30; 0,0"/>
+            <circle class="supino-anilha" cx="76" cy="16" r="12"/>
+            <circle class="supino-anilha-borda" cx="76" cy="16" r="8"/>
+            <circle class="supino-centro" cx="76" cy="16" r="2.5"/>
+          </g>
+          <!-- braço por cima da anilha: ombro, cotovelo, mão na barra -->
+          <polyline class="supino-corpo" stroke-width="8" points="76,62 76,40 76,17">
+            <animate attributeName="points" dur="1.6s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"
+              values="76,62 76,40 76,17; 76,62 94,68 80,47; 76,62 76,40 76,17"/>
+          </polyline>
+          <circle class="supino-cabeca" r="5">
+            <animate attributeName="cx" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="76;80;76"/>
+            <animate attributeName="cy" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="17;47;17"/>
+          </circle>
+        </svg>
+    </div><p>Verificando acesso...</p></div>
 
     <div class="app" id="app">
 
