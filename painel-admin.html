@@ -26,8 +26,8 @@
     <link rel="modulepreload" href="./Assets/js/admin-alunos.js?v=1">
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/exercicios-dados.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/admin-inscricoes.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/admin-fichas.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/admin-inscricoes.js?v=2">
+    <link rel="modulepreload" href="./Assets/js/admin-fichas.js?v=3">
     <link rel="modulepreload" href="./Assets/js/admin-biblioteca.js?v=1">
     <link rel="modulepreload" href="./Assets/js/admin-financeiro.js?v=1">
     <link rel="modulepreload" href="./Assets/js/planos-card.js?v=2">
@@ -38,7 +38,7 @@
     <link rel="modulepreload" href="./Assets/js/admin-depoimentos.js?v=1">
     <link rel="modulepreload" href="./Assets/js/vitrine-util.js?v=2">
     <link rel="modulepreload" href="./Assets/js/admin-vitrine.js?v=2">
-    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=14">
+    <link rel="modulepreload" href="./Assets/js/painel-admin.js?v=15">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=1">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -455,7 +455,10 @@
                                 <h1>Inscrições</h1>
                                 <p class="page-sub">Fichas preenchidas no site. Aprove, monte a primeira ficha e o aluno é avisado no WhatsApp.</p>
                             </div>
-                            <a href="./cadastro.html" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha do site</a>
+                            <div class="page-acoes" style="display:flex;gap:8px;flex-wrap:wrap">
+                                <button type="button" class="btn btn-primary" id="in-copiar-link" title="Link para o aluno se inscrever sem escolher plano"><i class="fa-solid fa-link"></i> Copiar link de cadastro</button>
+                                <a href="./cadastro.html" target="_blank" rel="noopener" class="btn btn-ghost"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha do site</a>
+                            </div>
                         </div>
                         <section class="stats stats-3">
                             <button type="button" class="stat warn" data-in-filtro="pendente"><span class="stat-n" id="in-pend">0</span><span class="stat-l">Aguardando análise</span></button>
@@ -860,7 +863,7 @@
 
     <div class="toast" id="toast" role="status"></div>
 
-    <script type="module" src="./Assets/js/painel-admin.js?v=14"></script>
+    <script type="module" src="./Assets/js/painel-admin.js?v=15"></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>
 

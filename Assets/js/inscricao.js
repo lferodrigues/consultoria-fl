@@ -15,6 +15,11 @@ export const VERSAO_TERMOS = "1.0";
 const WHATSAPP_FAGNER = "5532998528266";
 const TOTAL = 5;
 
+// Link direto (cadastro.html?direto=1): o aluno faz a inscrição sem escolher plano.
+// O plano e o valor ficam "a combinar" e o Fagner define na hora de aprovar.
+export const DIRETO = new URLSearchParams(location.search).has("direto");
+export const PLANO_A_DEFINIR = { id: "a-definir", nome: "A combinar com o Fagner", preco: 0 };
+
 const $ = (id) => document.getElementById(id);
 const so = (t) => String(t || "").replace(/\D/g, "");
 const moeda = (c) => (Number(c || 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -100,6 +105,10 @@ $("cad-form").addEventListener("submit", async (ev) => {
 /* =================== 1. Planos =================== */
 
 async function carregarPlanos() {
+    if (DIRETO) {
+        $("cad-planos").hidden = true;
+        return;
+    }
     try {
         const snap = await get(ref(db, "planos"));
         planos = ordenarPlanos(Object.entries(snap.val() || {}).map(([id, p]) => ({ id, ...p })))
@@ -128,7 +137,7 @@ async function carregarPlanos() {
     if (inicial) grade.querySelector(`input[value="${CSS.escape(inicial.id)}"]`).checked = true;
 }
 
-const planoEscolhido = () => planos.find((p) => p.id === escolhido("plano"));
+const planoEscolhido = () => (DIRETO ? PLANO_A_DEFINIR : planos.find((p) => p.id === escolhido("plano")));
 
 /* =================== 1. Conta =================== */
 
@@ -384,7 +393,7 @@ const dataBR = (iso) => iso.split("-").reverse().join("/");
 function desenharResumo() {
     const p = planoEscolhido();
     $("res-plano").textContent = p ? p.nome + (p.duracao ? " · " + p.duracao : "") : "—";
-    $("res-valor").textContent = p ? moeda(p.preco) + (p.periodo ? " " + p.periodo : "") : "—";
+    $("res-valor").textContent = DIRETO ? "A combinar" : p ? moeda(p.preco) + (p.periodo ? " " + p.periodo : "") : "—";
     atualizarVenc();
 }
 function atualizarVenc() {
@@ -468,7 +477,7 @@ function mensagemFagner(d) {
         "Olá, Fagner! Acabei de fazer a minha inscrição na consultoria.",
         "",
         "Nome: " + d.nome,
-        "Plano: " + d.planoNome + " (" + moeda(d.valor) + ")",
+        "Plano: " + (DIRETO ? "a combinar" : d.planoNome + " (" + moeda(d.valor) + ")"),
         "Objetivo: " + d.objetivo,
         "Treino: " + d.diasTreino + "x por semana, " + d.tempoDia + " por dia",
         "",
@@ -509,6 +518,13 @@ async function enviar() {
 
 /* =================== Início =================== */
 
+if (DIRETO) {
+    // Sem a escolha de plano: a etapa 1 vira só "Sua conta"
+    document.querySelector('#cad-passos li[data-passo="1"] span').textContent = "Sua conta";
+    document.querySelector('.cad-etapa[data-etapa="1"] h2').textContent = "Sua conta";
+    document.querySelector('.cad-etapa[data-etapa="1"] .sub').textContent = "Escolha como você vai entrar na área do aluno. O plano você combina direto com o Fagner.";
+    $("res-trocar").hidden = true;
+}
 carregarPlanos();
 irPara(1);
 onAuthStateChanged(auth, async (user) => {

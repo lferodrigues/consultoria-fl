@@ -11,7 +11,7 @@
       ],
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid && newData.exists() && (!data.exists() || data.child('status').val() == 'pendente') && newData.child('status').val() == 'pendente' && newData.child('visto').val() == false && newData.child('email').val() == auth.token.email && newData.child('valor').val() == root.child('planos').child(newData.child('planoId').val()).child('preco').val()",
+        ".write": "auth != null && auth.uid == $uid && newData.exists() && (!data.exists() || data.child('status').val() == 'pendente') && newData.child('status').val() == 'pendente' && newData.child('visto').val() == false && newData.child('email').val() == auth.token.email && ((newData.child('planoId').val() == 'a-definir' && newData.child('valor').val() == 0) || newData.child('valor').val() == root.child('planos').child(newData.child('planoId').val()).child('preco').val())",
         ".validate": "newData.hasChildren(['uid', 'email', 'nome', 'cpf', 'whatsapp', 'sexo', 'idade', 'endereco', 'peso', 'altura', 'objetivo', 'lesao', 'saude', 'medicamento', 'diasTreino', 'tempoDia', 'planoId', 'planoNome', 'valor', 'diaVencimento', 'primeiroVencimento', 'lgpd', 'status', 'criadoEm']) && newData.child('uid').val() == $uid",
         "uid": {
           ".validate": "newData.isString()"
@@ -125,7 +125,7 @@
           ".validate": "newData.isString() && newData.val().length <= 60"
         },
         "valor": {
-          ".validate": "newData.isNumber() && newData.val() > 0"
+          ".validate": "newData.isNumber() && newData.val() >= 0"
         },
         "diaVencimento": {
           ".validate": "newData.isNumber() && (newData.val() == 5 || newData.val() == 10 || newData.val() == 15 || newData.val() == 20 || newData.val() == 25)"

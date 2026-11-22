@@ -9,6 +9,22 @@ import { db, chaveEmail, hojeISO } from "./firebase-app.js?v=2";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 import { dataBR, moeda, somarMeses, MESES_POR_PLANO } from "./alunos-util.js?v=2";
 
+// Inscrição feita pelo link direto (cadastro.html?direto=1): plano e valor a combinar
+const semPlano = (i) => i.planoId === "a-definir";
+const valorTxt = (i) => (semPlano(i) ? "A combinar" : moeda(i.valor));
+
+// Link que o Fagner manda para o aluno se inscrever sem passar pelos planos
+export const LINK_DIRETO = new URL("./cadastro.html?direto=1", location.href).href;
+
+async function copiarLinkDireto() {
+    try {
+        await navigator.clipboard.writeText(LINK_DIRETO);
+        aviso("Link copiado! É só mandar para o aluno.", "ok");
+    } catch (e) {
+        window.prompt("Copie o link de cadastro:", LINK_DIRETO);
+    }
+}
+
 const STATUS = {
     pendente: { nome: "Aguardando análise", classe: "warn" },
     aprovada: { nome: "Aguardando 1ª ficha", classe: "bad" },
@@ -35,6 +51,7 @@ let atual = null; // uid aberto no detalhe
 
 export function iniciar() {
     aoMudar(() => { desenharLista(); if (atual) desenharDetalhe(); });
+    $("in-copiar-link").addEventListener("click", copiarLinkDireto);
     $("in-busca").addEventListener("input", desenharLista);
     $("in-filtro").addEventListener("change", desenharLista);
     document.querySelectorAll("[data-in-filtro]").forEach((b) => b.addEventListener("click", () => { $("in-filtro").value = b.dataset.inFiltro; desenharLista(); }));
@@ -94,7 +111,7 @@ function desenharLista() {
                 ${!i.visto && (i.status || "pendente") === "pendente" ? '<span class="badge warn">Nova</span>' : ""}
                 ${alerta ? '<span class="badge bad" title="Informou lesão, problema de saúde ou medicamento">Saúde</span>' : ""}
             </div>
-            <div class="ins-linha"><span>${esc(i.planoNome || "Plano")}</span><b>${moeda(i.valor)}</b></div>
+            <div class="ins-linha"><span>${esc(i.planoNome || "Plano")}</span><b>${valorTxt(i)}</b></div>
             <div class="ins-linha"><span>${esc(i.objetivo || "")}</span><span>${i.diasTreino || "?"}x/semana · ${esc(i.tempoDia || "")}</span></div>
         </a>`;
     }).join("");
@@ -193,7 +210,7 @@ function desenharDetalhe() {
             <section class="in-bloco">
                 <h2><i class="fa-solid fa-receipt"></i> Plano e fatura</h2>
                 ${linha("Plano", esc(i.planoNome || "—"))}
-                ${linha("Valor", "<b>" + moeda(i.valor) + "</b>")}
+                ${linha("Valor", "<b>" + valorTxt(i) + "</b>")}
                 ${linha("Vencimento da fatura", "Todo dia " + esc(i.diaVencimento) + " · primeira em " + dataBR(i.primeiroVencimento))}
                 ${linha("Termos LGPD", i.lgpd?.aceito ? `<span class="badge ok">Aceitos</span> versão ${esc(i.lgpd.versao || "")} em ${quando(i.lgpd.em)}` : '<span class="badge bad">Não aceitos</span>')}
                 ${linha("Dados de saúde", i.lgpd?.saude ? '<span class="badge ok">Consentimento dado</span>' : '<span class="badge bad">Sem consentimento</span>')}
@@ -221,7 +238,7 @@ function abrirAprovar(i) {
     $("ap-nome").textContent = i.nome;
     $("ap-plano").value = MESES_POR_PLANO[chave] ? chave : "semestral";
     $("ap-plano").dataset.meses = mesesDoPlano(i.planoNome, plano?.duracao || "");
-    $("ap-plano-nome").textContent = (i.planoNome || "Plano") + " · " + moeda(i.valor);
+    $("ap-plano-nome").textContent = semPlano(i) ? "Nenhum (link direto) · escolha o tipo de plano abaixo" : (i.planoNome || "Plano") + " · " + moeda(i.valor);
     $("ap-inicio").value = hojeISO();
     $("ap-msg").textContent = "";
     $("aprovar-form").dataset.uid = i.id;
