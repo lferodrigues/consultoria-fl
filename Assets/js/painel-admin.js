@@ -10,7 +10,7 @@ import { situacao, dataBR, listaDe } from "./alunos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { $, estado, aoMudar, notificar, esc, aviso } from "./admin-core.js?v=1";
 import * as Alunos from "./admin-alunos.js?v=3";
-import * as Treinos from "./admin-fichas.js?v=6";
+import * as Treinos from "./admin-fichas.js?v=7";
 import { diaPorId, ESFORCO, ordenarFichas, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
 import * as Biblioteca from "./admin-biblioteca.js?v=1";
 import * as Financeiro from "./admin-financeiro.js?v=1";
@@ -18,9 +18,9 @@ import * as Planos from "./admin-planos.js?v=2";
 import * as Exercicios from "./admin-exercicios.js?v=1";
 import * as Pix from "./admin-pix.js?v=1";
 import * as Depoimentos from "./admin-depoimentos.js?v=1";
-import * as Inscricoes from "./admin-inscricoes.js?v=4";
+import * as Inscricoes from "./admin-inscricoes.js?v=5";
 import * as Vitrine from "./admin-vitrine.js?v=3";
-import * as Avaliacoes from "./admin-avaliacoes.js?v=3";
+import * as Avaliacoes from "./admin-avaliacoes.js?v=4";
 
 const TELAS = ["inicio", "avaliacoes", "inscricoes", "alunos", "treinos", "exercicios", "biblioteca", "financeiro", "planos", "vitrine", "depoimentos"];
 // Telas que ficam dentro de um grupo do menu

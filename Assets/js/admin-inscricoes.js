@@ -67,6 +67,7 @@ export function iniciar() {
         if (b.dataset.acao === "aprovar") abrirAprovar(i);
         if (b.dataset.acao === "ficha") location.hash = "#/treinos/primeira/" + i.alunoId;
         if (b.dataset.acao === "excluir") excluir(i);
+        if (b.dataset.acao === "salvar-plano") salvarPlano(i, b);
     });
     $("ap-plano").addEventListener("change", recalcularVenc);
     $("ap-inicio").addEventListener("change", recalcularVenc);
@@ -215,11 +216,57 @@ function desenharDetalhe() {
                 <h2><i class="fa-solid fa-receipt"></i> Plano e fatura</h2>
                 ${linha("Plano", esc(i.planoNome || "—"))}
                 ${linha("Valor", "<b>" + valorTxt(i) + "</b>")}
+                <div class="in-trocar-plano">
+                    <label for="in-plano">${semPlano(i) ? "Cadastrar o plano" : "Substituir o plano"}</label>
+                    <div class="in-trocar-linha">
+                        <select id="in-plano"></select>
+                        <button type="button" class="btn btn-primary btn-sm" data-acao="salvar-plano"><i class="fa-solid fa-floppy-disk"></i> Salvar plano</button>
+                    </div>
+                    ${i.alunoId ? '<small>Já é aluno: o plano e o valor também mudam no cadastro dele. As datas de vencimento continuam as mesmas (ajuste em Alunos, se precisar).</small>' : ""}
+                </div>
                 ${linha("Vencimento da fatura", "Todo dia " + esc(i.diaVencimento) + " · primeira em " + dataBR(i.primeiroVencimento))}
                 ${linha("Termos LGPD", i.lgpd?.aceito ? `<span class="badge ok">Aceitos</span> versão ${esc(i.lgpd.versao || "")} em ${quando(i.lgpd.em)}` : '<span class="badge bad">Não aceitos</span>')}
                 ${linha("Dados de saúde", i.lgpd?.saude ? '<span class="badge ok">Consentimento dado</span>' : '<span class="badge bad">Sem consentimento</span>')}
             </section>
         </div>`;
+    preencherPlanos($("in-plano"), semPlano(i) ? "" : idDoPlano({ planoId: i.planoId, planoNome: i.planoNome }), { vazio: semPlano(i) ? "— Escolha o plano —" : "" });
+}
+
+// Cadastra (cadastro livre) ou substitui o plano da inscrição; se já for aluno, atualiza o cadastro dele também
+async function salvarPlano(i, botao) {
+    const p = dadosDoPlano($("in-plano").value);
+    if (!p) return aviso("Escolha o plano.", "error");
+    if (p.planoId === i.planoId) return aviso("Esse já é o plano desta inscrição.", "ok");
+    const valor = p.valor || 0;
+    const mudancas = {
+        ["inscricoes/" + i.id + "/planoId"]: p.planoId,
+        ["inscricoes/" + i.id + "/planoNome"]: p.planoNome.slice(0, 60),
+        ["inscricoes/" + i.id + "/valor"]: valor
+    };
+    const aluno = i.alunoId ? estado.alunos.find((a) => a.id === i.alunoId) : null;
+    if (aluno) {
+        Object.assign(mudancas, {
+            ["alunos/" + aluno.id + "/planoId"]: p.planoId,
+            ["alunos/" + aluno.id + "/plano"]: p.plano,
+            ["alunos/" + aluno.id + "/valor"]: valor || null,
+            ["alunos/" + aluno.id + "/planoAnterior"]: aluno.plano || null,
+            ["alunos/" + aluno.id + "/atualizadoEm"]: Date.now()
+        });
+        if (aluno.email) {
+            mudancas["emails/" + chaveEmail(aluno.email) + "/plano"] = p.plano;
+            mudancas["emails/" + chaveEmail(aluno.email) + "/valor"] = valor || null;
+        }
+    }
+    ocupado(botao, true);
+    try {
+        await update(ref(db), mudancas);
+        aviso((semPlano(i) ? "Plano cadastrado: " : "Plano substituído: ") + p.plano + (valor ? " · " + moeda(valor) : "") + ".", "ok");
+    } catch (e) {
+        console.error(e);
+        aviso(mensagemErro(e, "Não foi possível salvar o plano."), "error");
+    } finally {
+        ocupado(botao, false);
+    }
 }
 
 /* =================== Aprovar =================== */

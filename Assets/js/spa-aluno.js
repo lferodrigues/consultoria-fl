@@ -28,7 +28,7 @@
             titulo: "Área do Aluno | Fagner Lage",
             appCheck: "on",
             robots: "noindex, nofollow",
-            css: ["./Assets/css/admin.css?v=6", "./Assets/css/aluno.css?v=20", "./Assets/css/aluno-claro.css?v=4", "./Assets/css/aluno-cores.css?v=4"],
+            css: ["./Assets/css/admin.css?v=7", "./Assets/css/aluno.css?v=20", "./Assets/css/aluno-claro.css?v=4", "./Assets/css/aluno-cores.css?v=4"],
             modulo: "./Assets/js/area-aluno.js?v=21"
         }
     };

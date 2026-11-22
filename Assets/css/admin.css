@@ -240,3 +240,11 @@ option { background: var(--card); }
 .av-det-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 860px) { .av-det { grid-template-columns: 1fr; } }
 .icon-btn.ativo-alerta { color: var(--red-2); border-color: rgba(var(--red-2-rgb), .5); background: rgba(var(--red-rgb), .12); }
+
+/* Inscrição: cadastrar / substituir o plano */
+.in-trocar-plano { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 12px; background: var(--input); border: 1px solid var(--line); }
+.in-trocar-plano label { font-size: .82rem; font-weight: 700; color: var(--muted); }
+.in-trocar-linha { display: flex; gap: 8px; flex-wrap: wrap; }
+.in-trocar-linha select { flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; outline: none; }
+.in-trocar-linha select:focus { border-color: var(--red-2); }
+.in-trocar-plano small { color: var(--muted); font-size: .76rem; line-height: 1.4; }
