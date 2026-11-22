@@ -60,7 +60,7 @@
                 <thead><tr><th>Situação</th><th>Dados</th><th>Finalidade e base legal</th></tr></thead>
                 <tbody>
                     <tr><td>Navegação</td><td>Endereço IP, data e hora de acesso, navegador e páginas visitadas, registrados automaticamente pelo serviço que hospeda o site.</td><td>Entregar as páginas, manter a segurança e cumprir a guarda de registros de acesso do Marco Civil da Internet (art. 15 da Lei nº 12.965/2014). Base legal: obrigação legal e legítimo interesse (art. 7º, II e IX, da LGPD).</td></tr>
-                    <tr><td>Verificação “Não sou um robô”</td><td>Sinais técnicos do navegador e do aparelho, como endereço IP e tipo de navegador, analisados pela Cloudflare (Turnstile) na tela de login.</td><td>Impedir que robôs tentem entrar em contas, criem acessos falsos ou abusem do envio de e-mails de senha. Base legal: legítimo interesse na segurança do site e das contas (art. 7º, IX).</td></tr>
+                    <tr><td>Verificação “Não sou um robô”</td><td>Sinais técnicos do navegador e do aparelho, como endereço IP e tipo de navegador, analisados pela Cloudflare (Turnstile) no login, na ficha de inscrição, na área do aluno e no painel. O resultado é conferido pelo servidor do site, que só então libera o acesso ao Firebase (App Check).</td><td>Impedir que robôs tentem entrar em contas, criem acessos falsos ou abusem do envio de e-mails de senha. Base legal: legítimo interesse na segurança do site e das contas (art. 7º, IX).</td></tr>
                     <tr><td>Login na área do aluno</td><td>E-mail, senha (guardada pelo Google Firebase e nunca visível para nós) ou conta Google/Apple usada para entrar.</td><td>Dar acesso à área do aluno e ao painel. Base legal: execução de contrato (art. 7º, V).</td></tr>
                     <tr><td>Inscrição na consultoria</td><td>Dados da ficha de inscrição, descritos nos <a href="./termos-lgpd.html">termos da consultoria</a>.</td><td>Contratação e prescrição do treino, conforme os termos.</td></tr>
                     <tr><td>Contato pelo WhatsApp ou e-mail</td><td>Nome, número ou e-mail e o que você escrever.</td><td>Responder ao seu contato. Base legal: procedimentos preliminares a um contrato e legítimo interesse (art. 7º, V e IX).</td></tr>
@@ -76,7 +76,7 @@
                 <tbody>
                     <tr><td>Necessários</td><td><strong>fl-cookies</strong>: guarda a sua escolha sobre cookies (12 meses ou até você limpar o navegador).<br><strong>Sessão do Google Firebase</strong>: mantém você conectado à área do aluno ou ao painel.<br><strong>Preferências da área do aluno</strong>: exercícios marcados como feitos e avisos já vistos.</td><td>Não. Sem eles o site não funciona (legítimo interesse e execução de contrato).</td></tr>
                     <tr><td>Vídeos do YouTube</td><td>O vídeo de apresentação da página inicial é exibido pelo YouTube (Google), no modo de privacidade aprimorada. Ao ser carregado, o YouTube pode gravar cookies e identificar a reprodução, conforme a <a href="https://policies.google.com/privacy?hl=pt-BR" target="_blank" rel="noopener">política de privacidade do Google</a>.</td><td>Sim. O vídeo só carrega depois que você permitir (consentimento, art. 7º, I). Sem permissão, você pode abrir o vídeo direto no YouTube.</td></tr>
-                    <tr><td>Segurança do login</td><td>Na tela de login, a verificação “Não sou um robô” da Cloudflare (Turnstile) analisa sinais técnicos do navegador para separar pessoas de robôs. Os detalhes estão no <a href="https://www.cloudflare.com/pt-br/turnstile-privacy-policy/" target="_blank" rel="noopener">aviso de privacidade do Turnstile</a>.</td><td>Não. É necessária para proteger as contas e só aparece na tela de login.</td></tr>
+                    <tr><td>Segurança do login</td><td>Nas páginas com login, a verificação “Não sou um robô” da Cloudflare (Turnstile) analisa sinais técnicos do navegador para separar pessoas de robôs. Na maioria das vezes ela é invisível; a caixinha só aparece quando a Cloudflare precisa confirmar. Os detalhes estão no <a href="https://www.cloudflare.com/pt-br/turnstile-privacy-policy/" target="_blank" rel="noopener">aviso de privacidade do Turnstile</a>.</td><td>Não. É necessária para proteger as contas e só roda nas páginas com login.</td></tr>
                     <tr><td>Fontes e ícones</td><td>As letras (Google Fonts) e os ícones (Font Awesome, pela Cloudflare) são baixados desses serviços. Eles recebem o seu endereço IP para entregar os arquivos, mas não gravam cookies no seu navegador.</td><td>Não. São necessários para exibir o site.</td></tr>
                 </tbody>
             </table>
@@ -107,7 +107,7 @@
             <h2 id="p5"><span>5.</span> Com quem compartilhamos</h2>
             <p>Somente com fornecedores necessários para o site funcionar, que tratam os dados conforme as nossas instruções e as próprias políticas:</p>
             <ul>
-                <li><strong>Serviço de hospedagem do site</strong>: entrega as páginas e registra os acessos.</li>
+                <li><strong>Serviço de hospedagem do site</strong>: entrega as páginas, registra os acessos e confere a verificação “Não sou um robô” antes de liberar o acesso ao Firebase.</li>
                 <li><strong>Google Firebase (Google LLC)</strong>: login e banco de dados do site, da área do aluno e do painel.</li>
                 <li><strong>Google ou Apple</strong>: quando você escolhe entrar com essas contas.</li>
                 <li><strong>YouTube (Google)</strong>: exibe vídeos, apenas se você permitir os cookies de vídeo.</li>
@@ -170,6 +170,7 @@
             if (window.FLCookies) { e.preventDefault(); window.FLCookies.abrir(); }
         });
     </script>
+    <script src="./Assets/js/sem-botao-direito.js?v=1"></script>
 </body>
 
 </html>

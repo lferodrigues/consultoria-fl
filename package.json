@@ -1,0 +1,12 @@
+{
+  "name": "consultoria-fl",
+  "private": true,
+  "type": "module",
+  "description": "Site da consultoria online do personal Fagner Lage. A pasta api/ tem as funções da Vercel.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}

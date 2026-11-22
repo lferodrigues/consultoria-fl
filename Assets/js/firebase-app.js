@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { ativarAppCheck } from "./app-check.js?v=1";
 
 export const firebaseConfig = {
     apiKey: "AIzaSyALkfMd9sTok0tuFgRmDkqgK6NCh4kAGr0",
@@ -15,6 +16,8 @@ export const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
+// App Check (Turnstile + /api/app-check) nas páginas que usam login; precisa vir antes do Auth e do banco
+if (document.querySelector('meta[name="fl-app-check"]')) ativarAppCheck(app);
 export const auth = getAuth(app);
 auth.languageCode = "pt";
 export const db = getDatabase(app);

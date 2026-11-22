@@ -1,8 +1,4 @@
-// Bloquear botão direito do mouse
-document.addEventListener("contextmenu", (event) => {
-    event.preventDefault();
-    alert("Função desabilitada!");
-});
+// Botão direito: fica a cargo de sem-botao-direito.js (em todas as páginas)
 
 // Bloquear teclas de atalho relacionadas a ferramentas de desenvolvedor
 document.addEventListener("keydown", (event) => {
