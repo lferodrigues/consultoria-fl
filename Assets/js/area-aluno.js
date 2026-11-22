@@ -327,12 +327,14 @@ $("al-foto-input").addEventListener("change", async (ev) => {
 //   (aluno-claro.css + aluno-cores.css). Cor da barra do navegador no celular acompanha o tema.
 export const TEMAS = {
     escuro: "#07080b", claro: "#ffffff", rosa: "#db2777", amarelo: "#eab308",
-    azul: "#1d4ed8", vermelho: "#dc2626", verde: "#15803d"
+    azul: "#1d4ed8", vermelho: "#dc2626", verde: "#15803d", "preto-amarelo": "#facc15"
 };
+// Temas que usam a base escura (o resto usa a base clara)
+const TEMAS_ESCUROS = ["escuro", "preto-amarelo"];
 function aplicarTema(tema, salvar = true) {
     if (!TEMAS[tema]) tema = "escuro";
     const raiz = document.documentElement;
-    if (tema === "escuro") delete raiz.dataset.tema; else raiz.dataset.tema = "claro";
+    if (TEMAS_ESCUROS.includes(tema)) delete raiz.dataset.tema; else raiz.dataset.tema = "claro";
     if (tema === "escuro" || tema === "claro") delete raiz.dataset.cor; else raiz.dataset.cor = tema;
     try { localStorage.setItem("fl-tema-aluno", tema); } catch { /* sem armazenamento */ }
     document.querySelectorAll(".al-temas button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === tema)));

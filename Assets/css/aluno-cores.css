@@ -4,6 +4,7 @@
      rosa      rosa e branco        amarelo  amarelo e branco
      azul      azul e branco        vermelho vermelho e branco
      verde     verde e amarelo
+     preto-amarelo  amarelo e preto (este usa a base ESCURA, sem data-tema="claro")
    Cada tema só define as cores; o resto da tela usa as variáveis --red, --red-2, --red-3, --red-rgb... */
 
 html[data-cor="rosa"] {
@@ -78,3 +79,20 @@ html[data-cor="amarelo"] :is(.al-nav .ativo, .al-nav a:hover, .al-nav button:hov
     background: linear-gradient(135deg, var(--c1) 50%, var(--c2) 50%);
 }
 .al-sheet .al-temas button[aria-pressed="true"] .al-tema-bola { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--red-2); }
+
+/* ===== Amarelo e preto: base escura (padrão) com destaque amarelo e barra do topo amarela ===== */
+html[data-cor="preto-amarelo"] {
+    --red: #eab308; --red-2: #facc15; --red-3: #a16207;
+    --red-rgb: 234, 179, 8; --red-2-rgb: 250, 204, 21; --sobre-cor: #111;
+    --topo: linear-gradient(90deg, #eab308, #facc15); --sobre-topo: #111;
+}
+html[data-cor="preto-amarelo"] .al-marca img { filter: brightness(0); }
+html[data-cor="preto-amarelo"] .al-top .al-bell { border-color: rgba(17, 17, 17, .35); background: rgba(255, 255, 255, .25); }
+html[data-cor="preto-amarelo"] .al-top .al-bell-n { background: #111; color: #facc15; }
+html[data-cor="preto-amarelo"] .al-hero {
+    background:
+        radial-gradient(460px 240px at 50% 0%, rgba(250, 204, 21, .28), transparent 72%),
+        linear-gradient(180deg, rgba(234, 179, 8, .1) 0%, var(--bg) 100%);
+}
+html[data-cor="preto-amarelo"] .al-tile:hover { background: var(--card); border-color: rgba(250, 204, 21, .5); }
+html[data-cor="preto-amarelo"] .al-foto-cam { color: #111; }

@@ -28,8 +28,8 @@
             titulo: "Área do Aluno | Fagner Lage",
             appCheck: "on",
             robots: "noindex, nofollow",
-            css: ["./Assets/css/admin.css?v=6", "./Assets/css/aluno.css?v=17", "./Assets/css/aluno-claro.css?v=3", "./Assets/css/aluno-cores.css?v=1"],
-            modulo: "./Assets/js/area-aluno.js?v=19"
+            css: ["./Assets/css/admin.css?v=6", "./Assets/css/aluno.css?v=17", "./Assets/css/aluno-claro.css?v=3", "./Assets/css/aluno-cores.css?v=2"],
+            modulo: "./Assets/js/area-aluno.js?v=20"
         }
     };
 
@@ -101,8 +101,9 @@
         try { tema = vista === "area" ? localStorage.getItem("fl-tema-aluno") || "" : ""; } catch { /* sem armazenamento */ }
         // Temas coloridos (rosa, amarelo, azul, vermelho, verde) usam a base clara + a cor
         const raiz = document.documentElement;
-        if (tema && tema !== "escuro") raiz.dataset.tema = "claro"; else delete raiz.dataset.tema;
-        if (["rosa", "amarelo", "azul", "vermelho", "verde"].includes(tema)) raiz.dataset.cor = tema; else delete raiz.dataset.cor;
+        // "preto-amarelo" (amarelo e preto) usa a base escura
+        if (tema && tema !== "escuro" && tema !== "preto-amarelo") raiz.dataset.tema = "claro"; else delete raiz.dataset.tema;
+        if (["rosa", "amarelo", "azul", "vermelho", "verde", "preto-amarelo"].includes(tema)) raiz.dataset.cor = tema; else delete raiz.dataset.cor;
 
         // Coloca a nova tela antes dos scripts da casca
         const modelo = document.getElementById("vista-" + vista);
