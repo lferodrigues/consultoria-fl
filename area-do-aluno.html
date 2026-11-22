@@ -26,7 +26,7 @@
     <link rel="modulepreload" href="./Assets/js/fichas-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/pix-util.js?v=1">
     <link rel="modulepreload" href="./Assets/js/acesso-negado.js?v=1">
-    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=14">
+    <link rel="modulepreload" href="./Assets/js/area-aluno.js?v=15">
     <link rel="stylesheet" href="./Assets/css/supino.css?v=3">
     <link rel="icon" href="Assets/img/logo.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="./Assets/css/admin.css?v=4" data-vista="area">
-    <link rel="stylesheet" href="./Assets/css/aluno.css?v=14" data-vista="area">
+    <link rel="stylesheet" href="./Assets/css/aluno.css?v=15" data-vista="area">
     <link rel="stylesheet" href="./Assets/css/aluno-claro.css?v=2" data-vista="area">
     <link rel="stylesheet" href="./Assets/css/cookies.css?v=1">
     <!-- As outras telas do app: baixadas com calma, para a troca ser instantânea -->
@@ -648,6 +648,7 @@
                         <strong id="tr-ficha-nome">—</strong>
                         <div class="tags" id="tr-tags"></div>
                     </div>
+                    <button type="button" class="btn btn-primary ficha-pdf-btn" id="tr-pdf"><i class="fa-solid fa-file-pdf"></i> Baixar ficha em PDF</button>
                     <div class="info-bloco" id="tr-obs-bloco" hidden>
                         <span class="info-l">Orientações do personal</span>
                         <p id="tr-obs"></p>
@@ -859,7 +860,7 @@
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=5"></script>
+    <script src="./Assets/js/spa-aluno.js?v=6"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

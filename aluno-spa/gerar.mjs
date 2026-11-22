@@ -18,13 +18,13 @@ const vista = (nome) => readFileSync(join(AQUI, "vistas", nome + ".html"), "utf8
 const CSS = {
     login: ["./Assets/css/login.css?v=5"],
     cadastro: ["./Assets/css/cadastro.css?v=2"],
-    area: ["./Assets/css/admin.css?v=4", "./Assets/css/aluno.css?v=14", "./Assets/css/aluno-claro.css?v=2"]
+    area: ["./Assets/css/admin.css?v=4", "./Assets/css/aluno.css?v=15", "./Assets/css/aluno-claro.css?v=2"]
 };
 const MODULOS = {
     login: ["./Assets/js/login-aluno.js?v=13"],
     cadastro: ["./Assets/js/planos-card.js?v=2", "./Assets/js/inscricao.js?v=6"],
     area: ["./Assets/js/alunos-util.js?v=2", "./Assets/js/fichas-util.js?v=1", "./Assets/js/pix-util.js?v=1",
-        "./Assets/js/acesso-negado.js?v=1", "./Assets/js/area-aluno.js?v=14"]
+        "./Assets/js/acesso-negado.js?v=1", "./Assets/js/area-aluno.js?v=15"]
 };
 
 const PAGINAS = [
@@ -103,7 +103,7 @@ ${telas.area}
         window.flTurnstileCarregou = function () { window.flTurnstilePronto = true; document.dispatchEvent(new Event("fl-turnstile")); };
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=flTurnstileCarregou" async defer></script>
-    <script src="./Assets/js/spa-aluno.js?v=5"></script>
+    <script src="./Assets/js/spa-aluno.js?v=6"></script>
     <script src="./Assets/js/cookies.js?v=3"></script>
     <script src="./Assets/js/supino-pct.js?v=3" defer></script>
     <script src="./Assets/js/sem-botao-direito.js?v=1"></script>

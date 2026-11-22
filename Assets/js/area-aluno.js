@@ -329,6 +329,34 @@ function aplicarTema(tema, salvar = true) {
 document.querySelectorAll(".al-tema-op button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
 aplicarTema(document.documentElement.dataset.tema === "claro" ? "claro" : "escuro", false);
 
+/* =================== Ficha em PDF =================== */
+// Monta o PDF no próprio aparelho (Assets/js/ficha-pdf.js), no modelo da planilha do personal
+$("tr-pdf").addEventListener("click", async () => {
+    if (!ficha) return aviso("Sua ficha ainda não foi cadastrada.", "error");
+    const botao = $("tr-pdf");
+    botao.disabled = true;
+    botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando o PDF...';
+    try {
+        // Idade, peso e altura vêm da ficha de inscrição (se o aluno fez a inscrição pelo site)
+        let inscricao = cache?.inscricaoPdf || null;
+        if (auth.currentUser) {
+            const ins = await get(ref(db, "inscricoes/" + aluno.uid)).then((s) => s.val()).catch(() => null);
+            if (ins) {
+                inscricao = { idade: ins.idade, altura: ins.altura, peso: ins.peso, objetivo: ins.objetivo };
+                salvarCache({ inscricaoPdf: inscricao });
+            }
+        }
+        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=1");
+        await baixarFichaPDF({ aluno, ficha, inscricao });
+    } catch (e) {
+        console.error(e);
+        aviso("Não foi possível gerar o PDF agora. Tente de novo.", "error");
+    } finally {
+        botao.disabled = false;
+        botao.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Baixar ficha em PDF';
+    }
+});
+
 /* =================== Avaliação por foto =================== */
 //   avaliacoes/{id}      -> { uid, alunoId, nome, obs, criadoEm, expiraEm, visto }   (dados)
 //   avaliacoesFotos/{id} -> "data:image/jpeg;base64,..."                         (a foto, separada para a lista do painel ser leve)

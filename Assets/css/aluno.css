@@ -480,3 +480,6 @@ body.modal-aberto { overflow: hidden; }
 .al-hero.enviando-capa .al-capa-btn i { animation: gira .8s linear infinite; }
 .al-hero.com-capa .al-nome-personal, .al-hero.com-capa .al-cref { text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
 .al-hero.com-capa .al-cref { color: #e5e7eb; }
+
+/* Botão "Baixar ficha em PDF" */
+.ficha-pdf-btn { width: 100%; padding: 13px; border-radius: 14px; margin-bottom: 12px; }
