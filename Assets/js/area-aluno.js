@@ -1,7 +1,7 @@
 // Área do Aluno (app) — só entra quem está logado, cadastrado, ativo e no prazo.
 // Telas: #/inicio  #/treino  #/progresso  #/ebooks  #/depoimentos  #/faturas
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { ref, get, onValue, push, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { ref, get, onValue, push, update, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-util.js?v=2";
 import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO } from "./fichas-util.js?v=1";
@@ -54,7 +54,7 @@ onAuthStateChanged(auth, async (user) => {
         const nome = cadastro.nome || user.displayName || user.email;
         aluno = { id: cadastro.aluno, nome, email: user.email, uid: user.uid };
         // A área só é liberada depois que o personal cadastra a primeira ficha de treino
-        const temFicha = await get(ref(db, "fichas/" + cadastro.aluno));
+        const temFicha = await get(query(ref(db, "fichas/" + cadastro.aluno), limitToFirst(1)));
         if (!temFicha.exists()) {
             const ins = await get(ref(db, "inscricoes/" + user.uid)).catch(() => null);
             return mostrarEspera(user, ins && ins.exists() ? ins.val() : { nome }, cadastro.aluno);

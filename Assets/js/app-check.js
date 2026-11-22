@@ -96,9 +96,10 @@ const provedor = new CustomProvider({
 
 export function ativarAppCheck(app) {
     try {
-        // Sem renovação automática: o passe só é buscado quando o Firebase precisa,
-        // e não ao abrir a página (assim nada aparece durante o carregamento).
-        appCheck = initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: false });
+        // No login: sem renovação automática (o passe vem da caixinha que a pessoa marca).
+        // Nas outras páginas: renova em segundo plano antes de vencer, sem segurar o carregamento.
+        const ehLogin = document.querySelector('meta[name="fl-app-check"]')?.content === "login";
+        appCheck = initializeAppCheck(app, { provider: provedor, isTokenAutoRefreshEnabled: !ehLogin });
     } catch (e) {
         console.error("App Check não iniciou", e);
     }

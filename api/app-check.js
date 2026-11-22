@@ -14,7 +14,7 @@ import { getAppCheck } from "firebase-admin/app-check";
 const APP_ID_PADRAO = "1:907260382682:web:b456647534f5b58df444e3";
 // "action" aceitas: a caixinha do login e a verificação do App Check
 const ACOES = ["login", "app-check"];
-const VALIDADE_MS = 24 * 60 * 60 * 1000; // o App Check aceita de 30 min a 7 dias
+const VALIDADE_MS = 7 * 24 * 60 * 60 * 1000; // máximo aceito pelo App Check (30 min a 7 dias)
 
 function iniciarFirebase() {
     if (getApps().length) return;
