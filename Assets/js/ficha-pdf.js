@@ -4,8 +4,8 @@
 //
 // Usa a biblioteca pdf-lib (Assets/js/vendor), carregada só quando o aluno pede o PDF.
 // Não usa Firebase: recebe os dados prontos.
-import { diasDaFicha, exerciciosDe, diaPorId } from "./fichas-util.js?v=2";
-import { CATEGORIAS, SUGERIDOS } from "./exercicios-dados.js?v=1";
+import { diasDaFicha, exerciciosDe, diaPorId } from "./fichas-util.js?v=3";
+import { grupoDe } from "./grupos-util.js?v=1";
 
 // Dados do personal no cabeçalho (preencha o CREF para ele aparecer)
 const PERSONAL = { nome: "Fagner Lage", titulo: "Fagner Lage - Personal Trainer", cref: "" };
@@ -28,17 +28,6 @@ function pdfLib() {
 
 const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
 // Grupo muscular: o da ficha (se tiver) ou o da lista de exercícios conhecidos pelo nome
-const GRUPO_POR_NOME = new Map();
-Object.entries(SUGERIDOS).forEach(([cat, lista]) => {
-    const nome = (CATEGORIAS.find((c) => c.id === cat) || {}).nome || cat;
-    lista.forEach(([ex]) => GRUPO_POR_NOME.set(norm(ex), nome));
-});
-function grupoDe(e) {
-    if (e.grupo) return e.grupo;
-    if (e.categoria) return (CATEGORIAS.find((c) => c.id === e.categoria) || {}).nome || e.categoria;
-    return GRUPO_POR_NOME.get(norm(e.nome)) || "";
-}
-
 // A fonte padrão do PDF (Helvetica) só tem os caracteres do português "comum": troca o resto
 const EXTRA = "‘’‚“”„•…–—€™";
 function limpo(t) {

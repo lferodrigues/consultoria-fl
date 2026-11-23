@@ -4,8 +4,9 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { ref, get, onValue, push, update, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.js?v=2";
 import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-util.js?v=2";
-import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
+import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS, lerAgenda, agendaTexto, agendaServe, aplicarAgenda } from "./fichas-util.js?v=3";
 import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
+import { gruposDoDia, gruposTexto } from "./grupos-util.js?v=1";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { navegar } from "./spa-nav.js?v=1";
 import { canvasParaImagem } from "./imagem-webp.js?v=1";
@@ -22,7 +23,10 @@ const TELAS = { inicio: "", treino: "Treinos", progresso: "Meu progresso", ebook
 let saindo = false;
 let aluno = null;       // { id, nome, email }
 let cadastro = null;    // emails/{chave}
-let ficha = null;       // ficha atual
+let ficha = null;       // ficha atual (já com os dias escolhidos aplicados)
+let fichaBase = null;   // ficha como o personal cadastrou
+let agenda = null;      // { dias: "seg,qua,sex", por, atualizadoEm } — dias escolhidos para treinar
+let fichasVal = null;   // última leitura de fichas/{alunoId}
 let diaSel = null;      // "seg", "ter"...
 let exAberto = null;
 let ebooks = [];
@@ -119,6 +123,7 @@ function iniciarApp() {
     if (appIniciado) return;
     appIniciado = true;
     atualizarCabecalho();
+    if (cache?.agenda) agenda = cache.agenda;
     if (cache?.fichas !== undefined) aplicarFichas(cache.fichas);
     if (cache?.biblioteca) { ebooks = cache.biblioteca; desenharArquivos(); }
     if (cache?.pix !== undefined) { pix = cache.pix; precoPlano = cache.precoPlano || 0; desenharPix(); }
@@ -141,6 +146,7 @@ function ligarDados() {
     escutarFicha();
     escutarArquivos();
     carregarPix();
+    escutarAgenda();
     // Deixa "Meus dados" pronto antes de o aluno abrir
     buscarMeusDados().catch((e) => console.warn("Meus dados (pré-carga):", e));
 }
@@ -375,7 +381,7 @@ $("tr-pdf").addEventListener("click", async () => {
                 salvarCache({ inscricaoPdf: inscricao });
             }
         }
-        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=2");
+        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=4");
         await baixarFichaPDF({ aluno, ficha, inscricao });
     } catch (e) {
         console.error(e);
@@ -385,6 +391,76 @@ $("tr-pdf").addEventListener("click", async () => {
         botao.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Baixar ficha em PDF';
     }
 });
+
+/* =================== Dias de treino (agenda) =================== */
+// agendas/{alunoId}: o aluno (aqui) e o personal (no painel) escolhem em quais dias da semana treinar.
+let agEdit = null; // Set com os dias marcados no editor
+
+function escutarAgenda() {
+    onValue(ref(db, "agendas/" + aluno.id), (snap) => {
+        agenda = snap.val();
+        salvarCache({ agenda });
+        if (fichasVal !== null) aplicarFichas(fichasVal); else desenharAgenda();
+    }, (e) => console.warn("Agenda:", e));
+}
+
+function desenharAgenda() {
+    const bloco = $("ag-bloco");
+    if (!bloco) return;
+    bloco.hidden = !fichaBase;
+    if (!fichaBase) return;
+    const usando = agendaServe(fichaBase, agenda);
+    const ids = usando ? lerAgenda(agenda) : diasDaFicha(fichaBase).map((d) => d.id);
+    $("ag-atual").textContent = agendaTexto(ids);
+    $("ag-quem").textContent = usando
+        ? (agenda.por === "personal" ? "Definidos pelo Fagner" : "Escolhidos por você") + (agenda.atualizadoEm ? " em " + new Date(agenda.atualizadoEm).toLocaleDateString("pt-BR") : "")
+        : agenda?.dias ? "Os dias escolhidos não batem com a ficha nova; valem os dias do Fagner. Escolha de novo." : "Dias definidos na ficha pelo Fagner";
+    $("ag-padrao").hidden = !agenda?.dias;
+}
+
+function desenharEditorAgenda() {
+    const n = diasDaFicha(fichaBase).length;
+    $("ag-semana").innerHTML = DIAS.map((d) => `<button type="button" class="ag-dia" data-dia="${d.id}" aria-pressed="${agEdit.has(d.id)}" title="${d.nome}"><b>${d.letra}</b><small>${d.curto}</small></button>`).join("");
+    const falta = n - agEdit.size;
+    $("ag-dica").textContent = `A sua ficha tem ${n} ${n === 1 ? "treino" : "treinos"}: escolha ${n} ${n === 1 ? "dia" : "dias"} da semana. ` +
+        (falta > 0 ? `Falta${falta > 1 ? "m" : ""} ${falta}.` : falta < 0 ? `Tire ${-falta}.` : "Pronto!");
+    $("ag-salvar").disabled = falta !== 0;
+}
+
+$("ag-mudar").addEventListener("click", () => {
+    if (!fichaBase) return;
+    agEdit = new Set(agendaServe(fichaBase, agenda) ? lerAgenda(agenda) : diasDaFicha(fichaBase).map((d) => d.id));
+    $("ag-editor").hidden = false;
+    $("ag-mudar").hidden = true;
+    desenharEditorAgenda();
+});
+$("ag-semana").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-dia]");
+    if (!b) return;
+    if (agEdit.has(b.dataset.dia)) agEdit.delete(b.dataset.dia); else agEdit.add(b.dataset.dia);
+    desenharEditorAgenda();
+});
+function fecharEditorAgenda() { $("ag-editor").hidden = true; $("ag-mudar").hidden = false; }
+$("ag-cancelar").addEventListener("click", fecharEditorAgenda);
+
+async function gravarAgenda(valor, textoOk) {
+    try {
+        await semTempo(update(ref(db), { ["agendas/" + aluno.id]: valor }), 15000);
+        agenda = valor;
+        salvarCache({ agenda });
+        aplicarFichas(fichasVal ?? cache?.fichas ?? {});
+        fecharEditorAgenda();
+        aviso(textoOk, "ok");
+    } catch (e) {
+        console.error(e);
+        aviso(/permission/i.test(String(e?.code || e?.message)) ? "Não foi possível salvar os dias. Avise o Fagner." : "Não foi possível salvar agora. Verifique a sua internet.", "error");
+    }
+}
+$("ag-salvar").addEventListener("click", () => {
+    const ids = lerAgenda([...agEdit].join(","));
+    gravarAgenda({ dias: ids.join(","), por: "aluno", atualizadoEm: Date.now() }, "Pronto! Seus treinos agora caem em: " + agendaTexto(ids) + ".");
+});
+$("ag-padrao").addEventListener("click", () => gravarAgenda(null, "Voltou para os dias definidos pelo Fagner."));
 
 /* =================== Meus dados =================== */
 // O aluno edita o que informou na ficha de inscrição (inscricoes/{uid}): contato, endereço, corpo, treino e saúde.
@@ -873,8 +949,12 @@ function escutarFicha() {
 
 function aplicarFichas(val) {
     {
+        fichasVal = val;
         const lista = Object.entries(val || {}).map(([id, f]) => ({ id, ...f }));
-        ficha = fichaAtual(lista);
+        fichaBase = fichaAtual(lista);
+        // Dias escolhidos pelo aluno/personal: os treinos vão para esses dias
+        ficha = fichaBase ? aplicarAgenda(fichaBase, agenda) : null;
+        desenharAgenda();
         if (!ficha || !diasDaFicha(ficha).length) {
             ficha = null;
             $("treino-vazio").hidden = false;
@@ -910,6 +990,10 @@ function desenharFicha() {
     const feitos = lerFeitos();
 
     $("tr-dia-nome").textContent = dia.nome || "Treino";
+    // Grupamentos musculares do dia
+    const grupos = gruposDoDia(dia);
+    $("tr-grupos").hidden = !grupos.length;
+    $("tr-grupos").innerHTML = grupos.length ? '<i class="fa-solid fa-person-running"></i> ' + grupos.map((g) => `<span class="grupo">${esc(g)}</span>`).join("") : "";
     $("tr-sub").textContent = diaPorId(diaSel).nome + (diaSel === hoje ? " (hoje)" : "") + " · " + (ficha.nome || "Ficha de treino");
     $("tr-ficha-nome").textContent = ficha.nome || "Ficha de treino";
     $("tr-tags").innerHTML = [ficha.objetivo, ficha.nivel, dias.length + (dias.length === 1 ? " dia" : " dias") + " por semana"]
@@ -920,7 +1004,8 @@ function desenharFicha() {
     const ativos = new Set(dias.map((d) => d.id));
     $("tr-semana").innerHTML = DIAS.map((d) => {
         const treina = ativos.has(d.id);
-        return `<button type="button" class="sem-dia${d.id === diaSel ? " ativo" : ""}${d.id === hoje ? " hoje" : ""}" data-dia="${d.id}" ${treina ? "" : "disabled"} role="tab" aria-selected="${d.id === diaSel}" title="${d.nome}${treina ? "" : " — descanso"}">${d.letra}</button>`;
+        const gs = treina ? gruposTexto(gruposDoDia(dias.find((x) => x.id === d.id))) : "";
+        return `<button type="button" class="sem-dia${d.id === diaSel ? " ativo" : ""}${d.id === hoje ? " hoje" : ""}" data-dia="${d.id}" ${treina ? "" : "disabled"} role="tab" aria-selected="${d.id === diaSel}" title="${d.nome}${treina ? (gs ? " — " + esc(gs) : "") : " — descanso"}">${d.letra}</button>`;
     }).join("");
     $("tr-descanso").hidden = ativos.has(hoje);
     $("tr-descanso").innerHTML = '<i class="fa-solid fa-bed"></i> Hoje (' + diaPorId(hoje).nome.toLowerCase() + ") é dia de descanso. Abaixo está o treino de " + diaPorId(diaSel).nome.toLowerCase() + ".";
@@ -969,7 +1054,9 @@ function desenharInicio() {
     if (!ficha) $("tile-treino").textContent = "Aguardando sua ficha";
     else {
         const d = diasDaFicha(ficha).find((x) => x.id === hoje);
-        $("tile-treino").textContent = d ? "Hoje: " + (d.nome || "Treino") : "Hoje é dia de descanso";
+        // Hoje: os grupamentos que vai treinar (ou o nome do treino, se não der para saber)
+        const gs = d ? gruposTexto(gruposDoDia(d)) : "";
+        $("tile-treino").textContent = d ? "Hoje: " + (gs || d.nome || "Treino") : "Hoje é dia de descanso";
     }
     const semana = treinosDaSemana();
     $("tile-progresso").textContent = ficha ? semana.feitos + " de " + semana.planejados + " treinos na semana" : "Treinos e feedbacks";

@@ -545,3 +545,24 @@ body.modal-aberto { overflow: hidden; }
 .dados-form input:disabled { opacity: .6; cursor: not-allowed; }
 .dd-carregando { color: var(--muted); padding: 18px 0; }
 @media (max-width: 600px) { .dados-form .grid-2 { grid-template-columns: 1fr; } }
+
+/* Dias de treino escolhidos (agenda) */
+.ag-bloco { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ag-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ag-topo span { display: flex; flex-direction: column; min-width: 0; }
+.ag-topo small, .ag-quem { color: var(--muted); font-size: .76rem; }
+.ag-topo strong { font-size: 1rem; }
+.ag-editor { margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.ag-dica { font-size: .82rem; color: var(--muted); margin-bottom: 10px; }
+.ag-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ag-dia { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 10px; cursor: pointer;
+    background: var(--input); border: 1px solid var(--line); color: var(--muted); font: inherit; }
+.ag-dia b { font-size: .95rem; }
+.ag-dia small { font-size: .62rem; }
+.ag-dia[aria-pressed="true"] { background: linear-gradient(180deg, var(--red-2), var(--red)); color: var(--sobre-cor); border-color: transparent; }
+.ag-acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Grupamentos musculares do dia */
+.tr-grupos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; color: var(--muted); font-size: .8rem; }
+.tr-grupos i { color: var(--red-2); }
+.tr-grupos .grupo { padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: .76rem; color: var(--text); background: rgba(var(--red-rgb), .14); border: 1px solid rgba(var(--red-2-rgb), .3); }

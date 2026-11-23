@@ -154,6 +154,7 @@
                     <header class="ficha-head">
                         <h2 id="tr-dia-nome">Treino</h2>
                         <p id="tr-sub"></p>
+                        <p class="tr-grupos" id="tr-grupos" hidden></p>
                     </header>
                     <div class="ficha-semana" id="tr-semana" role="tablist" aria-label="Dias da semana"></div>
                     <p class="ficha-descanso" id="tr-descanso" hidden><i class="fa-solid fa-bed"></i> Hoje é dia de descanso. Escolha um dia de treino acima para ver os exercícios.</p>
@@ -170,6 +171,23 @@
                         <span class="info-l">Sua ficha</span>
                         <strong id="tr-ficha-nome">—</strong>
                         <div class="tags" id="tr-tags"></div>
+                    </div>
+                    <!-- Dias em que o aluno treina (o aluno e/ou o personal escolhem) -->
+                    <div class="info-bloco ag-bloco" id="ag-bloco">
+                        <div class="ag-topo">
+                            <span><small>Seus dias de treino</small><strong id="ag-atual"></strong></span>
+                            <button type="button" class="btn btn-ghost btn-sm" id="ag-mudar"><i class="fa-regular fa-calendar"></i> Mudar dias</button>
+                        </div>
+                        <small class="ag-quem" id="ag-quem"></small>
+                        <div class="ag-editor" id="ag-editor" hidden>
+                            <p class="ag-dica" id="ag-dica"></p>
+                            <div class="ag-semana" id="ag-semana"></div>
+                            <div class="ag-acoes">
+                                <button type="button" class="btn btn-primary btn-sm" id="ag-salvar" disabled>Salvar dias</button>
+                                <button type="button" class="btn btn-ghost btn-sm" id="ag-padrao" hidden>Voltar aos dias do personal</button>
+                                <button type="button" class="btn btn-ghost btn-sm" id="ag-cancelar">Cancelar</button>
+                            </div>
+                        </div>
                     </div>
                     <button type="button" class="btn btn-primary ficha-pdf-btn" id="tr-pdf"><i class="fa-solid fa-file-pdf"></i> Baixar ficha em PDF</button>
                     <div class="info-bloco" id="tr-obs-bloco" hidden>

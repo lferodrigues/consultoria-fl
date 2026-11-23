@@ -97,3 +97,30 @@ export function textoTroca(dias) {
     if (dias === 0) return "vence hoje";
     return "venceu há " + -dias + (dias === -1 ? " dia" : " dias");
 }
+
+/* ---------- Dias escolhidos para treinar (agenda) ----------
+   agendas/{alunoId} -> { dias: "seg,qua,sex", por: "aluno" | "personal", atualizadoEm }
+   O aluno e/ou o personal escolhem EM QUAIS dias da semana o aluno treina. Os treinos da ficha
+   (na ordem da semana: 1º, 2º, 3º...) passam para os dias escolhidos, na mesma ordem.
+   Só vale quando a quantidade de dias escolhidos é igual à quantidade de treinos da ficha. */
+export function lerAgenda(agenda) {
+    const ids = String(agenda?.dias ?? agenda ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+    const unicos = [...new Set(ids)].filter((id) => DIAS.some((d) => d.id === id));
+    return DIAS.map((d) => d.id).filter((id) => unicos.includes(id)); // na ordem da semana
+}
+export const agendaTexto = (ids) => ids.map((id) => diaPorId(id).curto).join(" · ");
+
+export function agendaServe(ficha, agenda) {
+    const ids = lerAgenda(agenda);
+    return !!ficha && ids.length > 0 && ids.length === diasDaFicha(ficha).length;
+}
+
+// Ficha com os treinos movidos para os dias escolhidos (sem mudar nada no banco)
+export function aplicarAgenda(ficha, agenda) {
+    if (!agendaServe(ficha, agenda)) return ficha;
+    const treinos = diasDaFicha(ficha);
+    const ids = lerAgenda(agenda);
+    const dias = {};
+    ids.forEach((id, i) => { dias[id] = ficha.dias[treinos[i].id]; });
+    return { ...ficha, dias, agenda: ids.join(",") };
+}

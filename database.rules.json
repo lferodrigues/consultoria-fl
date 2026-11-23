@@ -373,6 +373,27 @@
         ".write": "!data.exists() && auth != null && newData.parent().parent().child('avaliacoes').child($id).child('uid').val() == auth.uid",
         ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length < 1500000"
       }
+    },
+    "agendas": {
+      ".read": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      ".write": "auth != null && auth.token.email == 'contato@fagnerlage.com.br'",
+      "$alunoId": {
+        ".read": "auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == $alunoId",
+        ".write": "auth != null && auth.token.email != null && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('aluno').val() == $alunoId && root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('ativo').val() != false && !root.child('emails').child(auth.token.email.toLowerCase().replace('.', ',')).child('bloqueado').exists() && (!newData.exists() || newData.child('por').val() == 'aluno')",
+        ".validate": "newData.hasChildren(['dias', 'por', 'atualizadoEm'])",
+        "dias": {
+          ".validate": "newData.isString() && newData.val().matches(/^(seg|ter|qua|qui|sex|sab|dom)(,(seg|ter|qua|qui|sex|sab|dom)){0,6}$/)"
+        },
+        "por": {
+          ".validate": "newData.isString() && (newData.val() == 'aluno' || newData.val() == 'personal')"
+        },
+        "atualizadoEm": {
+          ".validate": "newData.isNumber()"
+        },
+        "$outro": {
+          ".validate": false
+        }
+      }
     }
   }
 }

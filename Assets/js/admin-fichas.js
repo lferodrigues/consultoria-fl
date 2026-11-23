@@ -4,7 +4,7 @@
 import { ref, push, update, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db, hojeISO } from "./firebase-app.js?v=2";
 import { situacao, dataBR } from "./alunos-util.js?v=2";
-import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS } from "./fichas-util.js?v=2";
+import { DIAS, diaPorId, PADRAO_DIAS, diasDaFicha, exerciciosDe, ordenarFichas, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS, lerAgenda, agendaTexto, agendaServe } from "./fichas-util.js?v=3";
 import { CATEGORIAS, categoriaPorId } from "./exercicios-dados.js?v=1";
 import { $, estado, aoMudar, esc, aviso, abrirModal, fecharModal, confirmar, mensagemErro, ocupado } from "./admin-core.js?v=1";
 import { daAluno, foneWhats } from "./admin-inscricoes.js?v=6";
@@ -181,6 +181,7 @@ function corpoAluno(a, fichas, fbs) {
         <div class="hist-acoes">
             <button type="button" class="btn btn-primary btn-sm" data-acao="nova" data-aluno="${a.id}"><i class="fa-solid fa-plus"></i> Nova ficha para ${esc(a.nome.split(" ")[0])}</button>
         </div>
+        ${blocoAgenda(a, fichas[0])}
         ${fichas.length ? `
         <div class="table-card inner">
             <table class="table">
@@ -208,6 +209,69 @@ function acaoHistorico(ev) {
         case "editar": if (ficha) abrir(ficha); break;
         case "duplicar": if (ficha) abrir({ ...ficha, id: null, nome: (ficha.nome || "Ficha") + " (nova)", inicio: hojeISO() }, null, true); break;
         case "excluir": if (ficha) excluir(ficha); break;
+        case "ag-editar": agEdit[alunoId] = new Set(diasEfetivos(alunoId)); desenhar(); break;
+        case "ag-dia": {
+            const set = agEdit[alunoId];
+            if (set) { if (set.has(b.dataset.dia)) set.delete(b.dataset.dia); else set.add(b.dataset.dia); desenhar(); }
+            break;
+        }
+        case "ag-cancelar": delete agEdit[alunoId]; desenhar(); break;
+        case "ag-salvar": salvarAgenda(alunoId, lerAgenda([...(agEdit[alunoId] || [])].join(","))); break;
+        case "ag-limpar": salvarAgenda(alunoId, null); break;
+    }
+}
+
+/* ---------- Dias de treino do aluno (agenda) ----------
+   agendas/{alunoId} -> { dias: "seg,qua,sex", por: "aluno" | "personal", atualizadoEm }
+   O aluno escolhe na área dele; aqui o Fagner vê, muda ou volta para os dias da ficha. */
+const agEdit = {}; // alunoId -> Set dos dias marcados no editor
+const agendaDe = (alunoId) => (estado.agendas || []).find((x) => x.id === alunoId) || null;
+function diasEfetivos(alunoId) {
+    const f = fichasDoAluno(alunoId)[0];
+    const ag = agendaDe(alunoId);
+    return f && agendaServe(f, ag) ? lerAgenda(ag) : f ? diasDaFicha(f).map((d) => d.id) : [];
+}
+
+function blocoAgenda(a, atual) {
+    if (!atual) return "";
+    const ag = agendaDe(a.id);
+    const vale = agendaServe(atual, ag);
+    const n = diasDaFicha(atual).length;
+    const quem = vale
+        ? `${ag.por === "aluno" ? "Escolhidos pelo aluno" : "Definidos por você"}${ag.atualizadoEm ? " em " + new Date(ag.atualizadoEm).toLocaleDateString("pt-BR") : ""}`
+        : ag?.dias ? "O aluno escolheu dias que não batem com a ficha atual; valem os dias da ficha." : "Dias da ficha atual";
+    const ed = agEdit[a.id];
+    const editor = ed ? `
+        <div class="ag-adm-editor">
+            <span class="mini-semana grande">${DIAS.map((d) => `<button type="button" class="${ed.has(d.id) ? "on" : ""}" data-acao="ag-dia" data-aluno="${a.id}" data-dia="${d.id}" title="${d.nome}">${d.letra}</button>`).join("")}</span>
+            <small>${ed.size === n ? "Pronto!" : `Escolha ${n} ${n === 1 ? "dia" : "dias"} (um para cada treino da ficha) · ${ed.size} de ${n}`}</small>
+            <div class="ag-adm-acoes">
+                <button type="button" class="btn btn-primary btn-sm" data-acao="ag-salvar" data-aluno="${a.id}" ${ed.size === n ? "" : "disabled"}>Salvar dias</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-acao="ag-cancelar" data-aluno="${a.id}">Cancelar</button>
+            </div>
+        </div>` : "";
+    return `
+    <div class="ag-adm">
+        <div class="ag-adm-topo">
+            <span><i class="fa-regular fa-calendar"></i> <strong>Dias de treino:</strong> ${esc(agendaTexto(diasEfetivos(a.id)))} <small>${esc(quem)}</small></span>
+            ${ed ? "" : `<span class="ag-adm-btns">
+                <button type="button" class="btn btn-ghost btn-sm" data-acao="ag-editar" data-aluno="${a.id}">Mudar dias</button>
+                ${ag?.dias ? `<button type="button" class="btn btn-ghost btn-sm" data-acao="ag-limpar" data-aluno="${a.id}">Voltar aos dias da ficha</button>` : ""}
+            </span>`}
+        </div>
+        ${editor}
+    </div>`;
+}
+
+async function salvarAgenda(alunoId, ids) {
+    const valor = ids && ids.length ? { dias: ids.join(","), por: "personal", atualizadoEm: Date.now() } : null;
+    try {
+        await update(ref(db), { ["agendas/" + alunoId]: valor });
+        delete agEdit[alunoId];
+        aviso(valor ? "Dias de treino salvos: " + agendaTexto(ids) + "." : "O aluno volta a treinar nos dias da ficha.", "ok");
+    } catch (e) {
+        console.error(e);
+        aviso(mensagemErro(e, "Não foi possível salvar os dias."), "error");
     }
 }
 
@@ -522,7 +586,9 @@ function lerDia(diaId) {
     const painel = paineis.get(diaId);
     const exercicios = [...painel.querySelectorAll(".ex-row")].map((l) => {
         const v = (c) => l.querySelector(`[data-c="${c}"]`).value.trim();
-        return { nome: v("nome"), series: v("series"), reps: v("reps"), carga: v("carga"), descanso: v("descanso"), video: v("video"), obs: v("obs") };
+        // Grupo muscular: o da biblioteca de exercícios (mostrado ao aluno e no PDF)
+        const daBib = estado.exercicios.find((x) => norm(x.nome) === norm(v("nome")));
+        return { nome: v("nome"), series: v("series"), reps: v("reps"), carga: v("carga"), descanso: v("descanso"), video: v("video"), obs: v("obs"), categoria: daBib?.categoria || "" };
     }).filter((e) => e.nome);
     return { nome: painel.querySelector('[data-c="dia-nome"]').value.trim(), exercicios };
 }

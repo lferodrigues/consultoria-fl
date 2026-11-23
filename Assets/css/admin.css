@@ -248,3 +248,16 @@ option { background: var(--card); }
 .in-trocar-linha select { flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; outline: none; }
 .in-trocar-linha select:focus { border-color: var(--red-2); }
 .in-trocar-plano small { color: var(--muted); font-size: .76rem; line-height: 1.4; }
+
+/* Treinos > aluno: dias de treino escolhidos */
+.ag-adm { margin: 4px 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--input); border: 1px solid var(--line); }
+.ag-adm-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ag-adm-topo i { color: var(--red-2); margin-right: 4px; }
+.ag-adm-topo small { display: block; color: var(--muted); font-size: .76rem; margin-top: 2px; }
+.ag-adm-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ag-adm-editor { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.ag-adm-editor small { color: var(--muted); font-size: .78rem; }
+.ag-adm-acoes { display: flex; gap: 8px; }
+.mini-semana.grande { display: inline-flex; gap: 6px; }
+.mini-semana.grande button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); color: var(--muted); font-weight: 800; cursor: pointer; }
+.mini-semana.grande button.on { background: linear-gradient(180deg, var(--red-2), var(--red)); color: var(--sobre-cor, #fff); border-color: transparent; }
