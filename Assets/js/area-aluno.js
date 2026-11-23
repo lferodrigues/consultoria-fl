@@ -6,7 +6,7 @@ import { auth, db, ehAdmin, chaveEmail, hojeISO, PAGINAS } from "./firebase-app.
 import { situacao, diasEntre, dataBR, moeda, tamanhoArquivo } from "./alunos-util.js?v=2";
 import { DIAS, diaPorId, diaDeHoje, diasDaFicha, exerciciosDe, resumoExercicio, fichaAtual, idYoutube, ESFORCO, trocaDaFicha, diasParaTroca, textoTroca, AVISO_TROCA_DIAS, lerAgenda, agendaTexto, agendaServe, aplicarAgenda } from "./fichas-util.js?v=3";
 import { TIPOS_PIX, chaveFormatada, pixCopiaECola } from "./pix-util.js?v=1";
-import { gruposDoDia, gruposTexto } from "./grupos-util.js?v=1";
+import { gruposDoDia, gruposTexto, grupoDe, definirBiblioteca } from "./grupos-util.js?v=2";
 import { mostrarAcessoNegado } from "./acesso-negado.js?v=1";
 import { navegar } from "./spa-nav.js?v=1";
 import { canvasParaImagem } from "./imagem-webp.js?v=1";
@@ -124,6 +124,7 @@ function iniciarApp() {
     appIniciado = true;
     atualizarCabecalho();
     if (cache?.agenda) agenda = cache.agenda;
+    if (cache?.gruposBib) definirBiblioteca(cache.gruposBib);
     if (cache?.fichas !== undefined) aplicarFichas(cache.fichas);
     if (cache?.biblioteca) { ebooks = cache.biblioteca; desenharArquivos(); }
     if (cache?.pix !== undefined) { pix = cache.pix; precoPlano = cache.precoPlano || 0; desenharPix(); }
@@ -147,6 +148,7 @@ function ligarDados() {
     escutarArquivos();
     carregarPix();
     escutarAgenda();
+    escutarGruposBiblioteca();
     // Deixa "Meus dados" pronto antes de o aluno abrir
     buscarMeusDados().catch((e) => console.warn("Meus dados (pré-carga):", e));
 }
@@ -381,7 +383,7 @@ $("tr-pdf").addEventListener("click", async () => {
                 salvarCache({ inscricaoPdf: inscricao });
             }
         }
-        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=4");
+        const { baixarFichaPDF } = await import("./ficha-pdf.js?v=5");
         await baixarFichaPDF({ aluno, ficha, inscricao });
     } catch (e) {
         console.error(e);
@@ -402,6 +404,17 @@ function escutarAgenda() {
         salvarCache({ agenda });
         if (fichasVal !== null) aplicarFichas(fichasVal); else desenharAgenda();
     }, (e) => console.warn("Agenda:", e));
+}
+
+// Grupamento muscular de cada exercício, como está salvo na biblioteca do painel (exercicios/{id}.categoria)
+function escutarGruposBiblioteca() {
+    onValue(ref(db, "exercicios"), (snap) => {
+        const lista = [];
+        snap.forEach((c) => { const v = c.val() || {}; if (v.nome && v.categoria) lista.push({ nome: v.nome, categoria: v.categoria }); });
+        definirBiblioteca(lista);
+        salvarCache({ gruposBib: lista });
+        if (fichasVal !== null) aplicarFichas(fichasVal);
+    }, (e) => console.warn("Biblioteca de exercícios:", e));
 }
 
 function desenharAgenda() {
@@ -1010,15 +1023,16 @@ function desenharFicha() {
     $("tr-descanso").hidden = ativos.has(hoje);
     $("tr-descanso").innerHTML = '<i class="fa-solid fa-bed"></i> Hoje (' + diaPorId(hoje).nome.toLowerCase() + ") é dia de descanso. Abaixo está o treino de " + diaPorId(diaSel).nome.toLowerCase() + ".";
 
-    $("tr-lista").innerHTML = ex.map((e, i) => `
+    $("tr-lista").innerHTML = ex.map((e, i) => { const g = grupoDe(e); return `
         <li class="${feitos.has(i) ? "feito" : ""}">
             <button type="button" class="ex-abrir" data-i="${i}" aria-label="Ver vídeo de ${esc(e.nome)}">
                 <strong>${esc(e.nome)}</strong>
                 <small>${esc([resumoExercicio(e), e.carga].filter(Boolean).join(" · ")) || "Toque para ver os detalhes"}</small>
+                ${g ? `<span class="ex-grupo"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> ${esc(g)}</span>` : ""}
                 ${e.video ? '<i class="fa-solid fa-circle-play ex-play" aria-hidden="true"></i>' : ""}
             </button>
             <button type="button" class="ex-check" data-i="${i}" aria-pressed="${feitos.has(i)}" aria-label="${feitos.has(i) ? "Desmarcar" : "Marcar"} ${esc(e.nome)} como feito"><i class="fa-solid fa-check"></i></button>
-        </li>`).join("");
+        </li>`; }).join("");
 
     const pct = ex.length ? Math.round((feitos.size / ex.length) * 100) : 0;
     $("tr-barra").style.width = pct + "%";

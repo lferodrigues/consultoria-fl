@@ -5,7 +5,7 @@
 // Usa a biblioteca pdf-lib (Assets/js/vendor), carregada só quando o aluno pede o PDF.
 // Não usa Firebase: recebe os dados prontos.
 import { diasDaFicha, exerciciosDe, diaPorId } from "./fichas-util.js?v=3";
-import { grupoDe } from "./grupos-util.js?v=1";
+import { grupoDe } from "./grupos-util.js?v=2";
 
 // Dados do personal no cabeçalho (preencha o CREF para ele aparecer)
 const PERSONAL = { nome: "Fagner Lage", titulo: "Fagner Lage - Personal Trainer", cref: "" };

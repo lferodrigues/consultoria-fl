@@ -85,7 +85,12 @@ body.modal-aberto { overflow: hidden; }
 }
 .ex-abrir strong { grid-column: 1; font-size: .98rem; font-weight: 800; }
 .ex-abrir small { grid-column: 1; color: var(--muted); font-size: .82rem; margin-top: 2px; }
-.ex-play { grid-column: 2; grid-row: 1 / 3; color: rgba(255, 255, 255, .35); font-size: 1.1rem; }
+.ex-grupo {
+    grid-column: 1; justify-self: start; margin-top: 7px; padding: 2px 9px; border-radius: 999px;
+    font-size: .72rem; font-weight: 700; color: var(--text); background: rgba(var(--red-rgb), .14); border: 1px solid rgba(var(--red-2-rgb), .3);
+}
+.ex-grupo i { color: var(--red-2); font-size: .68rem; margin-right: 3px; }
+.ex-play { grid-column: 2; grid-row: 1 / 4; color: rgba(255, 255, 255, .35); font-size: 1.1rem; }
 .ex-abrir:hover .ex-play { color: var(--red-2); }
 .ex-check {
     flex-shrink: 0; width: 28px; height: 28px; margin-right: 16px; border-radius: 50%; cursor: pointer;
